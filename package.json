@@ -1,0 +1,39 @@
+{
+  "name": "agrioptimizer-taiwan",
+  "version": "1.0.0",
+  "description": "Agricultural decision support system for Taiwanese farmers",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed": "node init/seedAll.js"
+  },
+  "keywords": [
+    "agriculture",
+    "taiwan",
+    "farming",
+    "crop-recommendation"
+  ],
+  "author": "Neeraj Kumar",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^5.1.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.19.0",
+    "i18n": "^0.15.1",
+    "method-override": "^3.0.0",
+    "mongoose": "^7.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

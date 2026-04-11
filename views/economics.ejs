@@ -1,0 +1,247 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item active">Economics Calculator</li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+  
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-5 fw-bold text-success">
+        <i class="bi bi-calculator me-2"></i>Profitability Calculator
+      </h1>
+      <p class="lead text-muted">5-Year Financial Projection for Your Farm</p>
+    </div>
+  </div>
+
+  <div class="card shadow-lg mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">Select Crop & Land Size</h5>
+    </div>
+    <div class="card-body">
+      <form method="GET" action="/economics">
+        <div class="row g-3">
+          <div class="col-md-5">
+            <label class="form-label fw-bold">Select Crop</label>
+            <select name="crop" id="cropSelect" class="form-select form-select-lg">
+              <option value="">-- Choose a Crop --</option>
+              <optgroup label="Regular Crops">
+                <% allCrops.forEach(crop => { %>
+                  <option value="<%= crop._id %>" <%= selectedCrop && selectedCrop._id.toString() == crop._id.toString() ? 'selected' : '' %>>
+                    <%= crop.name_en %> (<%= crop.name_zh %>)
+                  </option>
+                <% }); %>
+              </optgroup>
+              <optgroup label="Coffee Varieties">
+                <% allCoffee.forEach(coffee => { %>
+                  <option value="coffee-<%= coffee._id %>" data-coffee="<%= coffee._id %>">
+                    <%= coffee.varietyName %> (<%= coffee.varietyName_zh %>)
+                  </option>
+                <% }); %>
+              </optgroup>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Land Size (hectares)</label>
+            <input type="number" name="landSize" class="form-control form-control-lg" 
+                   min="0.1" max="100" step="0.1" value="<%= landSize %>" 
+                   placeholder="1.0">
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-success btn-lg w-100">
+              <i class="bi bi-calculator-fill me-2"></i>Calculate
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if (isCalculated && projection) { %>
+
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm border-primary">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">5-Year Revenue</h6>
+          <h3 class="text-primary">NT$<%= projection.summary.totalRevenue.toLocaleString() %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm border-danger">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Total Costs</h6>
+          <h3 class="text-danger">NT$<%= projection.summary.totalCosts.toLocaleString() %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm <%= projection.summary.totalProfit >= 0 ? 'border-success' : 'border-warning' %>">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Net Profit</h6>
+          <h3 class="<%= projection.summary.totalProfit >= 0 ? 'text-success' : 'text-warning' %>">
+            NT$<%= projection.summary.totalProfit.toLocaleString() %>
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm border-info">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">ROI</h6>
+          <h3 class="text-info"><%= projection.summary.roi %>%</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <h6 class="fw-bold mb-2"><%= projection.cropInfo.name %> (<%= projection.cropInfo.nameZh %>)</h6>
+    <div class="row small">
+      <div class="col-md-3"><strong>Land Size:</strong> <%= landSize %> hectares</div>
+      <div class="col-md-3"><strong>Category:</strong> <%= projection.cropInfo.category %></div>
+      <div class="col-md-3"><strong>Yield:</strong> <%= projection.cropInfo.yieldPerHa %> kg/ha</div>
+      <div class="col-md-3"><strong>Price Range:</strong> <%= projection.cropInfo.priceRange %></div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">📈 Cumulative Profit Over 5 Years</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="profitChart" height="250" 
+                  data-labels="<%= JSON.stringify(projection.years.map(y => 'Year ' + y.year)) %>" 
+                  data-data="<%= JSON.stringify(projection.years.map(y => y.cumulativeProfit)) %>"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">📊 Annual Revenue vs Costs</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="revenueChart" height="250" 
+                  data-labels="<%= JSON.stringify(projection.years.map(y => 'Year ' + y.year)) %>" 
+                  data-revenue="<%= JSON.stringify(projection.years.map(y => y.revenue)) %>" 
+                  data-costs="<%= JSON.stringify(projection.years.map(y => y.totalCosts)) %>"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">Year-by-Year Breakdown</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Year</th>
+              <th class="text-end">Revenue</th>
+              <th class="text-end">Operating Cost</th>
+              <th class="text-end">Investment</th>
+              <th class="text-end">Total Cost</th>
+              <th class="text-end">Annual Profit</th>
+              <th class="text-end">Cumulative Profit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% projection.years.forEach(year => { %>
+            <tr>
+              <td><strong>Year <%= year.year %></strong></td>
+              <td class="text-end text-primary">NT$<%= year.revenue.toLocaleString() %></td>
+              <td class="text-end text-danger">NT$<%= year.operatingCost.toLocaleString() %></td>
+              <td class="text-end text-warning"><%= year.investmentCost > 0 ? 'NT$' + year.investmentCost.toLocaleString() : '-' %></td>
+              <td class="text-end text-danger fw-bold">NT$<%= year.totalCosts.toLocaleString() %></td>
+              <td class="text-end <%= year.annualProfit >= 0 ? 'text-success' : 'text-danger' %> fw-bold">
+                <%= year.annualProfit >= 0 ? '+' : '' %>NT$<%= year.annualProfit.toLocaleString() %>
+              </td>
+              <td class="text-end <%= year.cumulativeProfit >= 0 ? 'text-success' : 'text-danger' %> fw-bold">
+                <%= year.cumulativeProfit >= 0 ? '+' : '' %>NT$<%= year.cumulativeProfit.toLocaleString() %>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+          <tfoot class="table-secondary">
+            <tr class="fw-bold">
+              <td>TOTAL (5 Years)</td>
+              <td class="text-end text-primary">NT$<%= projection.summary.totalRevenue.toLocaleString() %></td>
+              <td colspan="2"></td>
+              <td class="text-end text-danger">NT$<%= projection.summary.totalCosts.toLocaleString() %></td>
+              <td colspan="1"></td>
+              <td class="text-end <%= projection.summary.totalProfit >= 0 ? 'text-success' : 'text-danger' %>">
+                <%= projection.summary.totalProfit >= 0 ? '+' : '' %>NT$<%= projection.summary.totalProfit.toLocaleString() %>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm border-info">
+        <div class="card-header bg-info bg-opacity-10">
+          <h6 class="mb-0">💡 Key Insights</h6>
+        </div>
+        <div class="card-body">
+          <ul class="mb-0">
+            <li><strong>Break-Even:</strong> Year <%= projection.summary.breakEvenYear %></li>
+            <li><strong>Average Annual Profit:</strong> NT$<%= projection.summary.avgAnnualProfit.toLocaleString() %></li>
+            <li><strong>Return on Investment:</strong> <%= projection.summary.roi %>% over 5 years</li>
+            <li><strong>Total Land:</strong> <%= landSize %> hectare(s)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm border-warning">
+        <div class="card-header bg-warning bg-opacity-10">
+          <h6 class="mb-0">⚠️ Considerations</h6>
+        </div>
+        <div class="card-body">
+          <ul class="mb-0 small">
+            <li>Projections assume average market prices</li>
+            <li>Weather and climate variations not accounted for</li>
+            <li>Actual yields may vary based on farming practices</li>
+            <li>Market prices fluctuate seasonally</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <% } else { %>
+  
+  <div class="text-center py-5">
+    <i class="bi bi-calculator text-muted" style="font-size: 5rem;"></i>
+    <h4 class="text-muted mt-3">Select a crop and land size to calculate profitability</h4>
+    <p class="text-muted">Get a detailed 5-year financial projection with charts and insights</p>
+  </div>
+
+  <% } %>
+
+</div>
+
+<script>
+document.getElementById('cropSelect')?.addEventListener('change', function(e) {
+  const selected = e.target.options[e.target.selectedIndex];
+  if (selected.dataset.coffee) {
+    const form = e.target.closest('form');
+    form.action = '/economics?coffee=' + selected.dataset.coffee;
+    e.target.removeAttribute('name');
+  }
+});
+</script>

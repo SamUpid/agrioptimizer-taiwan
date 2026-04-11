@@ -1,0 +1,416 @@
+{
+  "app": {
+    "name": "台灣農業優化系統",
+    "tagline": "台灣山區的智慧農業"
+  },
+  
+  "nav": {
+    "home": "首頁",
+    "location": "位置",
+    "crops": "作物",
+    "coffee": "咖啡",
+    "economics": "經濟分析",
+    "language": "語言"
+  },
+  
+  "home": {
+    "hero": {
+      "badge": "AI 驅動農業",
+      "title": "台灣山區的",
+      "titleHighlight": "智慧農業",
+      "subtitle": "為山區農民提供數據驅動的作物建議。分析氣候、最大化利潤、可持續發展。",
+      "ctaStart": "開始使用",
+      "ctaBrowse": "瀏覽作物"
+    },
+    "stats": {
+      "crops": "作物品種",
+      "coffee": "咖啡類型",
+      "accuracy": "準確率",
+      "climate": "氣候分析"
+    },
+    "features": {
+      "title": "為什麼選擇農業優化系統？",
+      "subtitle": "做出明智農業決策所需的一切",
+      "climate": {
+        "title": "氣候分析",
+        "description": "由 Open-Meteo API 提供支持的超本地天氣數據。獲取專屬於您山區位置的溫度、降雨量和海拔高度洞察。",
+        "link": "探索氣候數據"
+      },
+      "recommendations": {
+        "title": "智能推薦",
+        "description": "AI 驅動的適配性算法，根據您的氣候條件分析 30 多種作物。",
+        "link": "查看作物"
+      },
+      "roi": {
+        "title": "投資報酬率預測",
+        "description": "5 年利潤計算器，包含損益平衡分析和投資規劃。",
+        "totalProfit": "總利潤（5年）",
+        "link": "立即計算"
+      },
+      "coffee": {
+        "title": "咖啡專業知識",
+        "description": "7 種精品咖啡的海拔專業分析",
+        "link": "了解更多"
+      },
+      "bilingual": {
+        "title": "雙語支持",
+        "description": "完整的英文和繁體中文"
+      }
+    },
+    "howItWorks": {
+      "title": "如何運作",
+      "subtitle": "三個簡單步驟優化您的農場",
+      "step1": {
+        "title": "選擇位置",
+        "description": "在地圖上標記您的農場。我們將分析您的海拔、緯度和微氣候。"
+      },
+      "step2": {
+        "title": "查看氣候數據",
+        "description": "查看您所在位置的詳細溫度、降雨模式和季節變化。"
+      },
+      "step3": {
+        "title": "獲取推薦",
+        "description": "發現最適合您農場的作物，附帶適配性分數和利潤預測。"
+      }
+    },
+    "cta": {
+      "title": "準備好優化您的農場了嗎？",
+      "description": "加入數百名台灣山區農民，做出數據驅動的決策",
+      "button": "立即開始"
+    }
+  },
+  
+  "location": {
+    "title": "選擇您的農場位置",
+    "subtitle": "在地圖上標記您的農場以獲得個性化作物推薦",
+    "searchPlaceholder": "搜索位置...",
+    "currentLocation": "使用當前位置",
+    "selectedLocation": "已選位置",
+    "latitude": "緯度",
+    "longitude": "經度",
+    "elevation": "海拔",
+    "confirm": "確認位置",
+    "next": "繼續進行氣候分析",
+    "howToUse": "如何選擇位置",
+    "step1": "點擊地圖放置標記",
+    "step2": "拖動標記調整位置",
+    "step3": "查看海拔數據",
+    "step4": "點擊確認位置保存",
+    "mapHelp": "點擊地圖放置標記 · 拖動標記調整位置",
+    "addressLabel": "地址",
+    "coordLabel": "座標",
+    "manualEntry": "手動輸入",
+    "fetchElevationBtn": "獲取海拔數據",
+    "readyMessage": "您的農場位置已保存。準備查看氣候數據？"
+  },
+  
+  "climate": {
+    "title": "氣候分析",
+    "subtitle": "針對",
+    "temperature": {
+      "title": "溫度",
+      "annual": "年平均",
+      "monthly": "月度溫度",
+      "min": "最低",
+      "max": "最高"
+    },
+    "rainfall": {
+      "title": "降雨量",
+      "annual": "年總量",
+      "monthly": "月度降雨量"
+    },
+    "summary": {
+      "title": "氣候摘要",
+      "avgTemp": "平均溫度",
+      "totalRainfall": "年總降雨量",
+      "elevation": "海拔高度",
+      "suitable": "適合山區作物"
+    },
+    "next": "查看作物推薦"
+  },
+  
+  "crops": {
+    "title": "作物推薦",
+    "subtitle": "基於",
+    "searchPlaceholder": "按名稱搜索作物（中文或英文）...",
+    "search": "搜索",
+    "clear": "清除",
+    "resultsFor": "顯示結果",
+    "resultsCount": "種作物",
+    "compare": "選擇作物進行比較",
+    "selected": "已選",
+    "compareButton": "比較所選",
+    "topRecommendations": "頂級推薦",
+    "allCrops": "所有作物",
+    "filterBy": "按類別篩選",
+    "sortBy": "排序方式",
+    "categories": {
+      "all": "所有類別",
+      "fruit": "水果",
+      "vegetable": "蔬菜",
+      "herb": "香草",
+      "specialty": "特色作物"
+    },
+    "sorting": {
+      "suitability": "適配性分數",
+      "roi": "投資報酬率",
+      "price": "市場價格"
+    },
+    "suitability": {
+      "excellent": "極佳",
+      "suitable": "適合",
+      "moderate": "中等適合",
+      "challenging": "具挑戰性"
+    },
+    "viewDetails": "查看詳情",
+    "noResults": "未找到符合您搜索的作物"
+  },
+  
+  "cropDetail": {
+    "backToCrops": "返回作物",
+    "calculateProfitability": "計算盈利能力",
+    "suitability": {
+      "title": "您的農場適配性",
+      "temperature": "溫度匹配",
+      "rainfall": "降雨量匹配",
+      "elevation": "海拔匹配",
+      "market": "市場因素"
+    },
+    "growing": {
+      "title": "種植要求",
+      "temperature": "溫度",
+      "rainfall": "降雨量",
+      "elevation": "海拔",
+      "soilPH": "土壤酸鹼度",
+      "difficulty": "難度"
+    },
+    "economics": {
+      "title": "經濟數據",
+      "marketPrice": "市場價格",
+      "expectedYield": "預期產量",
+      "investment": "投資",
+      "operatingCost": "營運成本",
+      "roi": "投資報酬率"
+    },
+    "timeline": {
+      "title": "生長時間表",
+      "plantingSeason": "種植季節",
+      "daysToMaturity": "成熟天數",
+      "harvestSeason": "收穫季節",
+      "yieldPeriod": "產期",
+      "days": "天"
+    },
+    "bestPractices": {
+      "title": "最佳實踐"
+    },
+    "pests": {
+      "title": "常見病蟲害"
+    },
+    "companion": {
+      "title": "伴生種植",
+      "description": "這些作物與",
+      "loading": "正在加載伴生作物...",
+      "noData": "此作物暫無伴生種植數據。",
+      "benefits": "益處",
+      "spacing": "間距",
+      "notes": "注意事項"
+    }
+  },
+  
+  "coffee": {
+    "title": "咖啡品種",
+    "subtitle": "台灣山區精品咖啡分析",
+    "elevationInfo": "您的海拔",
+    "bestMatch": "最適合您海拔的品種",
+    "allVarieties": "所有咖啡品種",
+    "viewDetails": "查看詳情"
+  },
+  
+  "coffeeDetail": {
+    "backToCoffee": "返回咖啡品種",
+    "calculateProfitability": "計算盈利能力",
+    "elevation": {
+      "title": "海拔要求",
+      "optimal": "最佳範圍",
+      "yourElevation": "您的海拔",
+      "perfectMatch": "完美匹配",
+      "tooLow": "過低",
+      "aboveOptimal": "高於最佳"
+    },
+    "growing": {
+      "title": "種植信息",
+      "treesPerHa": "每公頃樹數",
+      "yieldPerTree": "每棵樹產量",
+      "yearsToFirstHarvest": "首次收穫年數",
+      "productiveYears": "生產年限",
+      "diseaseResistance": "抗病性"
+    },
+    "cupProfile": {
+      "title": "杯測特徵",
+      "quality": "杯測品質範圍",
+      "points": "分",
+      "flavorNotes": "風味特徵"
+    },
+    "processing": {
+      "title": "處理方法"
+    },
+    "harvest": {
+      "title": "收穫日曆",
+      "months": "收穫月份"
+    },
+    "qualityTips": {
+      "title": "品質建議"
+    }
+  },
+  
+  "economics": {
+    "title": "盈利能力計算器",
+    "subtitle": "您農場的 5 年財務預測",
+    "selectCrop": "選擇作物",
+    "chooseCrop": "-- 選擇作物 --",
+    "regularCrops": "常規作物",
+    "coffeeVarieties": "咖啡品種",
+    "landSize": "土地面積（公頃）",
+    "calculate": "計算",
+    "summary": {
+      "fiveYearRevenue": "5 年收入",
+      "totalCosts": "總成本",
+      "netProfit": "淨利潤",
+      "roi": "投資報酬率"
+    },
+    "cropInfo": {
+      "landSize": "土地面積",
+      "category": "類別",
+      "yield": "產量",
+      "priceRange": "價格範圍",
+      "hectares": "公頃"
+    },
+    "charts": {
+      "cumulativeProfit": "5 年累計利潤",
+      "revenueVsCosts": "年度收入與成本"
+    },
+    "breakdown": {
+      "title": "逐年明細",
+      "year": "年份",
+      "revenue": "收入",
+      "operatingCost": "營運成本",
+      "investment": "投資",
+      "totalCost": "總成本",
+      "annualProfit": "年度利潤",
+      "cumulativeProfit": "累計利潤",
+      "total": "總計（5年）"
+    },
+    "insights": {
+      "title": "關鍵洞察",
+      "breakEven": "損益平衡",
+      "avgAnnualProfit": "平均年度利潤",
+      "returnOnInvestment": "投資報酬率",
+      "totalLand": "總土地",
+      "years": "5 年內"
+    },
+    "considerations": {
+      "title": "注意事項",
+      "note1": "預測假設平均市場價格",
+      "note2": "未考慮天氣和氣候變化",
+      "note3": "實際產量可能因農業實踐而異",
+      "note4": "市場價格會季節性波動"
+    },
+    "noSelection": {
+      "title": "選擇作物和土地面積以計算盈利能力",
+      "subtitle": "獲得詳細的 5 年財務預測及圖表和洞察"
+    }
+  },
+  
+  "compare": {
+    "title": "比較作物",
+    "subtitle": "並列比較幫助您選擇",
+    "noSelection": {
+      "title": "選擇要比較的作物",
+      "description": "前往作物頁面，使用複選框選擇 2-3 種作物",
+      "button": "前往作物頁面"
+    },
+    "table": {
+      "metric": "指標",
+      "suitabilityScore": "適配性分數",
+      "category": "類別",
+      "initialInvestment": "初始投資",
+      "roi": "年度投資報酬率",
+      "breakEven": "損益平衡時間",
+      "months": "個月",
+      "expectedYield": "預期產量",
+      "marketPrice": "市場價格",
+      "operatingCost": "年度營運成本",
+      "difficulty": "難度等級"
+    },
+    "charts": {
+      "roiComparison": "投資報酬率比較",
+      "investmentVsYield": "投資與產量"
+    },
+    "legend": "綠色高亮的單元格帶有獎杯表示該指標的最佳值",
+    "back": "返回作物",
+    "print": "打印比較"
+  },
+  
+  "common": {
+    "loading": "加載中...",
+    "error": "錯誤",
+    "success": "成功",
+    "back": "返回",
+    "next": "下一步",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "確認",
+    "delete": "刪除",
+    "edit": "編輯",
+    "view": "查看",
+    "close": "關閉",
+    "search": "搜索",
+    "filter": "篩選",
+    "sort": "排序",
+    "export": "導出",
+    "print": "打印",
+    "download": "下載",
+    "upload": "上傳",
+    "select": "選擇",
+    "selectAll": "全選",
+    "clear": "清除",
+    "reset": "重置",
+    "apply": "應用",
+    "na": "不適用",
+    "yes": "是",
+    "no": "否",
+    "perKg": "/公斤",
+    "perHectare": "/公頃",
+    "perYear": "/年"
+  },
+  
+  "footer": {
+    "tagline": "為台灣農民提供數據驅動的農業洞察。",
+    "quickLinks": "快速鏈接",
+    "contact": "聯繫方式",
+    "copyright": "版權所有。"
+  },
+  
+  "errors": {
+    "404": {
+      "title": "頁面未找到",
+      "message": "哎呀！您要找的頁面似乎跑到田裡去了。",
+      "tryThese": "試試這些"
+    },
+    "500": {
+      "title": "內部服務器錯誤",
+      "message": "我們這邊出了點問題。我們的團隊已收到通知，正在處理中！",
+      "tryAgain": "重試",
+      "goHome": "返回首頁"
+    }
+  },
+  
+  "flash": {
+    "locationSaved": "位置已成功保存！",
+    "locationRequired": "請先選擇您的農場位置",
+    "climateRequired": "請先查看氣候數據",
+    "calculationComplete": "計算完成！",
+    "noResults": "未找到符合您搜索的作物",
+    "error": "發生錯誤。請重試。"
+  }
+}

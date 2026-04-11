@@ -1,0 +1,187 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/location">Location</a></li>
+    <li class="breadcrumb-item"><a href="/climate">Climate</a></li>
+    <li class="breadcrumb-item active">Crops</li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+  
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-5 fw-bold text-success">
+        <i class="bi bi-flower2 me-2"></i>Crop Recommendations
+      </h1>
+      <p class="lead text-muted">Based on <%= location.address %></p>
+      <span class="badge bg-secondary">🏔️ <%= location.elevation %>m</span>
+      <span class="badge bg-info ms-2"><%= climate.avgTemp.toFixed(1) %>°C avg</span>
+      <span class="badge bg-primary ms-2"><%= climate.annualRainfall %>mm rainfall</span>
+    </div>
+  </div>
+
+<!-- Search Bar -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <form method="GET" action="/crops" class="row g-3">
+      <div class="col-md-8">
+        <div class="input-group input-group-lg">
+          <span class="input-group-text bg-white">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" 
+                 name="search" 
+                 class="form-control" 
+                 placeholder="Search crops by name (English or Chinese)..."
+                 value="<%= search || '' %>">
+          <% if (search) { %>
+          <a href="/crops" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg"></i> Clear
+          </a>
+          <% } %>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-success btn-lg w-100">
+          <i class="bi bi-search me-2"></i>Search
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<% if (search) { %>
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>
+  Showing results for "<strong><%= search %></strong>" - <%= crops.length %> crop(s) found
+</div>
+<% } %>
+
+  <!-- Top 3 Featured Crops -->
+  <% if (topCrops && topCrops.length > 0) { %>
+  <div class="row mb-4">
+    <div class="col-12">
+      <h3 class="mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Top Recommendations</h3>
+    </div>
+    <% topCrops.forEach((crop, idx) => { %>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 border-<%= crop.suitability.color %> shadow">
+        <div class="card-header bg-<%= crop.suitability.color %> text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="badge bg-white text-dark">#<%= idx + 1 %></span>
+            <span class="fs-4"><%= crop.suitability.score %>/100</span>
+          </div>
+        </div>
+        <img src="<%= crop.imageUrl || 'https://placehold.co/400x250/198754/FFFFFF?text=' + crop.name_en %>" 
+          class="card-img-top" 
+          alt="<%= crop.name_en %>"
+          style="height: 200px; object-fit: cover;">
+        <div class="card-body">
+          <h5 class="card-title"><%= crop.name_en %></h5>
+          <p class="text-muted small mb-2"><%= crop.name_zh %></p>
+          <span class="badge bg-<%= crop.suitability.color %> mb-3"><%= crop.suitability.recommendation %></span>
+          
+          <div class="mb-2">
+            <small class="text-muted">Suitability Breakdown:</small>
+            <div class="progress mb-1" style="height: 8px;">
+              <div class="progress-bar bg-danger" style="width: 40%" title="Temperature: <%= crop.suitability.breakdown.temperature %>%"></div>
+              <div class="progress-bar bg-primary" style="width: 30%" title="Rainfall: <%= crop.suitability.breakdown.rainfall %>%"></div>
+              <div class="progress-bar bg-success" style="width: 20%" title="Elevation: <%= crop.suitability.breakdown.elevation %>%"></div>
+              <div class="progress-bar bg-warning" style="width: 10%" title="Market: <%= crop.suitability.breakdown.market %>%"></div>
+            </div>
+            <div class="d-flex justify-content-between small">
+              <span>🌡️ <%= crop.suitability.breakdown.temperature %>%</span>
+              <span>💧 <%= crop.suitability.breakdown.rainfall %>%</span>
+              <span>🏔️ <%= crop.suitability.breakdown.elevation %>%</span>
+              <span>💰 <%= crop.suitability.breakdown.market %>%</span>
+            </div>
+          </div>
+
+          <hr>
+          <p class="mb-2"><strong>ROI:</strong> <%= crop.roiPercentage %>%</p>
+          <p class="mb-2"><strong>Price:</strong> NT$<%= crop.pricePerKg %>/kg</p>
+          <p class="mb-0"><strong>Category:</strong> <%= crop.category %></p>
+        </div>
+        <div class="card-footer">
+          <a href="/crops/<%= crop._id %>" class="btn btn-success btn-sm w-100">View Details</a>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+  <% } %>
+
+  <!-- Filters & Sort -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="GET" action="/crops" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-select" onchange="this.form.submit()">
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>>
+                <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Sort By</label>
+          <select name="sort" class="form-select" onchange="this.form.submit()">
+            <option value="suitability" <%= sortBy === 'suitability' ? 'selected' : '' %>>Suitability</option>
+            <option value="roi" <%= sortBy === 'roi' ? 'selected' : '' %>>ROI</option>
+            <option value="price" <%= sortBy === 'price' ? 'selected' : '' %>>Price</option>
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- All Crops Grid -->
+  <div class="row">
+    <div class="col-12 mb-3">
+      <h4>All Suitable Crops (<%= crops.length %>)</h4>
+    </div>
+    <% crops.forEach(crop => { %>
+    <div class="col-md-4 col-lg-3 mb-3">
+      <div class="card h-100 shadow-sm">
+        <img src="<%= crop.imageUrl || 'https://placehold.co/400x300/198754/FFFFFF?text=' + crop.name_en %>" 
+         class="card-img-top" 
+         alt="<%= crop.name_en %>"
+         style="height: 180px; object-fit: cover;"
+         loading="lazy">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="card-title mb-0"><%= crop.name_en %></h6>
+            <span class="badge bg-<%= crop.suitability.color %>"><%= crop.suitability.score %></span>
+          </div>
+          <p class="text-muted small"><%= crop.name_zh %></p>
+          <p class="mb-1"><small><strong>ROI:</strong> <%= crop.roiPercentage %>%</small></p>
+          <p class="mb-2"><small><strong>Price:</strong> NT$<%= crop.pricePerKg %>/kg</small></p>
+          <a href="/crops/<%= crop._id %>" class="btn btn-outline-success btn-sm w-100">Details</a>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <!-- Legend -->
+  <div class="card mt-4 bg-light">
+    <div class="card-body">
+      <h6 class="fw-bold">Suitability Score Legend:</h6>
+      <div class="row small">
+        <div class="col-md-3"><span class="badge bg-success">85-100</span> Highly Suitable</div>
+        <div class="col-md-3"><span class="badge bg-success">70-84</span> Suitable</div>
+        <div class="col-md-3"><span class="badge bg-warning">55-69</span> Moderately Suitable</div>
+        <div class="col-md-3"><span class="badge bg-warning">40-54</span> Challenging</div>
+      </div>
+      <hr>
+      <p class="mb-0 small text-muted">
+        <strong>Score Components:</strong> Temperature (40%) • Rainfall (30%) • Elevation (20%) • Market (10%)
+      </p>
+    </div>
+  </div>
+
+</div>

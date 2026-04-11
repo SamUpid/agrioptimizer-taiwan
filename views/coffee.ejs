@@ -1,0 +1,137 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/location">Location</a></li>
+    <li class="breadcrumb-item"><a href="/climate">Climate</a></li>
+    <li class="breadcrumb-item active">Coffee</li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+  
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-5 fw-bold text-success">
+        <i class="bi bi-cup-hot me-2"></i>Specialty Coffee Varieties
+      </h1>
+      <p class="lead text-muted">Elevation-based recommendations for <%= location.address %></p>
+      <span class="badge bg-secondary">🏔️ <%= location.elevation %>m elevation</span>
+      <span class="badge bg-info ms-2"><%= climate.avgTemp.toFixed(1) %>°C avg</span>
+    </div>
+  </div>
+
+  <!-- Top Recommendation -->
+  <% if (topVariety && topVariety.suitability.score >= 50) { %>
+  <div class="card border-<%= topVariety.suitability.color %> shadow-lg mb-4">
+    <div class="card-header bg-<%= topVariety.suitability.color %> text-white">
+      <h4 class="mb-0">⭐ Best Match for Your Elevation</h4>
+    </div>
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h3><%= topVariety.varietyName %> (<%= topVariety.varietyName_zh %>)</h3>
+          <p class="text-muted mb-2"><%= topVariety.species %></p>
+          <span class="badge bg-<%= topVariety.suitability.color %> fs-6"><%= topVariety.suitability.score %>/100 - <%= topVariety.suitability.recommendation %></span>
+          <span class="badge bg-warning ms-2"><%= topVariety.suitability.qualityPotential %></span>
+          <p class="mt-3 mb-2"><strong>Optimal Elevation:</strong> <%= topVariety.optimalElevationMin %>m - <%= topVariety.optimalElevationMax %>m</p>
+          <p class="mb-0"><strong>Flavor Profile:</strong> <%= topVariety.flavorNotes_en %></p>
+        </div>
+        <div class="col-md-4 text-center">
+          <div class="display-4 text-<%= topVariety.suitability.color %>"><%= topVariety.suitability.score %></div>
+          <p class="text-muted">Suitability Score</p>
+          <a href="/coffee/<%= topVariety._id %>" class="btn btn-success">View Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Elevation Info Box -->
+  <div class="alert alert-info mb-4">
+    <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Why Elevation Matters for Coffee</h6>
+    <p class="mb-0">Higher elevations (800m+) produce slower-ripening cherries with more complex flavors and higher acidity - characteristics of specialty-grade coffee. Your elevation: <strong><%= location.elevation %>m</strong></p>
+  </div>
+
+  <!-- All Varieties -->
+  <h3 class="mb-3">All Coffee Varieties</h3>
+  <div class="row">
+    <% coffeeVarieties.forEach(coffee => { %>
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm border-<%= coffee.suitability.color %>">
+            <img src="<%= coffee.imageUrl || 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&h=300&fit=crop' %>" 
+            class="card-img-top" 
+            alt="<%= coffee.varietyName %>"
+            style="height: 200px; object-fit: cover;"
+            loading="lazy">
+
+        <div class="card-header bg-<%= coffee.suitability.color %> bg-opacity-10">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><%= coffee.varietyName %></h6>
+            <span class="badge bg-<%= coffee.suitability.color %>"><%= coffee.suitability.score %></span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-2"><%= coffee.varietyName_zh %> • <%= coffee.species %></p>
+          <span class="badge bg-<%= coffee.suitability.color %> mb-2"><%= coffee.suitability.recommendation %></span>
+          
+          <!-- Suitability Breakdown -->
+          <div class="mb-3">
+            <small class="text-muted">Elevation: <%= coffee.suitability.breakdown.elevation %>% • Temp: <%= coffee.suitability.breakdown.temperature %>% • Rain: <%= coffee.suitability.breakdown.rainfall %>%</small>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-success" style="width: <%= coffee.suitability.breakdown.elevation %>%" title="Elevation"></div>
+            </div>
+          </div>
+
+          <p class="mb-2"><small><strong>Elevation Range:</strong> <%= coffee.optimalElevationMin %>-<%= coffee.optimalElevationMax %>m</small></p>
+          <p class="mb-2"><small><strong>Quality:</strong> <%= coffee.suitability.qualityPotential %></small></p>
+          <p class="mb-3"><small><strong>Yield:</strong> <%= coffee.yieldPerTree %> kg/tree</small></p>
+          
+          <a href="/coffee/<%= coffee._id %>" class="btn btn-outline-success btn-sm w-100">View Details</a>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="row mt-4">
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 bg-light">
+        <div class="card-body">
+          <h6 class="fw-bold">🌱 Growing Tips</h6>
+          <ul class="small mb-0">
+            <li>Coffee trees need 3-4 years to first harvest</li>
+            <li>Shade trees improve quality and sustainability</li>
+            <li>Requires consistent temperature (15-28°C)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 bg-light">
+        <div class="card-body">
+          <h6 class="fw-bold">☕ Processing Methods</h6>
+          <ul class="small mb-0">
+            <li><strong>Washed:</strong> Clean, bright acidity</li>
+            <li><strong>Natural:</strong> Fruity, full-bodied</li>
+            <li><strong>Honey:</strong> Sweet, balanced</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 bg-light">
+        <div class="card-body">
+          <h6 class="fw-bold">📊 Market Potential</h6>
+          <ul class="small mb-0">
+            <li>Specialty grade (80+ cup score): Premium prices</li>
+            <li>Taiwan's coffee market is growing rapidly</li>
+            <li>High-elevation coffee fetches best prices</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

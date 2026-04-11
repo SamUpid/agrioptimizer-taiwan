@@ -1,0 +1,416 @@
+{
+  "app": {
+    "name": "AgriOptimizer Taiwan",
+    "tagline": "Smart Farming for Taiwan's Mountains"
+  },
+  
+  "nav": {
+    "home": "Home",
+    "location": "Location",
+    "crops": "Crops",
+    "coffee": "Coffee",
+    "economics": "Economics",
+    "language": "Language"
+  },
+  
+  "home": {
+    "hero": {
+      "badge": "AI-Powered Agriculture",
+      "title": "Smart Farming for",
+      "titleHighlight": "Taiwan's Mountains",
+      "subtitle": "Data-driven crop recommendations for mountain farmers. Analyze climate, maximize profits, grow sustainably.",
+      "ctaStart": "Get Started",
+      "ctaBrowse": "Browse Crops"
+    },
+    "stats": {
+      "crops": "Crop Varieties",
+      "coffee": "Coffee Types",
+      "accuracy": "Accuracy Rate",
+      "climate": "Climate Analysis"
+    },
+    "features": {
+      "title": "Why AgriOptimizer?",
+      "subtitle": "Everything you need to make informed farming decisions",
+      "climate": {
+        "title": "Climate Analysis",
+        "description": "Hyper-local weather data powered by Open-Meteo API. Get temperature, rainfall, and elevation insights specific to your mountain location.",
+        "link": "Explore Climate Data"
+      },
+      "recommendations": {
+        "title": "Smart Recommendations",
+        "description": "AI-powered suitability algorithm analyzes 30+ crops against your climate conditions.",
+        "link": "View Crops"
+      },
+      "roi": {
+        "title": "ROI Projections",
+        "description": "5-year profit calculator with break-even analysis and investment planning.",
+        "totalProfit": "Total Profit (5yr)",
+        "link": "Calculate Now"
+      },
+      "coffee": {
+        "title": "Coffee Expertise",
+        "description": "Elevation-focused analysis for 7 specialty varieties",
+        "link": "Learn More"
+      },
+      "bilingual": {
+        "title": "Bilingual Support",
+        "description": "Full English & Traditional Chinese"
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Three simple steps to optimize your farm",
+      "step1": {
+        "title": "Select Location",
+        "description": "Pin your farm on the map. We'll analyze your elevation, latitude, and microclimate."
+      },
+      "step2": {
+        "title": "View Climate Data",
+        "description": "See detailed temperature, rainfall patterns, and seasonal variations for your location."
+      },
+      "step3": {
+        "title": "Get Recommendations",
+        "description": "Discover the best crops for your farm with suitability scores and profit projections."
+      }
+    },
+    "cta": {
+      "title": "Ready to Optimize Your Farm?",
+      "description": "Join hundreds of Taiwan mountain farmers making data-driven decisions",
+      "button": "Start Now"
+    }
+  },
+  
+  "location": {
+    "title": "Select Your Farm Location",
+    "subtitle": "Pin your farm on the map to get personalized crop recommendations",
+    "searchPlaceholder": "Search for a location...",
+    "currentLocation": "Use Current Location",
+    "selectedLocation": "Selected Location",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "elevation": "Elevation",
+    "confirm": "Confirm Location",
+    "next": "Continue to Climate Analysis",
+    "howToUse": "How to select your location",
+    "step1": "Click on the map to place a marker",
+    "step2": "Drag the marker to adjust position",
+    "step3": "Review the elevation data",
+    "step4": "Click Confirm Location to save",
+    "mapHelp": "Click on the map to place a marker · Drag marker to adjust position",
+    "addressLabel": "Address",
+    "coordLabel": "Coordinates",
+    "manualEntry": "Manual Entry",
+    "fetchElevationBtn": "Get Elevation Data",
+    "readyMessage": "Your farm location has been saved. Ready to view climate data?"
+  },
+  
+  "climate": {
+    "title": "Climate Analysis",
+    "subtitle": "For",
+    "temperature": {
+      "title": "Temperature",
+      "annual": "Annual Average",
+      "monthly": "Monthly Temperature",
+      "min": "Min",
+      "max": "Max"
+    },
+    "rainfall": {
+      "title": "Rainfall",
+      "annual": "Annual Total",
+      "monthly": "Monthly Rainfall"
+    },
+    "summary": {
+      "title": "Climate Summary",
+      "avgTemp": "Average Temperature",
+      "totalRainfall": "Total Annual Rainfall",
+      "elevation": "Elevation",
+      "suitable": "Suitable for mountain crops"
+    },
+    "next": "View Crop Recommendations"
+  },
+  
+  "crops": {
+    "title": "Crop Recommendations",
+    "subtitle": "Based on",
+    "searchPlaceholder": "Search crops by name (English or Chinese)...",
+    "search": "Search",
+    "clear": "Clear",
+    "resultsFor": "Showing results for",
+    "resultsCount": "crop(s) found",
+    "compare": "Select crops to compare",
+    "selected": "selected",
+    "compareButton": "Compare Selected",
+    "topRecommendations": "Top Recommendations",
+    "allCrops": "All Crops",
+    "filterBy": "Filter by Category",
+    "sortBy": "Sort by",
+    "categories": {
+      "all": "All Categories",
+      "fruit": "Fruit",
+      "vegetable": "Vegetable",
+      "herb": "Herb",
+      "specialty": "Specialty"
+    },
+    "sorting": {
+      "suitability": "Suitability Score",
+      "roi": "ROI",
+      "price": "Market Price"
+    },
+    "suitability": {
+      "excellent": "Excellent",
+      "suitable": "Suitable",
+      "moderate": "Moderately Suitable",
+      "challenging": "Challenging"
+    },
+    "viewDetails": "View Details",
+    "noResults": "No crops found matching your search"
+  },
+  
+  "cropDetail": {
+    "backToCrops": "Back to Crops",
+    "calculateProfitability": "Calculate Profitability",
+    "suitability": {
+      "title": "Suitability for Your Farm",
+      "temperature": "Temperature Match",
+      "rainfall": "Rainfall Match",
+      "elevation": "Elevation Match",
+      "market": "Market Factor"
+    },
+    "growing": {
+      "title": "Growing Requirements",
+      "temperature": "Temperature",
+      "rainfall": "Rainfall",
+      "elevation": "Elevation",
+      "soilPH": "Soil pH",
+      "difficulty": "Difficulty"
+    },
+    "economics": {
+      "title": "Economics",
+      "marketPrice": "Market Price",
+      "expectedYield": "Expected Yield",
+      "investment": "Investment",
+      "operatingCost": "Operating Cost",
+      "roi": "ROI"
+    },
+    "timeline": {
+      "title": "Growth Timeline",
+      "plantingSeason": "Planting Season",
+      "daysToMaturity": "Days to Maturity",
+      "harvestSeason": "Harvest Season",
+      "yieldPeriod": "Yield Period",
+      "days": "days"
+    },
+    "bestPractices": {
+      "title": "Best Practices"
+    },
+    "pests": {
+      "title": "Common Pests & Diseases"
+    },
+    "companion": {
+      "title": "Companion Planting",
+      "description": "These crops grow well together with",
+      "loading": "Loading companion crops...",
+      "noData": "No companion planting data available for this crop yet.",
+      "benefits": "Benefits",
+      "spacing": "Spacing",
+      "notes": "Notes"
+    }
+  },
+  
+  "coffee": {
+    "title": "Coffee Varieties",
+    "subtitle": "Specialty coffee analysis for Taiwan's mountains",
+    "elevationInfo": "Your Elevation",
+    "bestMatch": "Best Match for Your Elevation",
+    "allVarieties": "All Coffee Varieties",
+    "viewDetails": "View Details"
+  },
+  
+  "coffeeDetail": {
+    "backToCoffee": "Back to Coffee Varieties",
+    "calculateProfitability": "Calculate Profitability",
+    "elevation": {
+      "title": "Elevation Requirements",
+      "optimal": "Optimal Range",
+      "yourElevation": "Your Elevation",
+      "perfectMatch": "Perfect Match",
+      "tooLow": "too low",
+      "aboveOptimal": "above optimal"
+    },
+    "growing": {
+      "title": "Growing Information",
+      "treesPerHa": "Trees per Hectare",
+      "yieldPerTree": "Yield per Tree",
+      "yearsToFirstHarvest": "Years to First Harvest",
+      "productiveYears": "Productive Years",
+      "diseaseResistance": "Disease Resistance"
+    },
+    "cupProfile": {
+      "title": "Cup Profile",
+      "quality": "Cup Quality Range",
+      "points": "points",
+      "flavorNotes": "Flavor Notes"
+    },
+    "processing": {
+      "title": "Processing Methods"
+    },
+    "harvest": {
+      "title": "Harvest Calendar",
+      "months": "Harvest Months"
+    },
+    "qualityTips": {
+      "title": "Quality Tips"
+    }
+  },
+  
+  "economics": {
+    "title": "Profitability Calculator",
+    "subtitle": "5-Year Financial Projection for Your Farm",
+    "selectCrop": "Select Crop",
+    "chooseCrop": "-- Choose a Crop --",
+    "regularCrops": "Regular Crops",
+    "coffeeVarieties": "Coffee Varieties",
+    "landSize": "Land Size (hectares)",
+    "calculate": "Calculate",
+    "summary": {
+      "fiveYearRevenue": "5-Year Revenue",
+      "totalCosts": "Total Costs",
+      "netProfit": "Net Profit",
+      "roi": "ROI"
+    },
+    "cropInfo": {
+      "landSize": "Land Size",
+      "category": "Category",
+      "yield": "Yield",
+      "priceRange": "Price Range",
+      "hectares": "hectares"
+    },
+    "charts": {
+      "cumulativeProfit": "Cumulative Profit Over 5 Years",
+      "revenueVsCosts": "Annual Revenue vs Costs"
+    },
+    "breakdown": {
+      "title": "Year-by-Year Breakdown",
+      "year": "Year",
+      "revenue": "Revenue",
+      "operatingCost": "Operating Cost",
+      "investment": "Investment",
+      "totalCost": "Total Cost",
+      "annualProfit": "Annual Profit",
+      "cumulativeProfit": "Cumulative Profit",
+      "total": "TOTAL (5 Years)"
+    },
+    "insights": {
+      "title": "Key Insights",
+      "breakEven": "Break-Even",
+      "avgAnnualProfit": "Average Annual Profit",
+      "returnOnInvestment": "Return on Investment",
+      "totalLand": "Total Land",
+      "years": "over 5 years"
+    },
+    "considerations": {
+      "title": "Considerations",
+      "note1": "Projections assume average market prices",
+      "note2": "Weather and climate variations not accounted for",
+      "note3": "Actual yields may vary based on farming practices",
+      "note4": "Market prices fluctuate seasonally"
+    },
+    "noSelection": {
+      "title": "Select a crop and land size to calculate profitability",
+      "subtitle": "Get a detailed 5-year financial projection with charts and insights"
+    }
+  },
+  
+  "compare": {
+    "title": "Compare Crops",
+    "subtitle": "Side-by-side comparison to help you choose",
+    "noSelection": {
+      "title": "Select Crops to Compare",
+      "description": "Go to the crops page and select 2-3 crops using the checkboxes",
+      "button": "Go to Crops Page"
+    },
+    "table": {
+      "metric": "Metric",
+      "suitabilityScore": "Suitability Score",
+      "category": "Category",
+      "initialInvestment": "Initial Investment",
+      "roi": "Annual ROI",
+      "breakEven": "Break-Even Time",
+      "months": "months",
+      "expectedYield": "Expected Yield",
+      "marketPrice": "Market Price",
+      "operatingCost": "Annual Operating Cost",
+      "difficulty": "Difficulty Level"
+    },
+    "charts": {
+      "roiComparison": "ROI Comparison",
+      "investmentVsYield": "Investment vs Yield"
+    },
+    "legend": "Green highlighted cells with trophy indicate the best value for that metric",
+    "back": "Back to Crops",
+    "print": "Print Comparison"
+  },
+  
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "print": "Print",
+    "download": "Download",
+    "upload": "Upload",
+    "select": "Select",
+    "selectAll": "Select All",
+    "clear": "Clear",
+    "reset": "Reset",
+    "apply": "Apply",
+    "na": "N/A",
+    "yes": "Yes",
+    "no": "No",
+    "perKg": "/kg",
+    "perHectare": "/hectare",
+    "perYear": "/year"
+  },
+  
+  "footer": {
+    "tagline": "Empowering Taiwanese farmers with data-driven agricultural insights.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "copyright": "All rights reserved."
+  },
+  
+  "errors": {
+    "404": {
+      "title": "Page Not Found",
+      "message": "Oops! The page you're looking for seems to have wandered off into the fields.",
+      "tryThese": "Try These Instead"
+    },
+    "500": {
+      "title": "Internal Server Error",
+      "message": "Something went wrong on our end. Our team has been notified and we're working on it!",
+      "tryAgain": "Try Again",
+      "goHome": "Go Home"
+    }
+  },
+  
+  "flash": {
+    "locationSaved": "Location saved successfully!",
+    "locationRequired": "Please select your farm location first",
+    "climateRequired": "Please view climate data first",
+    "calculationComplete": "Calculation complete!",
+    "noResults": "No crops found matching your search",
+    "error": "An error occurred. Please try again."
+  }
+}

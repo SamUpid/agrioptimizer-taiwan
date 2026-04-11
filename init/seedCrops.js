@@ -1,0 +1,760 @@
+/**
+ * Seed Crops Data
+ * Populates database with 30+ crops suitable for Taiwan mountain regions (800-1500m)
+ * Data based on Taiwan agricultural research and market prices
+ */
+
+require('dotenv').config();
+const mongoose = require('mongoose');
+const { connectDB } = require('../config/database');
+const Crop = require('../models/Crop');
+
+// ============================================================
+// CROP DATA (30+ Crops for Taiwan)
+// ============================================================
+
+const crops = [
+  // ==================== SPECIALTY CROPS ====================
+  {
+    name_en: 'Coffee (Arabica)',
+    imageUrl: "https://images.unsplash.com/photo-1596253420645-f342693480aa?q=80&w=2002&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '咖啡（阿拉比卡）',
+    category: 'specialty',
+    optimalTempMin: 18,
+    optimalTempMax: 24,
+    minRainfall: 1500,
+    maxRainfall: 2500,
+    minElevation: 800,
+    maxElevation: 1500,
+    growingSeason: 1095, // ~3 years to first harvest
+    difficultyLevel: 'hard',
+    expectedYield: 1200,
+    marketPriceMin: 400,
+    marketPriceMax: 800,
+    laborHours: 800,
+    initialInvestment: 200000,
+    operatingCost: 80000,
+    breakEvenMonths: 36,
+    marketDemandIndex: 95
+  },
+  {
+    name_en: 'Tea (High Mountain Oolong)',
+    imageUrl: "https://images.unsplash.com/photo-1743401404293-0734bb7b5a42?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '高山烏龍茶',
+    category: 'specialty',
+    optimalTempMin: 15,
+    optimalTempMax: 22,
+    minRainfall: 1800,
+    maxRainfall: 3000,
+    minElevation: 1000,
+    maxElevation: 2000,
+    growingSeason: 730, // ~2 years to maturity
+    difficultyLevel: 'hard',
+    expectedYield: 800,
+    marketPriceMin: 600,
+    marketPriceMax: 2000,
+    laborHours: 1000,
+    initialInvestment: 150000,
+    operatingCost: 70000,
+    breakEvenMonths: 30,
+    marketDemandIndex: 98
+  },
+  {
+    name_en: 'Ginger',
+    imageUrl: "https://images.unsplash.com/photo-1741517802684-ba07c444a5d2?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '薑',
+    category: 'specialty',
+    optimalTempMin: 20,
+    optimalTempMax: 28,
+    minRainfall: 1500,
+    maxRainfall: 2500,
+    minElevation: 300,
+    maxElevation: 1200,
+    growingSeason: 240, // 8 months
+    difficultyLevel: 'moderate',
+    expectedYield: 15000,
+    marketPriceMin: 60,
+    marketPriceMax: 120,
+    laborHours: 600,
+    initialInvestment: 80000,
+    operatingCost: 50000,
+    breakEvenMonths: 10,
+    marketDemandIndex: 85
+  },
+  {
+    name_en: 'Turmeric',
+    imageUrl:"https://images.unsplash.com/photo-1768729340925-2749ecdc211c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '薑黃',
+    category: 'specialty',
+    optimalTempMin: 20,
+    optimalTempMax: 30,
+    minRainfall: 1500,
+    maxRainfall: 2200,
+    minElevation: 200,
+    maxElevation: 1000,
+    growingSeason: 270, // 9 months
+    difficultyLevel: 'moderate',
+    expectedYield: 12000,
+    marketPriceMin: 80,
+    marketPriceMax: 150,
+    laborHours: 500,
+    initialInvestment: 70000,
+    operatingCost: 45000,
+    breakEvenMonths: 11,
+    marketDemandIndex: 80
+  },
+
+  // ==================== FRUITS ====================
+  {
+    name_en: 'Passion Fruit',
+    imageUrl: "https://images.unsplash.com/photo-1464287047163-e0b510b491e9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '百香果',
+    category: 'fruit',
+    optimalTempMin: 18,
+    optimalTempMax: 28,
+    minRainfall: 1200,
+    maxRainfall: 2000,
+    minElevation: 300,
+    maxElevation: 1200,
+    growingSeason: 365, // 12 months to first harvest
+    difficultyLevel: 'moderate',
+    expectedYield: 8000,
+    marketPriceMin: 50,
+    marketPriceMax: 100,
+    laborHours: 450,
+    initialInvestment: 90000,
+    operatingCost: 40000,
+    breakEvenMonths: 15,
+    marketDemandIndex: 88
+  },
+  {
+    name_en: 'Dragon Fruit',
+    imageUrl: "https://images.unsplash.com/photo-1552654181-4072dde6e17b?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '火龍果',
+    category: 'fruit',
+    optimalTempMin: 20,
+    optimalTempMax: 32,
+    minRainfall: 800,
+    maxRainfall: 1500,
+    minElevation: 0,
+    maxElevation: 800,
+    growingSeason: 540, // 18 months
+    difficultyLevel: 'easy',
+    expectedYield: 12000,
+    marketPriceMin: 40,
+    marketPriceMax: 80,
+    laborHours: 400,
+    initialInvestment: 100000,
+    operatingCost: 45000,
+    breakEvenMonths: 20,
+    marketDemandIndex: 85
+  },
+  {
+    name_en: 'Guava',
+    imageUrl: "https://images.unsplash.com/photo-1629367308496-a2496ba22f88?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '芭樂',
+    category: 'fruit',
+    optimalTempMin: 23,
+    optimalTempMax: 32,
+    minRainfall: 1000,
+    maxRainfall: 2000,
+    minElevation: 0,
+    maxElevation: 1000,
+    growingSeason: 730, // 2 years
+    difficultyLevel: 'easy',
+    expectedYield: 15000,
+    marketPriceMin: 30,
+    marketPriceMax: 60,
+    laborHours: 500,
+    initialInvestment: 85000,
+    operatingCost: 40000,
+    breakEvenMonths: 24,
+    marketDemandIndex: 82
+  },
+  {
+    name_en: 'Papaya',
+    imageUrl: "https://images.unsplash.com/photo-1664183237682-1987fa120fd2?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '木瓜',
+    category: 'fruit',
+    optimalTempMin: 22,
+    optimalTempMax: 32,
+    minRainfall: 1200,
+    maxRainfall: 2200,
+    minElevation: 0,
+    maxElevation: 800,
+    growingSeason: 270, // 9 months
+    difficultyLevel: 'easy',
+    expectedYield: 20000,
+    marketPriceMin: 25,
+    marketPriceMax: 50,
+    laborHours: 450,
+    initialInvestment: 75000,
+    operatingCost: 35000,
+    breakEvenMonths: 12,
+    marketDemandIndex: 80
+  },
+  {
+    name_en: 'Pineapple',
+    imageUrl: "https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '鳳梨',
+    category: 'fruit',
+    optimalTempMin: 22,
+    optimalTempMax: 32,
+    minRainfall: 1000,
+    maxRainfall: 1800,
+    minElevation: 0,
+    maxElevation: 700,
+    growingSeason: 540, // 18 months
+    difficultyLevel: 'moderate',
+    expectedYield: 18000,
+    marketPriceMin: 30,
+    marketPriceMax: 70,
+    laborHours: 550,
+    initialInvestment: 90000,
+    operatingCost: 42000,
+    breakEvenMonths: 20,
+    marketDemandIndex: 87
+  },
+  {
+    name_en: 'Mango',
+    imageUrl: "https://images.unsplash.com/photo-1732472581875-89ff83f18439?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '芒果',
+    category: 'fruit',
+    optimalTempMin: 24,
+    optimalTempMax: 35,
+    minRainfall: 800,
+    maxRainfall: 1500,
+    minElevation: 0,
+    maxElevation: 600,
+    growingSeason: 1095, // 3 years
+    difficultyLevel: 'moderate',
+    expectedYield: 10000,
+    marketPriceMin: 50,
+    marketPriceMax: 120,
+    laborHours: 600,
+    initialInvestment: 120000,
+    operatingCost: 50000,
+    breakEvenMonths: 36,
+    marketDemandIndex: 90
+  },
+  {
+    name_en: 'Longan',
+    imageUrl: "https://images.unsplash.com/photo-1728462843704-1225f0f858c8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '龍眼',
+    category: 'fruit',
+    optimalTempMin: 20,
+    optimalTempMax: 30,
+    minRainfall: 1200,
+    maxRainfall: 2000,
+    minElevation: 100,
+    maxElevation: 800,
+    growingSeason: 1460, // 4 years
+    difficultyLevel: 'moderate',
+    expectedYield: 8000,
+    marketPriceMin: 60,
+    marketPriceMax: 150,
+    laborHours: 700,
+    initialInvestment: 130000,
+    operatingCost: 55000,
+    breakEvenMonths: 48,
+    marketDemandIndex: 85
+  },
+  {
+    name_en: 'Lychee',
+    imageUrl: "https://images.unsplash.com/photo-1521123036037-6725d75de336?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '荔枝',
+    category: 'fruit',
+    optimalTempMin: 20,
+    optimalTempMax: 30,
+    minRainfall: 1200,
+    maxRainfall: 2200,
+    minElevation: 100,
+    maxElevation: 700,
+    growingSeason: 1460, // 4 years
+    difficultyLevel: 'hard',
+    expectedYield: 6000,
+    marketPriceMin: 80,
+    marketPriceMax: 200,
+    laborHours: 750,
+    initialInvestment: 140000,
+    operatingCost: 60000,
+    breakEvenMonths: 50,
+    marketDemandIndex: 88
+  },
+  {
+    name_en: 'Persimmon',
+    imageUrl: "https://images.unsplash.com/photo-1697434467948-50f3d674dee1?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '柿子',
+    category: 'fruit',
+    optimalTempMin: 15,
+    optimalTempMax: 25,
+    minRainfall: 1000,
+    maxRainfall: 1800,
+    minElevation: 500,
+    maxElevation: 1500,
+    growingSeason: 1095, // 3 years
+    difficultyLevel: 'moderate',
+    expectedYield: 7000,
+    marketPriceMin: 70,
+    marketPriceMax: 150,
+    laborHours: 600,
+    initialInvestment: 110000,
+    operatingCost: 48000,
+    breakEvenMonths: 38,
+    marketDemandIndex: 83
+  },
+  {
+    name_en: 'Plum',
+    imageUrl: "https://images.unsplash.com/photo-1690233319569-0ca9a8538fee?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '李子',
+    category: 'fruit',
+    optimalTempMin: 12,
+    optimalTempMax: 22,
+    minRainfall: 800,
+    maxRainfall: 1500,
+    minElevation: 800,
+    maxElevation: 2000,
+    growingSeason: 1095, // 3 years
+    difficultyLevel: 'moderate',
+    expectedYield: 6000,
+    marketPriceMin: 60,
+    marketPriceMax: 130,
+    laborHours: 650,
+    initialInvestment: 105000,
+    operatingCost: 46000,
+    breakEvenMonths: 40,
+    marketDemandIndex: 80
+  },
+
+  // ==================== VEGETABLES ====================
+  {
+    name_en: 'Cabbage',
+    imageUrl: "https://images.unsplash.com/photo-1579584705540-46ebde56da8d?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name_zh: '高麗菜',
+    category: 'vegetable',
+    optimalTempMin: 15,
+    optimalTempMax: 25,
+    minRainfall: 800,
+    maxRainfall: 1500,
+    minElevation: 800,
+    maxElevation: 2000,
+    growingSeason: 90,
+    difficultyLevel: 'easy',
+    expectedYield: 25000,
+    marketPriceMin: 15,
+    marketPriceMax: 40,
+    laborHours: 400,
+    initialInvestment: 50000,
+    operatingCost: 30000,
+    breakEvenMonths: 4,
+    marketDemandIndex: 85
+  },
+  {
+    name_en: 'Chinese Cabbage',
+    name_zh: '大白菜',
+    imageUrl: "https://images.unsplash.com/photo-1692011566538-42ad70d38bc0?q=80&w=927&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 15,
+    optimalTempMax: 22,
+    minRainfall: 700,
+    maxRainfall: 1400,
+    minElevation: 600,
+    maxElevation: 1800,
+    growingSeason: 75,
+    difficultyLevel: 'easy',
+    expectedYield: 22000,
+    marketPriceMin: 12,
+    marketPriceMax: 35,
+    laborHours: 380,
+    initialInvestment: 45000,
+    operatingCost: 28000,
+    breakEvenMonths: 4,
+    marketDemandIndex: 82
+  },
+  {
+    name_en: 'Tomato',
+    name_zh: '番茄',
+    imageUrl: "https://images.unsplash.com/photo-1592841200221-a6898f307baa?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 18,
+    optimalTempMax: 28,
+    minRainfall: 600,
+    maxRainfall: 1200,
+    minElevation: 0,
+    maxElevation: 1200,
+    growingSeason: 90,
+    difficultyLevel: 'moderate',
+    expectedYield: 30000,
+    marketPriceMin: 20,
+    marketPriceMax: 50,
+    laborHours: 500,
+    initialInvestment: 70000,
+    operatingCost: 35000,
+    breakEvenMonths: 5,
+    marketDemandIndex: 88
+  },
+  {
+    name_en: 'Bell Pepper',
+    name_zh: '甜椒',
+    imageUrl: "https://images.unsplash.com/photo-1592548868664-f8b4e4b1cfb7?q=80&w=991&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 18,
+    optimalTempMax: 30,
+    minRainfall: 600,
+    maxRainfall: 1200,
+    minElevation: 0,
+    maxElevation: 1000,
+    growingSeason: 90,
+    difficultyLevel: 'moderate',
+    expectedYield: 20000,
+    marketPriceMin: 30,
+    marketPriceMax: 70,
+    laborHours: 550,
+    initialInvestment: 75000,
+    operatingCost: 38000,
+    breakEvenMonths: 5,
+    marketDemandIndex: 85
+  },
+  {
+    name_en: 'Cucumber',
+    name_zh: '小黃瓜',
+    imageUrl: "https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 18,
+    optimalTempMax: 30,
+    minRainfall: 600,
+    maxRainfall: 1200,
+    minElevation: 0,
+    maxElevation: 1000,
+    growingSeason: 60,
+    difficultyLevel: 'easy',
+    expectedYield: 18000,
+    marketPriceMin: 18,
+    marketPriceMax: 45,
+    laborHours: 420,
+    initialInvestment: 55000,
+    operatingCost: 30000,
+    breakEvenMonths: 4,
+    marketDemandIndex: 83
+  },
+  {
+    name_en: 'Eggplant',
+    name_zh: '茄子',
+    imageUrl: "https://images.unsplash.com/photo-1613881553903-4543f5f2cac9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 20,
+    optimalTempMax: 32,
+    minRainfall: 700,
+    maxRainfall: 1300,
+    minElevation: 0,
+    maxElevation: 900,
+    growingSeason: 75,
+    difficultyLevel: 'easy',
+    expectedYield: 16000,
+    marketPriceMin: 22,
+    marketPriceMax: 50,
+    laborHours: 450,
+    initialInvestment: 58000,
+    operatingCost: 32000,
+    breakEvenMonths: 4,
+    marketDemandIndex: 80
+  },
+  {
+    name_en: 'Sweet Potato',
+    name_zh: '地瓜',
+    imageUrl: "https://images.unsplash.com/photo-1648768940344-9e110879e0c0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 20,
+    optimalTempMax: 32,
+    minRainfall: 800,
+    maxRainfall: 1500,
+    minElevation: 0,
+    maxElevation: 1000,
+    growingSeason: 120,
+    difficultyLevel: 'easy',
+    expectedYield: 20000,
+    marketPriceMin: 18,
+    marketPriceMax: 40,
+    laborHours: 380,
+    initialInvestment: 48000,
+    operatingCost: 26000,
+    breakEvenMonths: 5,
+    marketDemandIndex: 84
+  },
+  {
+    name_en: 'Taro',
+    name_zh: '芋頭',
+    imageUrl: "https://images.unsplash.com/photo-1656252793220-58e3fe34110f?q=80&w=2036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 20,
+    optimalTempMax: 30,
+    minRainfall: 1200,
+    maxRainfall: 2000,
+    minElevation: 0,
+    maxElevation: 1000,
+    growingSeason: 210, // 7 months
+    difficultyLevel: 'moderate',
+    expectedYield: 15000,
+    marketPriceMin: 35,
+    marketPriceMax: 70,
+    laborHours: 500,
+    initialInvestment: 65000,
+    operatingCost: 35000,
+    breakEvenMonths: 8,
+    marketDemandIndex: 82
+  },
+  {
+    name_en: 'Bamboo Shoots',
+    name_zh: '竹筍',
+    imageUrl: "https://images.unsplash.com/photo-1680612768519-b48fae346288?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 18,
+    optimalTempMax: 28,
+    minRainfall: 1500,
+    maxRainfall: 2500,
+    minElevation: 300,
+    maxElevation: 1500,
+    growingSeason: 1095, // 3 years to establishment
+    difficultyLevel: 'moderate',
+    expectedYield: 8000,
+    marketPriceMin: 50,
+    marketPriceMax: 120,
+    laborHours: 600,
+    initialInvestment: 95000,
+    operatingCost: 42000,
+    breakEvenMonths: 36,
+    marketDemandIndex: 86
+  },
+  {
+    name_en: 'Radish',
+    name_zh: '蘿蔔',
+    imageUrl: "https://images.unsplash.com/photo-1587482990975-c1ca5fc6b268?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 15,
+    optimalTempMax: 25,
+    minRainfall: 600,
+    maxRainfall: 1200,
+    minElevation: 0,
+    maxElevation: 1500,
+    growingSeason: 60,
+    difficultyLevel: 'easy',
+    expectedYield: 18000,
+    marketPriceMin: 15,
+    marketPriceMax: 35,
+    laborHours: 350,
+    initialInvestment: 42000,
+    operatingCost: 24000,
+    breakEvenMonths: 3,
+    marketDemandIndex: 78
+  },
+  {
+    name_en: 'Lettuce',
+    name_zh: '萵苣',
+    imageUrl: "https://images.unsplash.com/photo-1556781366-336f8353ba7c?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'vegetable',
+    optimalTempMin: 12,
+    optimalTempMax: 22,
+    minRainfall: 500,
+    maxRainfall: 1000,
+    minElevation: 0,
+    maxElevation: 1800,
+    growingSeason: 45,
+    difficultyLevel: 'easy',
+    expectedYield: 12000,
+    marketPriceMin: 25,
+    marketPriceMax: 60,
+    laborHours: 350,
+    initialInvestment: 45000,
+    operatingCost: 25000,
+    breakEvenMonths: 3,
+    marketDemandIndex: 81
+  },
+
+  // ==================== HERBS ====================
+  {
+    name_en: 'Basil',
+    name_zh: '羅勒',
+    imageUrl: "https://images.unsplash.com/photo-1627738663093-d0779d56e3bc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'herb',
+    optimalTempMin: 20,
+    optimalTempMax: 30,
+    minRainfall: 600,
+    maxRainfall: 1200,
+    minElevation: 0,
+    maxElevation: 1200,
+    growingSeason: 60,
+    difficultyLevel: 'easy',
+    expectedYield: 3000,
+    marketPriceMin: 100,
+    marketPriceMax: 250,
+    laborHours: 300,
+    initialInvestment: 35000,
+    operatingCost: 20000,
+    breakEvenMonths: 3,
+    marketDemandIndex: 75
+  },
+  {
+    name_en: 'Lemongrass',
+    name_zh: '檸檬香茅',
+    imageUrl: "https://images.unsplash.com/photo-1524641619328-f3b7444f7afa?q=80&w=1022&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'herb',
+    optimalTempMin: 22,
+    optimalTempMax: 32,
+    minRainfall: 800,
+    maxRainfall: 1500,
+    minElevation: 0,
+    maxElevation: 1000,
+    growingSeason: 120,
+    difficultyLevel: 'easy',
+    expectedYield: 4000,
+    marketPriceMin: 80,
+    marketPriceMax: 200,
+    laborHours: 280,
+    initialInvestment: 38000,
+    operatingCost: 22000,
+    breakEvenMonths: 5,
+    marketDemandIndex: 72
+  },
+  {
+    name_en: 'Mint',
+    name_zh: '薄荷',
+    imageUrl: "https://images.unsplash.com/photo-1603653856395-084002e5d39d?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'herb',
+    optimalTempMin: 15,
+    optimalTempMax: 28,
+    minRainfall: 700,
+    maxRainfall: 1400,
+    minElevation: 0,
+    maxElevation: 1500,
+    growingSeason: 60,
+    difficultyLevel: 'easy',
+    expectedYield: 3500,
+    marketPriceMin: 90,
+    marketPriceMax: 220,
+    laborHours: 290,
+    initialInvestment: 33000,
+    operatingCost: 19000,
+    breakEvenMonths: 3,
+    marketDemandIndex: 73
+  },
+  {
+    name_en: 'Green Onion',
+    name_zh: '青蔥',
+    imageUrl: "https://images.unsplash.com/photo-1687365301009-af603af2a8a9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'herb',
+    optimalTempMin: 15,
+    optimalTempMax: 25,
+    minRainfall: 600,
+    maxRainfall: 1200,
+    minElevation: 0,
+    maxElevation: 1500,
+    growingSeason: 90,
+    difficultyLevel: 'easy',
+    expectedYield: 8000,
+    marketPriceMin: 40,
+    marketPriceMax: 100,
+    laborHours: 400,
+    initialInvestment: 42000,
+    operatingCost: 24000,
+    breakEvenMonths: 4,
+    marketDemandIndex: 86
+  },
+  {
+    name_en: 'Coriander',
+    name_zh: '香菜',
+    imageUrl: "https://images.unsplash.com/photo-1723810330043-dd05647294cb?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: 'herb',
+    optimalTempMin: 15,
+    optimalTempMax: 28,
+    minRainfall: 500,
+    maxRainfall: 1100,
+    minElevation: 0,
+    maxElevation: 1400,
+    growingSeason: 50,
+    difficultyLevel: 'easy',
+    expectedYield: 2500,
+    marketPriceMin: 120,
+    marketPriceMax: 300,
+    laborHours: 280,
+    initialInvestment: 32000,
+    operatingCost: 18000,
+    breakEvenMonths: 3,
+    marketDemandIndex: 77
+  }
+];
+
+// ============================================================
+// SEED FUNCTION
+// ============================================================
+
+async function seedCrops() {
+  try {
+    console.log('🌱 Starting crop seeding process...\n');
+    
+    // Connect to database
+    await connectDB();
+    
+    // Clear existing crops
+    console.log('🗑️  Clearing existing crops...');
+    const deleteResult = await Crop.deleteMany({});
+    console.log(`   Deleted ${deleteResult.deletedCount} existing crops\n`);
+    
+    // Insert new crops
+    console.log('📥 Inserting new crops...');
+    const insertedCrops = await Crop.insertMany(crops);
+    console.log(`   ✅ Inserted ${insertedCrops.length} crops successfully!\n`);
+    
+    // Display summary by category
+    console.log('📊 Summary by Category:');
+    const categories = await Crop.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          count: { $sum: 1 },
+          avgPrice: { $avg: { $avg: ['$marketPriceMin', '$marketPriceMax'] } }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+    
+    categories.forEach(cat => {
+      console.log(`   ${cat._id}: ${cat.count} crops (Avg price: NT$${Math.round(cat.avgPrice)}/kg)`);
+    });
+    
+    console.log('\n✅ Crop seeding completed successfully!');
+    console.log(`📦 Total crops in database: ${insertedCrops.length}\n`);
+    
+    // Display some example crops
+    console.log('🌾 Sample Crops:');
+    const samples = await Crop.find({}).limit(5);
+    samples.forEach(crop => {
+      console.log(`   - ${crop.name_en} (${crop.name_zh}): ${crop.category}`);
+    });
+    
+    console.log('\n🎉 Done! You can now use these crops in your application.\n');
+    
+  } catch (error) {
+    console.error('❌ Error seeding crops:', error);
+    throw error;
+  } finally {
+    // Close database connection
+    await mongoose.connection.close();
+    console.log('🔌 Database connection closed');
+  }
+}
+
+// ============================================================
+// RUN SEEDER
+// ============================================================
+
+// Run if called directly
+if (require.main === module) {
+  seedCrops()
+    .then(() => process.exit(0))
+    .catch(err => {
+      console.error(err);
+      process.exit(1);
+    });
+}
+
+module.exports = { seedCrops, crops };

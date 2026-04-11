@@ -1,0 +1,12 @@
+<% if (error && error.status === 404) { %>
+  <%- include('404') %>
+<% } else if (error && error.status === 500) { %>
+  <%- include('500') %>
+<% } else { %>
+  <!-- Generic error -->
+  <div class="container my-5 text-center">
+    <h1 class="display-1"><%= error.status || 500 %></h1>
+    <p class="lead"><%= message %></p>
+    <a href="/" class="btn btn-success">Go Home</a>
+  </div>
+<% } %>

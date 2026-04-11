@@ -1,0 +1,176 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/location">Location</a></li>
+    <li class="breadcrumb-item active">Climate</li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-5 fw-bold text-success">
+        <i class="bi bi-cloud-sun me-2"></i>Climate Analysis
+      </h1>
+      <p class="lead text-muted">Climate data for <%= location.address %></p>
+      <span class="badge bg-secondary">🏔️ <%= elevation %>m elevation</span>
+      <span class="badge bg-info ms-2"><%= climateData.annual.climateZone %> Zone</span>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-thermometer-half fs-1 text-danger"></i>
+          <h3 class="mt-2 mb-0"><%= climateData.annual.avgTemp %>°C</h3>
+          <small class="text-muted">Avg Temperature</small>
+          <p class="small mt-2 mb-0"><%= climateData.annual.minTemp %>°C - <%= climateData.annual.maxTemp %>°C</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-cloud-rain fs-1 text-primary"></i>
+          <h3 class="mt-2 mb-0"><%= climateData.annual.annualRainfall %> mm</h3>
+          <small class="text-muted">Annual Rainfall</small>
+          <p class="small mt-2 mb-0"><%= climateData.analysis.waterAvailability %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-droplet fs-1 text-info"></i>
+          <h3 class="mt-2 mb-0"><%= climateData.annual.avgHumidity %>%</h3>
+          <small class="text-muted">Avg Humidity</small>
+          <p class="small mt-2 mb-0">Typical for <%= climateData.annual.climateZone %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-calendar-check fs-1 text-success"></i>
+          <h3 class="mt-2 mb-0"><%= climateData.annual.growingSeason %> days</h3>
+          <small class="text-muted">Growing Season</small>
+          <p class="small mt-2 mb-0"><%= (climateData.annual.growingSeason / 30).toFixed(0) %> months</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0"><i class="bi bi-thermometer me-2"></i>Monthly Temperature</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="tempChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0"><i class="bi bi-cloud-rain me-2"></i>Monthly Rainfall</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="rainChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold text-primary">❄️ Frost Risk</h6>
+          <% const frostBadge = climateData.analysis.frostRisk === 'High' ? 'danger' : climateData.analysis.frostRisk === 'Moderate' ? 'warning' : 'success'; %>
+          <span class="badge bg-<%= frostBadge %>"><%= climateData.analysis.frostRisk %></span>
+          <p class="small mt-2 mb-0">
+            <% if (climateData.analysis.frostRisk === 'High') { %>
+              Frost possible in winter. Protect sensitive crops.
+            <% } else if (climateData.analysis.frostRisk === 'Moderate') { %>
+              Occasional cold snaps possible.
+            <% } else { %>
+              Minimal frost risk. Year-round growing possible.
+            <% } %>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold text-danger">🌡️ Heat Stress</h6>
+          <% const heatBadge = climateData.analysis.heatStress === 'High' ? 'danger' : climateData.analysis.heatStress === 'Moderate' ? 'warning' : 'success'; %>
+          <span class="badge bg-<%= heatBadge %>"><%= climateData.analysis.heatStress %></span>
+          <p class="small mt-2 mb-0">
+            <% if (climateData.analysis.heatStress === 'High') { %>
+              Hot summers. Consider shade or heat-tolerant varieties.
+            <% } else if (climateData.analysis.heatStress === 'Moderate') { %>
+              Warm season peak. Adequate for most crops.
+            <% } else { %>
+              Cool climate. Ideal for temperate crops.
+            <% } %>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold text-info">💧 Water Availability</h6>
+          <% const waterBadge = climateData.analysis.waterAvailability === 'Abundant' ? 'success' : climateData.analysis.waterAvailability === 'Adequate' ? 'info' : 'warning'; %>
+          <span class="badge bg-<%= waterBadge %>"><%= climateData.analysis.waterAvailability %></span>
+          <p class="small mt-2 mb-0">
+            <% if (climateData.analysis.waterAvailability === 'Abundant') { %>
+              Plenty of rainfall. Drainage may be more important than irrigation.
+            <% } else if (climateData.analysis.waterAvailability === 'Adequate') { %>
+              Sufficient rainfall with supplemental irrigation in dry months.
+            <% } else { %>
+              Consider irrigation systems for consistent water supply.
+            <% } %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Best Planting Months -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Best Planting Months</h5>
+    </div>
+    <div class="card-body">
+      <p class="mb-2">Optimal temperature range (15-28°C) for planting:</p>
+      <div>
+        <% climateData.monthly.months.forEach((month, idx) => { %>
+          <% const isGood = climateData.analysis.bestPlantingMonths.includes(idx); %>
+          <span class="badge <%= isGood ? 'bg-success' : 'bg-secondary' %> me-1 mb-1"><%= month %></span>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next Step -->
+  <div class="card border-success shadow">
+    <div class="card-body text-center py-4">
+      <h5 class="text-success mb-1"><i class="bi bi-check-circle-fill me-2"></i>Climate Data Ready!</h5>
+      <p class="text-muted mb-3">Now let's find the best crops for your farm.</p>
+      <a href="/crops" class="btn btn-success btn-lg px-5">
+        View Crop Recommendations <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </div>
+</div>
+</div>
+
+

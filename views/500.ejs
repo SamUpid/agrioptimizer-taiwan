@@ -1,0 +1,44 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+      
+      <!-- 500 Icon -->
+      <div class="mb-4">
+        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 8rem;"></i>
+      </div>
+      
+      <!-- Error Message -->
+      <h1 class="display-1 fw-bold text-danger">500</h1>
+      <h2 class="mb-4">Internal Server Error</h2>
+      <p class="lead text-muted mb-4">
+        Something went wrong on our end. Our team has been notified and we're working on it!
+      </p>
+      
+      <!-- Error Details (Development Only) -->
+      <% if (process.env.NODE_ENV === 'development' && error) { %>
+      <div class="card bg-dark text-white text-start mb-4">
+        <div class="card-header">
+          <h6 class="mb-0">🐛 Debug Info (Development Only)</h6>
+        </div>
+        <div class="card-body">
+          <p class="mb-2"><strong>Error:</strong> <%= error.message || 'Unknown error' %></p>
+          <% if (error.stack) { %>
+          <pre class="small text-white-50 mb-0" style="max-height: 300px; overflow-y: auto;"><%= error.stack %></pre>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+      
+      <!-- Actions -->
+      <div class="d-flex gap-3 justify-content-center">
+        <button onclick="location.reload()" class="btn btn-success btn-lg">
+          <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+        </button>
+        <a href="/" class="btn btn-outline-success btn-lg">
+          <i class="bi bi-house-door me-2"></i>Go Home
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</div>

@@ -1,0 +1,239 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/crops">Crops</a></li>
+    <li class="breadcrumb-item active"><%= crop.name_en %></li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+
+  <!-- Hero Image -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <img src="<%= crop.imageUrl || 'https://placehold.co/1200x400/198754/FFFFFF?text=' + crop.name_en %>" 
+           class="img-fluid rounded shadow-lg w-100" 
+           alt="<%= crop.name_en %>"
+           style="height: 400px; object-fit: cover;">
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="display-5 fw-bold text-success"><%= crop.name_en %></h1>
+      <h3 class="text-muted"><%= crop.name_zh %></h3>
+      <span class="badge bg-secondary"><%= crop.category %></span>
+      <span class="badge bg-info ms-2"><%= crop.difficultyLevel %></span>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <% if (suitability) { %>
+        <div class="card border-<%= suitability.color %>">
+          <div class="card-body text-center">
+            <h2 class="text-<%= suitability.color %> mb-0"><%= suitability.score %>/100</h2>
+            <p class="mb-0"><%= suitability.recommendation %></p>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Suitability Breakdown (if available) -->
+  <% if (suitability) { %>
+  <div class="card mb-4 border-<%= suitability.color %>">
+    <div class="card-header bg-<%= suitability.color %> text-white">
+      <h5 class="mb-0">Suitability for Your Farm</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3 text-center mb-3">
+          <div class="mb-2">🌡️</div>
+          <h4><%= suitability.breakdown.temperature %>%</h4>
+          <small class="text-muted">Temperature Match</small>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+          <div class="mb-2">💧</div>
+          <h4><%= suitability.breakdown.rainfall %>%</h4>
+          <small class="text-muted">Rainfall Match</small>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+          <div class="mb-2">🏔️</div>
+          <h4><%= suitability.breakdown.elevation %>%</h4>
+          <small class="text-muted">Elevation Match</small>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+          <div class="mb-2">💰</div>
+          <h4><%= suitability.breakdown.market %>%</h4>
+          <small class="text-muted">Market Factor</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Growing Requirements -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">🌱 Growing Requirements</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Temperature:</strong> <%= crop.optimalTempMin || 'N/A' %>°C - <%= crop.optimalTempMax || 'N/A' %>°C</p>
+          <p><strong>Rainfall:</strong> <%= crop.minRainfall || 'N/A' %>mm - <%= crop.maxRainfall || 'N/A' %>mm/year</p>
+          <p><strong>Elevation:</strong> <%= crop.minElevation || 'N/A' %>m - <%= crop.maxElevation || 'N/A' %>m</p>
+          <p><strong>Soil pH:</strong> <%= crop.soilPH ? `${crop.soilPH.min} - ${crop.soilPH.max}` : 'N/A' %></p>
+          <p class="mb-0"><strong>Difficulty:</strong> <%= crop.difficultyLevel %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">💰 Economics</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Market Price:</strong> NT$<%= crop.marketPriceMin %>-<%= crop.marketPriceMax %>/kg</p>
+          <p><strong>Expected Yield:</strong> <%= crop.expectedYield %> kg/hectare</p>
+          <p><strong>Investment:</strong> NT$<%= crop.initialInvestment.toLocaleString() %>/hectare</p>
+          <p><strong>Operating Cost:</strong> NT$<%= crop.operatingCost.toLocaleString() %>/hectare/year</p>
+          <% const roi = ((crop.expectedYield * ((crop.marketPriceMin + crop.marketPriceMax) / 2) - crop.operatingCost) / crop.initialInvestment * 100).toFixed(0); %>
+          <p class="mb-0"><strong>ROI:</strong> <span class="badge bg-success fs-6"><%= roi %>%</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Timeline -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header">
+    <h5 class="mb-0">📅 Growth Timeline</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-3">
+        <p><strong>Planting Season:</strong></p>
+        <% if (crop.plantingSeasons && crop.plantingSeasons.length > 0) { %>
+          <% crop.plantingSeasons.forEach(season => { %>
+            <span class="badge bg-success"><%= season %></span>
+          <% }); %>
+        <% } else { %>
+          <span class="text-muted">N/A</span>
+        <% } %>
+      </div>
+      <div class="col-md-3">
+        <p><strong>Days to Maturity:</strong> <%= crop.daysToMaturity || 'N/A' %> days</p>
+      </div>
+      <div class="col-md-3">
+        <p><strong>Harvest Season:</strong></p>
+        <% if (crop.harvestSeasons && crop.harvestSeasons.length > 0) { %>
+          <% crop.harvestSeasons.forEach(season => { %>
+            <span class="badge bg-warning"><%= season %></span>
+          <% }); %>
+        <% } else { %>
+          <span class="text-muted">N/A</span>
+        <% } %>
+      </div>
+      <div class="col-md-3">
+        <p><strong>Yield Period:</strong> <%= crop.yieldPeriod || 'N/A' %></p>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Best Practices -->
+  <% if (crop.bestPractices && crop.bestPractices.length > 0) { %>
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0">✅ Best Practices</h5>
+    </div>
+    <div class="card-body">
+      <ul>
+        <% crop.bestPractices.forEach(practice => { %>
+          <li><%= practice %></li>
+        <% }); %>
+      </ul>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Common Pests -->
+  <% if (crop.commonPests && crop.commonPests.length > 0) { %>
+  <div class="card mb-4 shadow-sm border-warning">
+    <div class="card-header bg-warning">
+      <h5 class="mb-0">⚠️ Common Pests & Diseases</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <% crop.commonPests.forEach(pest => { %>
+          <div class="col-md-6">
+            <p class="mb-1"><strong><%= pest.name %>:</strong> <%= pest.management %></p>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+  <% } %>
+  <!-- Companion Planting Section -->
+  <div class="card mb-4 shadow-sm border-success">
+    <div class="card-header bg-success bg-opacity-10">
+      <h5 class="mb-0">🌱 Companion Planting</h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-3">These crops grow well together with <%= crop.name_en %></p>
+      
+      <% if (companions && companions.length > 0) { %>
+        <div class="row">
+          <% companions.forEach(comp => { %>
+            <% const scoreColor = comp.compatibilityScore >= 8 ? 'success' : comp.compatibilityScore >= 6 ? 'warning' : 'secondary'; %>
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h6 class="mb-0"><%= comp.crop.name_en %></h6>
+                      <small class="text-muted"><%= comp.crop.name_zh %></small>
+                    </div>
+                    <span class="badge bg-<%= scoreColor %>"><%= comp.compatibilityScore %>/10</span>
+                  </div>
+
+                  <% if (comp.benefits && comp.benefits.length > 0) { %>
+                    <div class="mb-2">
+                      <strong class="small">Benefits:</strong>
+                      <ul class="small mb-0 ps-3">
+                        <% comp.benefits.forEach(b => { %>
+                          <li><%= b %></li>
+                        <% }); %>
+                      </ul>
+                    </div>
+                  <% } %>
+
+                  <% if (comp.spacing) { %>
+                    <p class="small mb-2"><strong>Spacing:</strong> <%= comp.spacing %></p>
+                  <% } %>
+
+                  <% if (comp.plantingNotes) { %>
+                    <p class="small mb-0"><strong>Notes:</strong> <%= comp.plantingNotes %></p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-info-circle fs-1"></i>
+          <p class="mt-2">No companion planting data available for this crop yet.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+
+  <!-- Actions -->
+  <div class="text-center">
+    <a href="/crops" class="btn btn-outline-secondary btn-lg">← Back to Crops</a>
+    <a href="/economics?crop=<%= crop._id %>" class="btn btn-success btn-lg ms-2">Calculate Profitability →</a>
+  </div>
+
+</div>

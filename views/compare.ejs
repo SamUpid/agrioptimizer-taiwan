@@ -1,0 +1,272 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/crops">Crops</a></li>
+    <li class="breadcrumb-item active">Compare</li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+  
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-5 fw-bold text-success">
+        <i class="bi bi-arrow-left-right me-2"></i>Compare Crops
+      </h1>
+      <p class="lead text-muted">Side-by-side comparison to help you choose</p>
+    </div>
+  </div>
+
+  <% if (!isComparing) { %>
+    <!-- Selection Page -->
+    <div class="card shadow-lg">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-check2-square text-success" style="font-size: 5rem;"></i>
+        <h3 class="mt-3">Select Crops to Compare</h3>
+        <p class="text-muted mb-4">Go to the crops page and select 2-3 crops using the checkboxes</p>
+        <a href="/crops" class="btn btn-success btn-lg">
+          <i class="bi bi-arrow-left me-2"></i>Go to Crops Page
+        </a>
+      </div>
+    </div>
+  <% } else { %>
+
+    <!-- Comparison Table -->
+    <div class="card shadow-lg mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Crop Comparison</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 200px;">Metric</th>
+                <% selectedCrops.forEach(crop => { %>
+                <th class="text-center">
+                  <div class="mb-2">
+                    <% if (crop.imageUrl) { %>
+                    <img src="<%= crop.imageUrl %>" alt="<%= crop.name_en %>" 
+                         class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                    <% } %>
+                  </div>
+                  <strong><%= crop.name_en %></strong><br>
+                  <small class="text-muted"><%= crop.name_zh %></small>
+                </th>
+                <% }); %>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Suitability Score -->
+              <% if (location) { %>
+              <tr>
+                <td><strong>Suitability Score</strong></td>
+                <%
+                  const scores = selectedCrops.map(c => c.suitability ? c.suitability.score : 0);
+                  const maxScore = Math.max(...scores);
+                %>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center <%= crop.suitability && crop.suitability.score === maxScore && maxScore > 0 ? 'table-success' : '' %>">
+                  <%= crop.suitability ? crop.suitability.score + '/100' : 'N/A' %>
+                  <% if (crop.suitability && crop.suitability.score === maxScore && maxScore > 0) { %>
+                    <i class="bi bi-trophy-fill text-warning ms-1"></i>
+                  <% } %>
+                </td>
+                <% }); %>
+              </tr>
+              <% } %>
+
+              <!-- Category -->
+              <tr>
+                <td><strong>Category</strong></td>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center"><span class="badge bg-secondary"><%= crop.category %></span></td>
+                <% }); %>
+              </tr>
+
+              <!-- Initial Investment -->
+              <tr>
+                <td><strong>Initial Investment</strong></td>
+                <%
+                  const investments = selectedCrops.map(c => c.initialInvestment);
+                  const minInvestment = Math.min(...investments);
+                %>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center <%= crop.initialInvestment === minInvestment ? 'table-success' : '' %>">
+                  NT$<%= crop.initialInvestment.toLocaleString() %>/ha
+                  <% if (crop.initialInvestment === minInvestment) { %>
+                    <i class="bi bi-trophy-fill text-warning ms-1"></i>
+                  <% } %>
+                </td>
+                <% }); %>
+              </tr>
+
+              <!-- ROI -->
+              <tr>
+                <td><strong>Annual ROI</strong></td>
+                <%
+                  const rois = selectedCrops.map(c => c.roi || 0);
+                  const maxROI = Math.max(...rois);
+                %>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center <%= crop.roi === maxROI && maxROI > 0 ? 'table-success' : '' %>">
+                  <%= crop.roi %>%
+                  <% if (crop.roi === maxROI && maxROI > 0) { %>
+                    <i class="bi bi-trophy-fill text-warning ms-1"></i>
+                  <% } %>
+                </td>
+                <% }); %>
+              </tr>
+
+              <!-- Break-Even -->
+              <tr>
+                <td><strong>Break-Even Time</strong></td>
+                <%
+                  const breakEvens = selectedCrops.map(c => c.breakEvenMonths);
+                  const minBreakEven = Math.min(...breakEvens);
+                %>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center <%= crop.breakEvenMonths === minBreakEven ? 'table-success' : '' %>">
+                  <%= crop.breakEvenMonths %> months
+                  <% if (crop.breakEvenMonths === minBreakEven) { %>
+                    <i class="bi bi-trophy-fill text-warning ms-1"></i>
+                  <% } %>
+                </td>
+                <% }); %>
+              </tr>
+
+              <!-- Expected Yield -->
+              <tr>
+                <td><strong>Expected Yield</strong></td>
+                <%
+                  const yields = selectedCrops.map(c => c.expectedYield);
+                  const maxYield = Math.max(...yields);
+                %>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center <%= crop.expectedYield === maxYield ? 'table-success' : '' %>">
+                  <%= crop.expectedYield.toLocaleString() %> kg/ha
+                  <% if (crop.expectedYield === maxYield) { %>
+                    <i class="bi bi-trophy-fill text-warning ms-1"></i>
+                  <% } %>
+                </td>
+                <% }); %>
+              </tr>
+
+              <!-- Market Price -->
+              <tr>
+                <td><strong>Market Price</strong></td>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center">
+                  NT$<%= crop.marketPriceMin %>-<%= crop.marketPriceMax %>/kg
+                </td>
+                <% }); %>
+              </tr>
+
+              <!-- Operating Cost -->
+              <tr>
+                <td><strong>Annual Operating Cost</strong></td>
+                <%
+                  const opCosts = selectedCrops.map(c => c.operatingCost);
+                  const minOpCost = Math.min(...opCosts);
+                %>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center <%= crop.operatingCost === minOpCost ? 'table-success' : '' %>">
+                  NT$<%= crop.operatingCost.toLocaleString() %>/ha
+                  <% if (crop.operatingCost === minOpCost) { %>
+                    <i class="bi bi-trophy-fill text-warning ms-1"></i>
+                  <% } %>
+                </td>
+                <% }); %>
+              </tr>
+
+              <!-- Difficulty -->
+              <tr>
+                <td><strong>Difficulty Level</strong></td>
+                <% selectedCrops.forEach(crop => { %>
+                <td class="text-center">
+                  <span class="badge bg-<%= crop.difficultyLevel === 'easy' ? 'success' : crop.difficultyLevel === 'moderate' ? 'warning' : 'danger' %>">
+                    <%= crop.difficultyLevel %>
+                  </span>
+                </td>
+                <% }); %>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Charts -->
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">📊 ROI Comparison</h6>
+          </div>
+          <div class="card-body">
+            <canvas id="roiChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">💰 Investment vs Yield</h6>
+          </div>
+          <div class="card-body">
+            <canvas id="investmentChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Legend:</strong> Green highlighted cells with <i class="bi bi-trophy-fill text-warning"></i> indicate the best value for that metric.
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center">
+      <a href="/crops" class="btn btn-outline-secondary btn-lg">
+        <i class="bi bi-arrow-left me-2"></i>Back to Crops
+      </a>
+      <button onclick="window.print()" class="btn btn-success btn-lg ms-2">
+        <i class="bi bi-printer me-2"></i>Print Comparison
+      </button>
+    </div>
+
+    <!-- Charts Script -->
+    <script>
+    // ROI Chart
+    const roiCtx = document.getElementById('roiChart').getContext('2d');
+    new Chart(roiCtx, {
+      type: 'bar',
+      data: <%- JSON.stringify(chartData.roi) %>,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    // Investment vs Yield Chart
+    const investCtx = document.getElementById('investmentChart').getContext('2d');
+    new Chart(investCtx, {
+      type: 'bar',
+      data: <%- JSON.stringify(chartData.investment) %>,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { type: 'linear', position: 'left', beginAtZero: true },
+          y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+    </script>
+
+  <% } %>
+</div>
+</div>

@@ -1,0 +1,152 @@
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/coffee">Coffee</a></li>
+    <li class="breadcrumb-item active"><%= coffee.varietyName %></li>
+  </ol>
+</nav>
+
+<div class="container my-4">
+
+  <!-- Hero Image -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <img src="<%= coffee.imageUrl || 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=1200&h=400&fit=crop' %>" 
+           class="img-fluid rounded shadow-lg w-100" 
+           alt="<%= coffee.varietyName %>"
+           style="height: 400px; object-fit: cover;">
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="display-5 fw-bold text-success"><%= coffee.varietyName %></h1>
+      <h3 class="text-muted"><%= coffee.varietyName_zh %></h3>
+      <span class="badge bg-secondary"><%= coffee.species %></span>
+      <span class="badge bg-info ms-2"><%= coffee.diseaseResistance %> resistance</span>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <% if (suitability) { %>
+        <div class="card border-success">
+          <div class="card-body text-center">
+            <h2 class="text-success mb-0"><%= suitability.score %>/100</h2>
+            <p class="mb-0"><%= suitability.qualityPotential %></p>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Elevation Chart -->
+  <div class="card mb-4 border-warning shadow-sm">
+    <div class="card-header bg-warning bg-opacity-10">
+      <h5 class="mb-0">🏔️ Elevation Requirements</h5>
+    </div>
+    <div class="card-body">
+      <p><strong>Optimal Range:</strong> <%= coffee.optimalElevationMin %>m - <%= coffee.optimalElevationMax %>m</p>
+      <% if (location) { %>
+        <p class="mb-2"><strong>Your Elevation:</strong> <%= location.elevation %>m
+          <% if (location.elevation >= coffee.optimalElevationMin && location.elevation <= coffee.optimalElevationMax) { %>
+            <span class="badge bg-success ms-2">✓ Perfect Match</span>
+          <% } else if (location.elevation < coffee.optimalElevationMin) { %>
+            <span class="badge bg-warning ms-2">⚠️ <%= coffee.optimalElevationMin - location.elevation %>m too low</span>
+          <% } else { %>
+            <span class="badge bg-info ms-2">ℹ️ <%= location.elevation - coffee.optimalElevationMax %>m above optimal</span>
+          <% } %>
+        </p>
+      <% } %>
+      <div class="progress" style="height: 25px;">
+        <div class="progress-bar bg-success" style="width: <%= ((coffee.optimalElevationMin / 2000) * 100) %>%">
+          <%= coffee.optimalElevationMin %>m
+        </div>
+        <div class="progress-bar bg-warning" style="width: <%= (((coffee.optimalElevationMax - coffee.optimalElevationMin) / 2000) * 100) %>%">
+          Optimal Range
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Growing Info -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">🌱 Growing Information</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Trees per Hectare:</strong> <%= coffee.treesPerHectare %></p>
+          <p><strong>Yield per Tree:</strong> <%= coffee.yieldPerTree %> kg</p>
+          <p><strong>Years to First Harvest:</strong> <%= coffee.yearsToFirstHarvest %></p>
+          <p><strong>Productive Years:</strong> <%= coffee.productiveYears %></p>
+          <p class="mb-0"><strong>Disease Resistance:</strong> <%= coffee.diseaseResistance %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">☕ Cup Profile</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Cup Quality Range:</strong> <%= coffee.cupQualityMin %>-<%= coffee.cupQualityMax %> points</p>
+          <p><strong>Flavor Notes (EN):</strong><br><%= coffee.flavorNotes_en %></p>
+          <p class="mb-0"><strong>Flavor Notes (ZH):</strong><br><%= coffee.flavorNotes_zh %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing Methods -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0">🔄 Processing Methods</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <% coffee.processingMethods.forEach(method => { %>
+          <div class="col-md-4 mb-2">
+            <span class="badge bg-success"><%= method %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Harvest Timing -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0">📅 Harvest Calendar</h5>
+    </div>
+    <div class="card-body">
+      <p><strong>Harvest Months:</strong> <%= coffee.harvestMonths %></p>
+      <div>
+        <% ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].forEach((month, idx) => { %>
+          <% const isHarvest = coffee.harvestMonths.includes(month); %>
+          <span class="badge <%= isHarvest ? 'bg-warning' : 'bg-secondary' %> me-1"><%= month %></span>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quality Tips -->
+  <% if (coffee.qualityTips_en) { %>
+  <div class="card mb-4 shadow-sm border-info">
+    <div class="card-header bg-info bg-opacity-10">
+      <h5 class="mb-0">💡 Quality Tips</h5>
+    </div>
+    <div class="card-body">
+      <p class="mb-2"><strong>English:</strong> <%= coffee.qualityTips_en %></p>
+      <p class="mb-0"><strong>中文:</strong> <%= coffee.qualityTips_zh %></p>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Actions -->
+  <div class="text-center">
+    <a href="/coffee" class="btn btn-outline-secondary btn-lg">← Back to Coffee Varieties</a>
+    <a href="/economics?coffee=<%= coffee._id %>" class="btn btn-success btn-lg ms-2">Calculate Profitability →</a>
+  </div>
+
+</div>
