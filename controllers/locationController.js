@@ -23,14 +23,6 @@ const {
 exports.showLocationPage = async (req, res) => {
   try {
     
-    // [DEBUG] Get API key and log status
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    console.log('=== LOCATION PAGE DEBUG ===');
-    console.log('API Key exists:', !!apiKey);
-    console.log('API Key length:', apiKey ? apiKey.length : 0);
-    console.log('API Key first 5 chars:', apiKey ? apiKey.substring(0, 5) : 'none');
-    console.log('Environment:', process.env.NODE_ENV || 'development');
-    console.log('===========================');
     const savedLocation = req.session.location || null;
     
     // Create page-specific scripts
