@@ -1,411 +1,271 @@
 /**
- * Location Controller
- * Handles location-related requests and coordinates with external APIs
+ * Climate Controller - FIXED with URL parameter support
+ * Handles climate data fetching and visualization
  */
 
 const Location = require('../models/Location');
-const {
-  geocodeAddress,
-  reverseGeocode,
-  getElevation,
-  getTaiwanClimateData,
-  isInTaiwan,
-  validateCoordinates
-} = require('../utils/apiClients');
+const { getTaiwanClimateData, isInTaiwan } = require('../utils/apiClients');
 
 // ============================================================
-// RENDER LOCATION PAGE
+// RENDER CLIMATE PAGE
 // ============================================================
 
-/**
- * GET /location - Render location selection page
- */
-exports.showLocationPage = async (req, res) => {
+exports.showClimatePage = async (req, res) => {
   try {
+    console.log('=== CLIMATE PAGE REQUEST ===');
+    console.log('Query params:', req.query);
+    console.log('Session location:', req.session.location);
+    console.log('Session ID:', req.sessionID);
     
-    const savedLocation = req.session.location || null;
+    let location = null;
     
-    // Create page-specific scripts
-    const pageScripts = `
-      <script src="/js/maps.js"></script>
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap&language=${res.getLocale() === 'zh-TW' ? 'zh-TW' : 'en'}"></script>
-    `;
+    // PRIORITY 1: Check URL query parameters (from our location.ejs fix)
+    if (req.query.lat && req.query.lng) {
+      console.log('✅ Using location from URL parameters');
+      location = {
+        lat: parseFloat(req.query.lat),
+        lng: parseFloat(req.query.lng),
+        elevation: req.query.elev ? parseFloat(req.query.elev) : null,
+        address: req.query.address || 'Selected Location',
+        savedAt: new Date()
+      };
+      
+      // Also save to session for future use
+      req.session.location = location;
+      await new Promise((resolve) => req.session.save(resolve));
+      console.log('Saved URL location to session');
+    }
+    
+    // PRIORITY 2: Check session
+    if (!location && req.session.location && req.session.location.lat && req.session.location.lng) {
+      console.log('✅ Using location from session');
+      location = req.session.location;
+    }
+    
+    // PRIORITY 3: Check for location in request body (POST)
+    if (!location && req.body && req.body.lat && req.body.lng) {
+      console.log('✅ Using location from POST body');
+      location = {
+        lat: parseFloat(req.body.lat),
+        lng: parseFloat(req.body.lng),
+        elevation: req.body.elev ? parseFloat(req.body.elev) : null,
+        address: req.body.address || 'Selected Location',
+        savedAt: new Date()
+      };
+      
+      // Save to session
+      req.session.location = location;
+      await new Promise((resolve) => req.session.save(resolve));
+    }
+    
+    // If no location found, redirect to location page
+    if (!location || !location.lat || !location.lng) {
+      console.log('❌ No location found in URL, session, or body');
+      req.flash('error', 'Please select your farm location first');
+      return res.redirect('/location');
+    }
+    
+    console.log('📍 Using location:', {
+      lat: location.lat,
+      lng: location.lng,
+      elevation: location.elevation
+    });
 
-    res.render('location', {
-      title: res.__('location.title'),
-      page: 'location',
-      savedLocation: savedLocation,
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
-      pageScripts: pageScripts
+    // Try to get cached climate data from DB
+    let dbLocation = await Location.findByCoordinates(location.lat, location.lng, 0.01);
+
+    let climateData;
+
+    // If no cache or expired, fetch fresh data
+    if (!dbLocation || !dbLocation.isCacheValid) {
+      console.log('📡 Fetching fresh climate data...');
+      
+      const freshData = await getTaiwanClimateData(location.lat, location.lng);
+      
+      // Transform data to match Location model schema
+      const transformedData = {
+        annualTemp: freshData.annual.avgTemp,
+        annualRainfall: freshData.annual.annualRainfall,
+        avgHumidity: freshData.annual.avgHumidity,
+        growingSeason: freshData.annual.growingSeason,
+        monthlyTemps: freshData.monthly.temps,
+        monthlyRainfall: freshData.monthly.rainfall
+      };
+      
+      // Save to DB for caching
+      if (dbLocation) {
+        // Update existing
+        dbLocation.climateData = transformedData;
+        dbLocation.lastUpdated = new Date();
+        await dbLocation.save();
+      } else {
+        // Create new
+        dbLocation = new Location({
+          latitude: location.lat,
+          longitude: location.lng,
+          elevation: location.elevation || 0,
+          locationName: location.address || 'Taiwan Location',
+          climateData: transformedData,
+          lastUpdated: new Date()
+        });
+        await dbLocation.save();
+      }
+      
+      // Use the fresh data for rendering (with full structure)
+      climateData = freshData;
+      
+    } else {
+      console.log('💾 Using cached climate data');
+      
+      // Reconstruct full climate data from cached DB data
+      const cached = dbLocation.climateData;
+      climateData = {
+        location: { lat: location.lat, lng: location.lng, name: location.address },
+        annual: {
+          avgTemp: cached.annualTemp,
+          minTemp: Math.min(...cached.monthlyTemps),
+          maxTemp: Math.max(...cached.monthlyTemps),
+          annualRainfall: cached.annualRainfall,
+          avgHumidity: cached.avgHumidity,
+          growingSeason: cached.growingSeason,
+          climateZone: cached.annualTemp < 15 ? 'Temperate' : cached.annualTemp < 18 ? 'Subtropical' : 'Tropical',
+          elevation: location.elevation || 0
+        },
+        monthly: {
+          temps: cached.monthlyTemps,
+          rainfall: cached.monthlyRainfall,
+          months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        },
+        analysis: {
+          frostRisk: Math.min(...cached.monthlyTemps) < 5 ? 'High' : Math.min(...cached.monthlyTemps) < 10 ? 'Moderate' : 'Low',
+          heatStress: Math.max(...cached.monthlyTemps) > 32 ? 'High' : Math.max(...cached.monthlyTemps) > 28 ? 'Moderate' : 'Low',
+          waterAvailability: cached.annualRainfall > 2500 ? 'Abundant' : cached.annualRainfall > 1500 ? 'Adequate' : 'Limited',
+          bestPlantingMonths: cached.monthlyTemps.map((t, i) => t > 15 && t < 28 ? i : -1).filter(i => i >= 0)
+        }
+      };
+    }
+
+    console.log('✅ Rendering climate page with data');
+    
+    res.render('climate', {
+      title: res.__('climate.title') || 'Climate Data',
+      page: 'climate',
+      location,
+      climateData,
+      elevation: location.elevation || 0,
+      pageScripts: `<script>
+        window.climateData = {
+          months: ${JSON.stringify(climateData.monthly.months)},
+          temps: ${JSON.stringify(climateData.monthly.temps)},
+          rainfall: ${JSON.stringify(climateData.monthly.rainfall)},
+          minTemp: ${JSON.stringify(climateData.annual.minTemp)},
+          maxTemp: ${JSON.stringify(climateData.annual.maxTemp)}
+        };
+        console.log('✅ Chart data loaded:', window.climateData);
+        console.log('📍 Location from URL/session:', ${JSON.stringify(location)});
+      </script>`
     });
 
   } catch (error) {
-    console.error('Error rendering location page:', error);
+    console.error('Error rendering climate page:', error);
     res.status(500).render('error', {
       title: 'Error',
-      message: 'Failed to load location page',
+      message: 'Failed to load climate data: ' + error.message,
       error: error
     });
   }
 };
 
 // ============================================================
-// GEOCODE ADDRESS
+// API: GET CLIMATE DATA
 // ============================================================
 
-/**
- * POST /location/geocode - Convert address to coordinates
- */
-exports.geocode = async (req, res) => {
+exports.getClimateData = async (req, res) => {
   try {
-    const { address } = req.body;
-
-    if (!address || address.trim() === '') {
+    // Check URL params first, then session
+    let location = null;
+    
+    if (req.query.lat && req.query.lng) {
+      location = {
+        lat: parseFloat(req.query.lat),
+        lng: parseFloat(req.query.lng),
+        elevation: req.query.elev ? parseFloat(req.query.elev) : null
+      };
+    } else if (req.session.location) {
+      location = req.session.location;
+    }
+    
+    if (!location || !location.lat || !location.lng) {
       return res.status(400).json({
         success: false,
-        message: 'Address is required'
+        message: 'No location provided. Please select a location first.'
       });
     }
 
-    // Geocode the address
-    const result = await geocodeAddress(address);
+    let dbLocation = await Location.findByCoordinates(location.lat, location.lng, 0.01);
 
-    // Check if location is in Taiwan
-    if (!isInTaiwan(result.lat, result.lng)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Location must be in Taiwan (台灣)',
-        data: result
-      });
-    }
-
-    // Get elevation
-    const elevation = await getElevation(result.lat, result.lng);
-
-    res.json({
-      success: true,
-      data: {
-        lat: result.lat,
-        lng: result.lng,
-        address: result.formattedAddress,
-        elevation: elevation
+    if (!dbLocation || !dbLocation.isCacheValid) {
+      const freshData = await getTaiwanClimateData(location.lat, location.lng);
+      
+      // Transform for DB
+      const transformedData = {
+        annualTemp: freshData.annual.avgTemp,
+        annualRainfall: freshData.annual.annualRainfall,
+        avgHumidity: freshData.annual.avgHumidity,
+        growingSeason: freshData.annual.growingSeason,
+        monthlyTemps: freshData.monthly.temps,
+        monthlyRainfall: freshData.monthly.rainfall
+      };
+      
+      if (dbLocation) {
+        dbLocation.climateData = transformedData;
+        dbLocation.lastUpdated = new Date();
+        await dbLocation.save();
+      } else {
+        dbLocation = new Location({
+          latitude: location.lat,
+          longitude: location.lng,
+          elevation: location.elevation || 0,
+          locationName: location.address || 'Taiwan Location',
+          climateData: transformedData
+        });
+        await dbLocation.save();
       }
-    });
 
-  } catch (error) {
-    console.error('Geocoding error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to geocode address',
-      error: error.message
-    });
-  }
-};
-
-// ============================================================
-// REVERSE GEOCODE
-// ============================================================
-
-/**
- * POST /location/reverse-geocode - Convert coordinates to address
- */
-exports.reverseGeocodeCoords = async (req, res) => {
-  try {
-    const { lat, lng } = req.body;
-
-    // Validate coordinates
-    if (!validateCoordinates(parseFloat(lat), parseFloat(lng))) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid coordinates'
-      });
-    }
-
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lng);
-
-    // Check if in Taiwan
-    if (!isInTaiwan(latitude, longitude)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Location must be in Taiwan (台灣)'
-      });
-    }
-
-    // Reverse geocode
-    const result = await reverseGeocode(latitude, longitude);
-
-    res.json({
-      success: true,
-      data: {
-        address: result.formattedAddress
-      }
-    });
-
-  } catch (error) {
-    console.error('Reverse geocoding error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to reverse geocode coordinates',
-      error: error.message
-    });
-  }
-};
-
-// ============================================================
-// GET ELEVATION
-// ============================================================
-
-/**
- * POST /location/fetch-elevation - Get elevation for coordinates
- */
-exports.fetchElevation = async (req, res) => {
-  try {
-    const { lat, lng } = req.body;
-
-    // Validate coordinates
-    if (!validateCoordinates(parseFloat(lat), parseFloat(lng))) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid coordinates'
-      });
-    }
-
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lng);
-
-    // Check if in Taiwan
-    if (!isInTaiwan(latitude, longitude)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Location must be in Taiwan (台灣)'
-      });
-    }
-
-    // Get elevation
-    const elevation = await getElevation(latitude, longitude);
-
-    res.json({
-      success: true,
-      data: {
-        elevation: elevation
-      }
-    });
-
-  } catch (error) {
-    console.error('Elevation fetch error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch elevation',
-      error: error.message
-    });
-  }
-};
-
-// ============================================================
-// SAVE LOCATION
-// ============================================================
-
-/**
- * POST /location/save - Save location to session and optionally to database
- */
-exports.saveLocation = async (req, res) => {
-  try {
-    const { lat, lng, address, elevation } = req.body;
-
-    // Validate required fields
-    if (!lat || !lng) {
-      return res.status(400).json({
-        success: false,
-        message: 'Latitude and longitude are required'
-      });
-    }
-
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lng);
-
-    // Validate coordinates
-    if (!validateCoordinates(latitude, longitude)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid coordinates'
-      });
-    }
-
-    // Check if in Taiwan
-    if (!isInTaiwan(latitude, longitude)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Location must be in Taiwan (台灣)'
-      });
-    }
-
-    // If elevation not provided, fetch it
-    let finalElevation = elevation ? parseFloat(elevation) : null;
-    if (!finalElevation) {
-      finalElevation = await getElevation(latitude, longitude);
-    }
-
-    // If address not provided, reverse geocode
-    let finalAddress = address || null;
-    if (!finalAddress) {
-      const geocodeResult = await reverseGeocode(latitude, longitude);
-      finalAddress = geocodeResult.formattedAddress;
-    }
-
-    // Save to session
-    req.session.location = {
-      lat: latitude,
-      lng: longitude,
-      address: finalAddress,
-      elevation: finalElevation,
-      savedAt: new Date()
-    };
-
-    // Optional: Check if location exists in database (cached climate data)
-    let dbLocation = await Location.findByCoordinates(latitude, longitude, 0.01);
-
-    res.json({
-      success: true,
-      message: 'Location saved successfully',
-      data: {
-        lat: latitude,
-        lng: longitude,
-        address: finalAddress,
-        elevation: finalElevation,
-        hasClimateData: dbLocation ? dbLocation.isCacheValid : false
-      }
-    });
-
-  } catch (error) {
-    console.error('Save location error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to save location',
-      error: error.message
-    });
-  }
-};
-
-// ============================================================
-// GET CLIMATE DATA (Placeholder for Day 4)
-// ============================================================
-
-/**
- * POST /location/fetch-climate - Get climate data for location
- * This will be fully implemented on Day 4
- */
-exports.fetchClimateData = async (req, res) => {
-  try {
-    const { lat, lng } = req.body;
-
-    // Validate coordinates
-    if (!validateCoordinates(parseFloat(lat), parseFloat(lng))) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid coordinates'
-      });
-    }
-
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lng);
-
-    // Check if in Taiwan
-    if (!isInTaiwan(latitude, longitude)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Location must be in Taiwan (台灣)'
-      });
-    }
-
-    // Check if we have cached data
-    let location = await Location.findByCoordinates(latitude, longitude, 0.01);
-
-    if (location && location.isCacheValid) {
-      // Return cached data
       return res.json({
         success: true,
-        cached: true,
-        data: location
+        cached: false,
+        data: freshData
       });
     }
 
-    // Fetch fresh climate data (placeholder - will implement on Day 4)
-    const climateData = await getTaiwanClimateData(latitude, longitude);
+    // Return cached data (reconstruct full structure)
+    const cached = dbLocation.climateData;
+    const fullData = {
+      location: { lat: location.lat, lng: location.lng, name: location.address },
+      annual: {
+        avgTemp: cached.annualTemp,
+        annualRainfall: cached.annualRainfall,
+        avgHumidity: cached.avgHumidity,
+        growingSeason: cached.growingSeason
+      },
+      monthly: {
+        temps: cached.monthlyTemps,
+        rainfall: cached.monthlyRainfall
+      }
+    };
 
     res.json({
       success: true,
-      cached: false,
-      message: 'Using mock climate data - Taiwan Weather Bureau API to be implemented',
-      data: climateData
+      cached: true,
+      data: fullData
     });
 
   } catch (error) {
-    console.error('Fetch climate data error:', error);
+    console.error('Get climate data error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch climate data',
-      error: error.message
-    });
-  }
-};
-
-// ============================================================
-// CLEAR LOCATION
-// ============================================================
-
-/**
- * POST /location/clear - Clear location from session
- */
-exports.clearLocation = async (req, res) => {
-  try {
-    req.session.location = null;
-
-    res.json({
-      success: true,
-      message: 'Location cleared successfully'
-    });
-
-  } catch (error) {
-    console.error('Clear location error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to clear location',
-      error: error.message
-    });
-  }
-};
-
-// ============================================================
-// GET CURRENT LOCATION FROM SESSION
-// ============================================================
-
-/**
- * GET /location/current - Get location from session
- */
-exports.getCurrentLocation = async (req, res) => {
-  try {
-    const location = req.session.location || null;
-
-    if (!location) {
-      return res.json({
-        success: true,
-        hasLocation: false,
-        data: null
-      });
-    }
-
-    res.json({
-      success: true,
-      hasLocation: true,
-      data: location
-    });
-
-  } catch (error) {
-    console.error('Get current location error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get current location',
       error: error.message
     });
   }
