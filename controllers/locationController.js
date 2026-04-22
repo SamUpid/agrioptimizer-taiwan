@@ -23,6 +23,13 @@ const {
 exports.showLocationPage = async (req, res) => {
   try {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      console.error('CRITICAL: GOOGLE_MAPS_API_KEY is not set!');
+      return res.status(500).render('error', {
+        title: 'Configuration Error',
+        message: 'Maps API key is not configured'
+      });
+    }
     console.log('=== LOCATION PAGE DEBUG ===');
     console.log('API Key exists:', !!apiKey);
     console.log('API Key length:', apiKey ? apiKey.length : 0);
