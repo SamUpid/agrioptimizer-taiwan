@@ -2,10 +2,6 @@
 
 <img width="1388" height="951" alt="Screenshot 2026-04-12 at 6 57 07 PM" src="https://github.com/user-attachments/assets/9d710a7a-eda2-4e1b-9b37-cb597082f60d" />
 
-<img width="1030" height="879" alt="Screenshot 2026-04-12 at 7 02 09 PM" src="https://github.com/user-attachments/assets/dfa2b1c5-7c3c-4219-af48-0e3a2eff9676" />
-
-<img width="1027" height="947" alt="Screenshot 2026-04-12 at 7 04 25 PM" src="https://github.com/user-attachments/assets/f42fcd91-0fb1-4b65-8452-13ba434169dd" />
-
 
 [![View Live Demo](https://img.shields.io/badge/🌐_View_Live_Demo-4CAF50?style=for-the-badge&logo=globe&logoColor=white&labelColor=2E7D32&fontSize=24px)](https://agrioptimizer-taiwan.onrender.com)
 
