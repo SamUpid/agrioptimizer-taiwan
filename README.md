@@ -1,144 +1,261 @@
-# 🌱 AgriOptimizer Taiwan - Smart Farming Platform
+<div align="center">
 
-<img width="1388" height="951" alt="Screenshot 2026-04-12 at 6 57 07 PM" src="https://github.com/user-attachments/assets/9d710a7a-eda2-4e1b-9b37-cb597082f60d" />
+<img src="https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white" />
+<img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat&logo=mongodb&logoColor=white" />
+<img src="https://img.shields.io/badge/Express.js-4.x-000000?style=flat&logo=express&logoColor=white" />
+<img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat&logo=bootstrap&logoColor=white" />
+<img src="https://img.shields.io/badge/License-MIT-green?style=flat" />
 
+# 🌿 AgroOptimizer Taiwan | 農業優化
 
-[![View Live Demo](https://img.shields.io/badge/🌐_View_Live_Demo-4CAF50?style=for-the-badge&logo=globe&logoColor=white&labelColor=2E7D32&fontSize=24px)](https://agrioptimizer-taiwan.onrender.com)
+### Smart Farming Platform for Taiwan's Mountain Farmers
+**為台灣山地農民打造的智慧農業平台**
 
----
+<br/>
 
-## 📋 Project Description
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-2D6A4F?style=for-the-badge)](https://agrioptimizer-taiwan.onrender.com)
 
-AgriOptimizer Taiwan is a data-driven agricultural platform built for Taiwan's mountain farmers. Users can pin their farm on an interactive Google Map, receive real-time climate analysis from Taiwan's Weather Bureau, and get personalized crop recommendations scored by suitability — all with **bilingual (EN/ZH) support**. The platform combines geospatial data, live weather APIs, and an economic ROI calculator to help farmers make smarter, more profitable decisions.
+<br/>
 
----
+![AgroOptimizer Taiwan Home Page](https://images.unsplash.com/photo-1743401404293-0734bb7b5a42?q=80&w=2070&auto=format&fit=crop)
 
-## ✨ Key Features
+*High-mountain oolong tea farms in Alishan, Taiwan — the heart of our target users*
 
-| Feature | Description |
-| --- | --- |
-| 📍 **Location Input** | Pin your farm on Google Maps with autocomplete, drag-to-adjust marker, and geolocation support |
-| 🌤️ **Climate Analysis** | Live temperature & rainfall charts powered by Taiwan Weather Bureau (CWA) API |
-| 🌾 **Crop Recommendations** | Suitability-scored rankings across 30+ Taiwan crops with bilingual names (EN/ZH) |
-| ☕ **Coffee Module** | Specialized data for 5+ Taiwan coffee varieties including Arabica and Oolong |
-| 💰 **Economics Calculator** | ROI projections, market price data, and break-even analysis per crop |
-| 🗺️ **Google Maps Integration** | Elevation detection, Taiwan-restricted autocomplete, and coordinate display |
-| 🌐 **Bilingual Support** | Full English / Chinese (Traditional) language toggle |
-| 📱 **Responsive Design** | Optimized for desktop, tablet, and mobile |
+</div>
 
 ---
 
-## 🛠 Tech Stack
+## 📖 About the Project
 
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
-[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
-[![Google Maps](https://img.shields.io/badge/Google_Maps-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white)](https://developers.google.com/maps)
+**AgroOptimizer Taiwan** is a full-stack agricultural decision support platform built specifically for mountain farmers in Taiwan's Alishan, Nantou, and surrounding highland regions.
 
-- **Backend:** Node.js, Express.js, MongoDB (Mongoose)
-- **Frontend:** EJS Templating, Bootstrap 5, Chart.js
-- **APIs:** Google Maps (Geocoding + Elevation), Taiwan CWA Weather Bureau
-- **Internationalization:** i18n middleware (EN / ZH-TW)
-- **File Upload:** Multer + Cloudinary
-- **Security:** Helmet, CORS, express-session
-- **Deployment:** Render
+Farmers pin their farm on a map, and the system automatically fetches their **exact elevation**. Based on altitude, it recommends the most suitable **crops** (up to 8) and **coffee varieties** (up to 5) for their specific mountain zone. Users get personalised dashboards, market economics, and AI-powered advice — all in English and 繁體中文.
 
 ---
 
-## 🚀 Quick Start
+## ✨ Features
+
+### 🗺️ Smart Location System
+- Google Maps integration — click to pin or enter GPS coordinates
+- Automatic elevation fetch via Google Elevation API
+- Taiwan-boundary validation (only Taiwan coordinates accepted)
+- Single farm location per profile (Phase 1 design)
+
+### 🌱 Altitude-Based Crop Recommendations
+- **4 altitude zones** with distinct crop profiles:
+  - 🌄 Lowland (200–800m) — Dragon Fruit, Papaya, Pineapple, Strawberry
+  - ⛰️ Mid-Altitude (800–1200m) — Oolong Tea, Bamboo Shoots, Shiitake
+  - 🏔️ High Mountain (1200–1800m) — High-Mountain Oolong, Apple, Peach
+  - ❄️ Alpine (1800m+) — Premium Oolong, Alpine varieties
+- 41 crops in database with market prices, yield data, break-even analysis
+- Save up to **8 crops** per farm profile — enforced at schema + UI level
+
+### ☕ Coffee Variety Recommendations
+- 8 specialty coffee varieties matched to elevation zones
+- Includes Geisha, Bourbon, SL28, Typica, Catuai, Caturra, SL34, Pacamara
+- Cup quality scores, disease resistance, processing methods
+- Save up to **5 coffee varieties** per farm profile
+
+### 🏡 Personalised Farm Dashboard
+- Editable farm name (inline edit)
+- Live location display with change-location flow
+- Saved crops and coffees with one-click remove
+- 7-day weather forecast
+- AI daily brief (skeleton loader → live text)
+- Slot counters (X/8 crops, X/5 coffees)
+
+### 🌐 Bilingual Support
+- Full English + 繁體中文 on every page
+- i18n with locale switching (EN / 中文)
+- Hakka language foundation in place
+
+### 👤 Guest + Auth Flow
+- **Guest path**: Location → Recommendations → Economics (no save)
+- **Auth path**: Full profile, saved selections, personalised dashboard
+- Non-blocking "Sign up free" banner for guests after recommendations
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Node.js 18+ |
+| Framework | Express.js 4.x |
+| Database | MongoDB + Mongoose |
+| Templating | EJS + express-ejs-layouts |
+| Frontend | Bootstrap 5.3 + custom CSS |
+| Maps | Google Maps JavaScript API |
+| Elevation | Google Elevation API |
+| Auth | express-session + bcryptjs |
+| i18n | node-i18n |
+| AI | Claude API (advisor) / Gemini API (Cline) |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- MongoDB (local or Atlas)
+- Google Maps API key (with Elevation API enabled)
+
+### Installation
 
 ```bash
-# Clone the repository
+# Clone the repo
 git clone https://github.com/SamUpid/agrioptimizer-taiwan.git
-
-# Navigate to project directory
 cd agrioptimizer-taiwan
 
 # Install dependencies
 npm install
 
-# Set up environment variables
+# Create environment file
 cp .env.example .env
-# Add your MongoDB URI, Google Maps API key, and CWA API key
+# Fill in your values (see Environment Variables below)
 
-# Seed the crop database
+# Seed the database
 node init/seedCrops.js
 node init/seedCoffee.js
 
-# Start the development server
-npm start
+# Start development server
+npm run dev
 ```
 
-**🌐 Access the app at:** `http://localhost:3000`
+### Environment Variables
 
----
-
-## 🔑 Environment Variables
-
-Create a `.env` file in the root directory with the following:
+Create a `.env` file in the root with:
 
 ```env
-MONGODB_URI=your_mongodb_atlas_connection_string
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-CWA_API_KEY=your_taiwan_weather_bureau_api_key
-SESSION_SECRET=your_session_secret
-CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-CLOUDINARY_KEY=your_cloudinary_key
-CLOUDINARY_SECRET=your_cloudinary_secret
+# Server
 PORT=3000
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/agrioptimizer
+
+# Session
+SESSION_SECRET=your-secret-key-here
+
+# Google APIs
+GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+
+# AI (optional)
+ANTHROPIC_API_KEY=your-claude-api-key
 ```
 
 ---
 
-## 🌾 How It Works
-
-1. **Select Location** — Pin your farm on the map or use your current GPS location
-2. **Analyze Climate** — View monthly temperature and rainfall charts from live CWA data
-3. **Browse Crops** — See all suitable crops ranked by suitability score (0–100)
-4. **Check Economics** — Compare ROI%, market prices, and break-even timelines
-5. **Coffee Module** — Explore specialized coffee varieties suited to your elevation
-
----
-
-## 🗂 Project Structure
+## 📁 Project Structure
 
 ```
 agrioptimizer-taiwan/
-├── config/          # Database and API configuration
-├── controllers/     # Route handler logic
-├── init/            # Database seed scripts (crops + coffee)
-├── locales/         # EN / ZH translation files
-├── middleware/      # Auth and i18n middleware
-├── models/          # Mongoose schemas (Crop, CoffeeVariety, Location)
-├── public/          # Static assets (CSS, JS, images)
-├── routes/          # Express route definitions
-├── utils/           # API clients (Google Maps, CWA Weather)
-├── views/           # EJS templates
-├── app.js           # Express app entry point
-└── .env.example     # Environment variable template
+├── controllers/          # Route handlers
+│   ├── cropsController.js
+│   ├── coffeeController.js
+│   ├── locationController.js
+│   └── economicsController.js
+├── data/
+│   └── altitudeLookup.js # Altitude zone → crop/coffee mapping
+├── init/                 # Database seeders
+│   ├── seedCrops.js      # 41 crops
+│   └── seedCoffee.js     # 8 coffee varieties
+├── models/
+│   ├── User.js
+│   ├── FarmProfile.js    # crops[], coffees[], location
+│   ├── Crop.js
+│   └── CoffeeVariety.js
+├── public/
+│   ├── css/
+│   │   ├── home-page.css
+│   │   └── dashboard-page.css
+│   └── js/
+│       └── farm-actions.js  # Save/remove crops & coffees
+├── routes/
+│   ├── dashboard.js
+│   ├── cropsPages.js
+│   ├── coffeePages.js
+│   └── auth.js
+├── views/
+│   ├── home.ejs
+│   ├── dashboard.ejs
+│   ├── crops.ejs
+│   ├── coffee.ejs
+│   └── layout.ejs
+└── app.js
 ```
 
 ---
 
-## 🔮 Future Enhancements
+## 🗺️ Altitude Zone System
 
-- Booking / consultation system for agricultural advisors
-- Companion crop planting suggestions
-- Crop comparison side-by-side view
-- Admin dashboard for managing crop database
-- AI-powered planting schedule recommendations
-- Real-time market price integration
-- Offline support for remote mountain areas
+The core of the recommendation engine is `data/altitudeLookup.js`:
+
+```
+200–800m   → Lowland Hills 低山丘陵
+800–1200m  → Mid-Altitude  中海拔
+1200–1800m → High Mountain 高山
+1800m+     → Alpine Zone   高山帶
+```
+
+Each zone maps to crops and coffee varieties with:
+- Suitability score (0–100)
+- Reason text (EN + 中文)
+- Unsplash image URL (manually curated)
+- DB enrichment (market price, yield, break-even)
+
+---
+
+## 🌱 Crop & Coffee Data
+
+| Category | Count |
+|----------|-------|
+| Fruits | 14 |
+| Vegetables | 10 |
+| Specialty (Tea, Coffee) | 7 |
+| Herbs | 6 |
+| Grains | 2 |
+| Mushrooms | 2 |
+| **Total Crops** | **41** |
+| **Coffee Varieties** | **8** |
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Location page with Google Maps + elevation
+- [x] Altitude-based crop recommendations (41 crops)
+- [x] Coffee variety recommendations (8 varieties)
+- [x] Personalised farm dashboard
+- [x] Save/remove crops and coffees
+- [x] Bilingual EN / 繁體中文
+- [x] Guest + auth flow
+- [ ] Economics page — market prices + profit estimates
+- [ ] Claude AI crop advisor chat
+- [ ] Taiwan CWA weather API integration
+- [ ] Light theme for all pages
+- [ ] Push notifications (frost alerts, harvest windows)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, open an issue first to discuss your ideas.
+Pull requests are welcome. For major changes, open an issue first to discuss what you would like to change.
 
 ---
 
-**⭐ Star this repo if you find it helpful!**
+## 📄 License
 
-Made with ❤️ using Node.js + Google Maps + Taiwan CWA Data
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+Built with ☕ and 🍵 for Taiwan's mountain farmers
+
+**阿里山 · 南投 · 台灣**
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-2D6A4F?style=for-the-badge)](https://agrioptimizer-taiwan.onrender.com)
+
+</div>
