@@ -1,11 +1,10 @@
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 const coffeeController = require('../controllers/coffeeController');
 
-// GET /coffee - Show coffee varieties
-router.get('/', coffeeController.showCoffeePage);
-
-// GET /coffee/:id - Show coffee detail
-router.get('/:id', coffeeController.showCoffeeDetail);
+router.get('/',         coffeeController.showCoffeePage);
+router.get('/:id',      coffeeController.showCoffeeDetail);
+router.post('/save',    coffeeController.saveCoffee);
+router.delete('/remove', coffeeController.removeCoffee);
 
 module.exports = router;

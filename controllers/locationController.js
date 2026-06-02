@@ -3,6 +3,7 @@
  * Handles location-related requests and coordinates with external APIs
  */
 
+const FarmProfile = require('../models/FarmProfile');
 const Location = require('../models/Location');
 const {
   geocodeAddress,
@@ -262,6 +263,22 @@ exports.saveLocation = async (req, res) => {
     req.session.save((err) => {
       if (err) console.error('Session save error:', err);
     });
+
+    // Check if user is logged in and update FarmProfile
+    if (req.session.user) {
+      try {
+        const mongoose = require('mongoose');
+        const uid = req.session.user._id;
+        await FarmProfile.findOneAndUpdate(
+          { userId: uid },
+          { location: { address: finalAddress, coordinates: { lat: latitude, lng: longitude }, elevation: finalElevation } },
+          { upsert: true, new: true }
+        );
+        console.log('FarmProfile updated/created with new location for user:', req.session.user._id);
+      } catch (farmProfileError) {
+        console.error('Error updating FarmProfile with location:', farmProfileError);
+      }
+    }
 
     let dbLocation = await Location.findByCoordinates(latitude, longitude, 0.01);
 

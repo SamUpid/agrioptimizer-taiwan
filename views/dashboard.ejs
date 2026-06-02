@@ -1,0 +1,340 @@
+<%
+  const now     = new Date();
+  const hour    = now.getHours();
+  let greeting  = 'Good evening 晚安';
+  if (hour < 12) greeting = 'Good morning 早安';
+  else if (hour < 18) greeting = 'Good afternoon 午安';
+
+  const dateEn = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const dateZh = now.toLocaleDateString('zh-TW', { weekday: 'long', month: 'numeric', day: 'numeric' });
+
+  const locationName = farmProfile.location?.address || 'Taiwan Farm 台灣農場';
+  const forecastList = (weather.forecast || []).slice(0, 7);
+
+  const zoneLabels = {
+    lowland: { icon: '🌄', label: 'Lowland Hills 低山丘陵', color: 'success' },
+    mid:     { icon: '⛰️',  label: 'Mid-Altitude 中海拔',   color: 'info'    },
+    high:    { icon: '🏔️',  label: 'High Mountain 高山',     color: 'primary' },
+    alpine:  { icon: '❄️',  label: 'Alpine Zone 高山帶',     color: 'dark'    }
+  };
+  const zoneInfo = zoneLabels[zone] || { icon: '📍', label: zone, color: 'secondary' };
+
+  const weatherEmoji = weather.condition?.toLowerCase().includes('hot')   ? '☀️'
+                     : weather.condition?.toLowerCase().includes('cool')  ? '🌥️'
+                     : weather.condition?.toLowerCase().includes('rain')  ? '🌧️'
+                     : '🌤️';
+
+  const cropCount   = (farmProfile.crops   || []).length;
+  const coffeeCount = (farmProfile.coffees || []).length;
+%>
+
+<!-- dashboard.ejs — personalised farm dashboard -->
+<!-- All styles in public/css/dashboard-page.css -->
+
+
+
+<!-- ── LOCATION CHANGE CONFIRM MODAL ── -->
+<div class="modal-overlay" id="location-modal">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Change Farm Location?</div>
+    <div class="modal-body">
+      Changing your location will <strong>clear all saved crops and coffee varieties</strong>
+      because the altitude zone may have changed.<br><br>
+      您更換農場位置後，所有已儲存的作物和咖啡品種將被清除。
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeLocationModal()">Cancel 取消</button>
+      <button class="btn-modal-confirm" onclick="confirmLocationChange()">Yes, Change 確認更換</button>
+    </div>
+  </div>
+</div>
+
+<div class="dash-shell">
+
+  <!-- ── HERO ─────────────────────────────────────── -->
+  <div class="dash-hero">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-8">
+        <div class="dash-greeting"><%= dateEn %> · <%= dateZh %></div>
+        <div class="dash-name">
+          <%= greeting %>,
+          <span style="color:#95E8B7;"><%= user?.name || 'Farmer' %></span>
+        </div>
+
+        <!-- Editable farm name -->
+        <div class="farm-name-display mt-1" id="farm-name-display">
+          <span class="farm-name-text" style="color:rgba(255,255,255,0.8);">
+            🏡 <%= farmProfile.farmName || 'My Farm' %>
+          </span>
+          <button onclick="startEditFarmName()"
+                  style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+                         border-radius:6px;color:white;font-size:11px;padding:3px 10px;cursor:pointer;">
+            ✏️ Edit
+          </button>
+        </div>
+        <div style="display:none;" id="farm-name-edit">
+          <input type="text" id="farm-name-input" class="farm-name-input mt-1"
+                 value="<%= farmProfile.farmName || 'My Farm' %>"
+                 onkeydown="if(event.key==='Enter') saveFarmName(); if(event.key==='Escape') cancelEditFarmName();">
+          <button onclick="saveFarmName()"
+                  style="background:#52B788;border:none;border-radius:6px;
+                         color:white;font-size:11px;padding:5px 12px;cursor:pointer;margin-left:6px;">
+            Save
+          </button>
+          <button onclick="cancelEditFarmName()"
+                  style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+                         border-radius:6px;color:white;font-size:11px;padding:5px 10px;cursor:pointer;margin-left:4px;">
+            Cancel
+          </button>
+        </div>
+
+        <div class="dash-weather-pill mt-2">
+          <%= weatherEmoji %> <%= weather.currentTemp %>°C ·
+          <%= weather.condition %> · <%= locationName %>
+        </div>
+      </div>
+
+      <div class="col-lg-4 text-lg-end">
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">
+          <%= zoneInfo.icon %> <%= zoneInfo.label %>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);">
+          🏔️ <%= elevation %>m elevation
+        </div>
+        <% if (weather.source === 'estimated') { %>
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;">
+            ⚠️ Weather estimated — climate API unavailable
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ALERTS ─────────────────────────────────── -->
+  <% if (alerts && alerts.length) { %>
+    <div class="mb-3">
+      <% alerts.forEach(a => { %>
+        <div class="alert-item <%= a.type %>">
+          <%= a.type === 'frost' ? '🌡️' : '💡' %>
+          <%= a.message %>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <!-- ── STAT ROW ───────────────────────────────── -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-num"><%= cropCount %><span style="font-size:1rem;color:#6B8F6B;">/8</span></div>
+      <div class="stat-label">Crops saved<span class="stat-label-zh">已儲存作物</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><%= coffeeCount %><span style="font-size:1rem;color:#6B8F6B;">/5</span></div>
+      <div class="stat-label">Coffee varieties<span class="stat-label-zh">咖啡品種</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="font-size:1.4rem;"><%= zoneInfo.icon %></div>
+      <div class="stat-label"><%= zone %> zone<span class="stat-label-zh"><%= zoneData?.labelZh || '' %></span></div>
+    </div>
+  </div>
+
+  <!-- ── FARM LOCATION ──────────────────────────── -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">
+        📍 Farm Location <span class="dash-card-title-zh">農場位置</span>
+      </h3>
+      <button class="btn-edit-sm" onclick="showLocationModal()">
+        🗺️ Change Location 更換位置
+      </button>
+    </div>
+
+    <div class="location-block">
+      <div class="location-icon">🗺️</div>
+      <div class="location-info">
+        <div class="location-address"><%= locationName %></div>
+        <div class="location-meta">
+          <span>🏔️ <%= elevation %>m</span>
+          <span><%= zoneInfo.icon %> <%= zoneInfo.label %></span>
+          <% if (farmProfile.location?.coordinates?.lat) { %>
+            <span>📐 <%= farmProfile.location.coordinates.lat.toFixed(4) %>°N,
+                      <%= farmProfile.location.coordinates.lng.toFixed(4) %>°E</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI BRIEF ───────────────────────────────── -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">
+        🤖 AI Daily Brief <span class="dash-card-title-zh">本日AI摘要</span>
+      </h3>
+      <span style="font-size:11px;background:#E8F5E8;color:#2D6A4F;
+                   border:1px solid #B7DEB7;border-radius:100px;padding:3px 10px;">
+        AI Assessed
+      </span>
+    </div>
+
+    <div id="ai-brief-text" class="ai-brief-text">
+      <div class="ai-skeleton">
+        <div class="skeleton-line long"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MY CROPS ───────────────────────────────── -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">
+        🌱 My Crops <span class="dash-card-title-zh">我的作物</span>
+      </h3>
+      <span style="font-size:12px;color:<%= atCropCap ? '#D05050' : '#6B8F6B' %>;">
+        <%= cropCount %>/8 saved
+      </span>
+    </div>
+
+    <% if (cropCount === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">🌱</div>
+        <p>No crops saved yet. Visit the Crops page to add up to 8 crops.<br>
+           <span style="font-family:'Noto Sans TC',sans-serif;">尚未儲存作物，前往作物頁面最多可添加8種。</span>
+        </p>
+        <a href="/crops" class="btn-add-more">+ Browse Crops 瀏覽作物</a>
+      </div>
+    <% } else { %>
+      <div class="item-grid" id="crop-list">
+        <% farmProfile.crops.forEach(crop => { %>
+          <div class="item-row" id="crop-row-<%= crop.cropName.replace(/\s+/g,'_') %>">
+            <% if (crop.imageUrl) { %>
+              <img src="<%= crop.imageUrl %>"
+                   alt="<%= crop.cropName %>"
+                   class="item-img"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div class="item-img-fallback" style="display:none;">🌱</div>
+            <% } else { %>
+              <div class="item-img-fallback">🌱</div>
+            <% } %>
+            <div class="item-info">
+              <div class="item-name"><%= crop.cropName %></div>
+              <% if (crop.cropNameZh) { %>
+                <div class="item-name-zh"><%= crop.cropNameZh %></div>
+              <% } %>
+            </div>
+            <button class="btn-remove"
+                    onclick="removeCrop('<%= crop.cropName %>', this)">
+              Remove 移除
+            </button>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="slot-bar">
+        <span class="slot-count <%= atCropCap ? 'at-cap' : '' %>">
+          <% if (atCropCap) { %>
+            ⚠️ Maximum reached — remove a crop to add another | 已達上限
+          <% } else { %>
+            <%= remainingCropSlots %> slot(s) remaining · <%= cropCount %>/8
+          <% } %>
+        </span>
+        <a href="/crops" class="btn-add-more <%= atCropCap ? 'disabled' : '' %>">
+          + Add More 添加更多
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- ── MY COFFEES ─────────────────────────────── -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">
+        ☕ My Coffee Varieties <span class="dash-card-title-zh">我的咖啡品種</span>
+      </h3>
+      <span style="font-size:12px;color:<%= atCoffeeCap ? '#D05050' : '#6B8F6B' %>;">
+        <%= coffeeCount %>/5 saved
+      </span>
+    </div>
+
+    <% if (coffeeCount === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">☕</div>
+        <p>No coffee varieties saved yet. Visit the Coffee page to add up to 5 varieties.<br>
+           <span style="font-family:'Noto Sans TC',sans-serif;">尚未儲存咖啡品種，前往咖啡頁面最多可添加5種。</span>
+        </p>
+        <a href="/coffee" class="btn-add-more">+ Browse Coffee 瀏覽咖啡</a>
+      </div>
+    <% } else { %>
+      <div class="item-grid" id="coffee-list">
+        <% farmProfile.coffees.forEach(coffee => { %>
+          <div class="item-row" id="coffee-row-<%= coffee.coffeeName.replace(/\s+/g,'_') %>">
+            <% if (coffee.imageUrl) { %>
+              <img src="<%= coffee.imageUrl %>"
+                   alt="<%= coffee.coffeeName %>"
+                   class="item-img"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div class="item-img-fallback" style="display:none;">☕</div>
+            <% } else { %>
+              <div class="item-img-fallback">☕</div>
+            <% } %>
+            <div class="item-info">
+              <div class="item-name"><%= coffee.coffeeName %></div>
+              <% if (coffee.coffeeNameZh) { %>
+                <div class="item-name-zh"><%= coffee.coffeeNameZh %></div>
+              <% } %>
+              <% if (coffee.variety) { %>
+                <div style="font-size:10px;color:#8FAF8F;"><%= coffee.variety %></div>
+              <% } %>
+            </div>
+            <button class="btn-remove"
+                    onclick="removeCoffee('<%= coffee.coffeeName %>', this)">
+              Remove 移除
+            </button>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="slot-bar">
+        <span class="slot-count <%= atCoffeeCap ? 'at-cap' : '' %>">
+          <% if (atCoffeeCap) { %>
+            ⚠️ Maximum reached — remove one to add another | 已達上限
+          <% } else { %>
+            <%= remainingCoffeeSlots %> slot(s) remaining · <%= coffeeCount %>/5
+          <% } %>
+        </span>
+        <a href="/coffee" class="btn-add-more <%= atCoffeeCap ? 'disabled' : '' %>">
+          + Add More 添加更多
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- ── 7-DAY FORECAST ─────────────────────────── -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">
+        🌤️ 7-Day Forecast <span class="dash-card-title-zh">一週天氣預報</span>
+      </h3>
+      <span style="font-size:11px;color:#6B8F6B;">
+        <%= elevation %>m · <%= zoneInfo.label %>
+      </span>
+    </div>
+
+    <div class="forecast-row">
+      <% forecastList.forEach((day, i) => { %>
+        <div class="forecast-day <%= i === 0 ? 'today' : '' %> <%= day.harvestOptimal ? 'harvest' : '' %>">
+          <span class="fd-day"><%= i === 0 ? 'TODAY' : day.day?.split(',')[0]?.toUpperCase() || 'DAY' %></span>
+          <span class="fd-icon"><%= day.weatherEmoji || '🌤️' %></span>
+          <span class="fd-temp"><%= day.temp %>°</span>
+          <span class="fd-rain"><%= day.rain || 0 %>%</span>
+          <% if (day.harvestOptimal) { %>
+            <span style="font-size:9px;color:#D0A030;margin-top:2px;display:block;">⭐ Harvest</span>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+
+</div>

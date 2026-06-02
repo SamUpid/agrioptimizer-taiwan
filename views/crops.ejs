@@ -1,124 +1,262 @@
+<%
+  // ── helpers available in template ──────────────────────────
+  function scoreColor(score) {
+    if (score >= 90) return 'success';
+    if (score >= 80) return 'success';
+    if (score >= 70) return 'warning';
+    return 'secondary';
+  }
+
+  function scoreLabel(score) {
+    if (score >= 90) return 'Highly Suitable';
+    if (score >= 80) return 'Suitable';
+    if (score >= 70) return 'Moderate';
+    return 'Challenging';
+  }
+
+  function difficultyColor(d) {
+    if (d === 'easy')     return 'success';
+    if (d === 'moderate') return 'warning';
+    if (d === 'hard')     return 'danger';
+    return 'secondary';
+  }
+
+  const zoneLabels = {
+    lowland: { en: 'Lowland Hills 低山丘陵', icon: '🌄', color: 'success' },
+    mid:     { en: 'Mid-Altitude 中海拔',    icon: '⛰️',  color: 'info'    },
+    high:    { en: 'High Mountain 高山',      icon: '🏔️',  color: 'primary' },
+    alpine:  { en: 'Alpine Zone 高山帶',      icon: '❄️',  color: 'dark'    }
+  };
+  const zoneInfo = zoneLabels[zone] || { en: zone, icon: '📍', color: 'secondary' };
+%>
+
+<!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="container mt-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Home</a></li>
     <li class="breadcrumb-item"><a href="/location">Location</a></li>
-    <li class="breadcrumb-item"><a href="/climate">Climate</a></li>
     <li class="breadcrumb-item active">Crops</li>
   </ol>
 </nav>
 
 <div class="container my-4">
-  
-  <!-- Header -->
+
+  <!-- ── HEADER ─────────────────────────────────────────── -->
   <div class="row mb-4">
     <div class="col-12 text-center">
       <h1 class="display-5 fw-bold text-success">
         <i class="bi bi-flower2 me-2"></i>Crop Recommendations
+        <span class="d-block fs-5 fw-normal text-muted">作物建議</span>
       </h1>
-      <p class="lead text-muted">Based on <%= location.address %></p>
-      <span class="badge bg-secondary">🏔️ <%= location.elevation %>m</span>
-      <span class="badge bg-info ms-2"><%= climate.avgTemp.toFixed(1) %>°C avg</span>
-      <span class="badge bg-primary ms-2"><%= climate.annualRainfall %>mm rainfall</span>
-    </div>
-  </div>
 
-<!-- Search Bar -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-body">
-    <form method="GET" action="/crops" class="row g-3">
-      <div class="col-md-8">
-        <div class="input-group input-group-lg">
-          <span class="input-group-text bg-white">
-            <i class="bi bi-search"></i>
+      <% if (location && location.address) { %>
+        <p class="lead text-muted">Based on <%= location.address %></p>
+      <% } %>
+
+      <!-- Location + zone badges -->
+      <div class="d-flex justify-content-center flex-wrap gap-2 mt-2">
+        <span class="badge bg-secondary fs-6">🏔️ <%= elevation %>m elevation</span>
+        <span class="badge bg-<%= zoneInfo.color %> fs-6">
+          <%= zoneInfo.icon %> <%= zoneInfo.en %>
+        </span>
+        <% if (zoneData) { %>
+          <span class="badge bg-light text-dark fs-6 border">
+            <%= zoneData.description %>
           </span>
-          <input type="text" 
-                 name="search" 
-                 class="form-control" 
-                 placeholder="Search crops by name (English or Chinese)..."
-                 value="<%= search || '' %>">
-          <% if (search) { %>
-          <a href="/crops" class="btn btn-outline-secondary">
-            <i class="bi bi-x-lg"></i> Clear
-          </a>
+        <% } %>
+      </div>
+
+      <!-- Save state for logged-in users -->
+      <% if (isLoggedIn) { %>
+        <div class="mt-3">
+          <span class="badge bg-<%= savedCount >= 8 ? 'danger' : 'success' %> fs-6">
+            🌱 <%= savedCount %>/8 crops saved
+          </span>
+          <% if (savedCount >= 8) { %>
+            <div class="alert alert-warning mt-2 d-inline-block px-3 py-1 small">
+              ⚠️ Maximum reached — delete a crop to add more | 已達上限，請先刪除一個
+            </div>
+          <% } else { %>
+            <span class="text-muted small ms-2"><%= remainingSlots %> slot(s) remaining</span>
           <% } %>
         </div>
-      </div>
-      <div class="col-md-4">
-        <button type="submit" class="btn btn-success btn-lg w-100">
-          <i class="bi bi-search me-2"></i>Search
-        </button>
-      </div>
-    </form>
+      <% } else { %>
+        <div class="mt-3">
+          <a href="/auth/signup" class="btn btn-outline-success btn-sm">
+            💾 Sign up to save your crop selections
+          </a>
+        </div>
+      <% } %>
+    </div>
   </div>
-</div>
 
-<% if (search) { %>
-<div class="alert alert-info">
-  <i class="bi bi-info-circle me-2"></i>
-  Showing results for "<strong><%= search %></strong>" - <%= crops.length %> crop(s) found
-</div>
-<% } %>
+  <!-- ── SEARCH ─────────────────────────────────────────── -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <form method="GET" action="/crops" class="row g-3">
+        <div class="col-md-8">
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="Search crops — English or 中文..."
+                   value="<%= search || '' %>">
+            <% if (search) { %>
+              <a href="/crops" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Clear
+              </a>
+            <% } %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-success btn-lg w-100">
+            <i class="bi bi-search me-2"></i>Search
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <!-- Top 3 Featured Crops -->
-  <% if (topCrops && topCrops.length > 0) { %>
+  <% if (search) { %>
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      Results for "<strong><%= search %></strong>" — <%= crops.length %> found
+    </div>
+  <% } %>
+
+  <!-- ── TOP 3 FEATURED ─────────────────────────────────── -->
+  <% if (!search && topCrops && topCrops.length > 0) { %>
   <div class="row mb-4">
     <div class="col-12">
-      <h3 class="mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Top Recommendations</h3>
+      <h3 class="mb-3">
+        <i class="bi bi-star-fill text-warning me-2"></i>Top Recommendations
+        <span class="text-muted fs-6 fw-normal ms-2">最佳推薦</span>
+      </h3>
     </div>
-    <% topCrops.forEach((crop, idx) => { %>
+
+    <% topCrops.forEach((crop, idx) => {
+         const sc    = crop.suitabilityScore || 0;
+         const color = scoreColor(sc);
+         const label = scoreLabel(sc);
+         const imgSrc = crop.imageUrl ||
+           'https://placehold.co/400x250/198754/FFFFFF?text=' + encodeURIComponent(crop.cropName);
+         const isSaved = savedCropNames && savedCropNames.includes(crop.cropName);
+    %>
     <div class="col-md-4 mb-3">
-      <div class="card h-100 border-<%= crop.suitability.color %> shadow">
-        <div class="card-header bg-<%= crop.suitability.color %> text-white">
+      <div class="card h-100 border-<%= color %> shadow">
+
+        <!-- Score header -->
+        <div class="card-header bg-<%= color %> text-white">
           <div class="d-flex justify-content-between align-items-center">
             <span class="badge bg-white text-dark">#<%= idx + 1 %></span>
-            <span class="fs-4"><%= crop.suitability.score %>/100</span>
+            <span class="fs-5 fw-bold"><%= sc %>/100</span>
+            <span class="badge bg-white text-dark"><%= label %></span>
           </div>
         </div>
-        <img src="<%= crop.imageUrl || 'https://placehold.co/400x250/198754/FFFFFF?text=' + crop.name_en %>" 
-          class="card-img-top" 
-          alt="<%= crop.name_en %>"
-          style="height: 200px; object-fit: cover;">
+
+        <img src="<%= imgSrc %>"
+             class="card-img-top"
+             alt="<%= crop.cropName %>"
+             style="height:200px; object-fit:cover;"
+             loading="lazy">
+
         <div class="card-body">
-          <h5 class="card-title"><%= crop.name_en %></h5>
-          <p class="text-muted small mb-2"><%= crop.name_zh %></p>
-          <span class="badge bg-<%= crop.suitability.color %> mb-3"><%= crop.suitability.recommendation %></span>
-          
-          <div class="mb-2">
-            <small class="text-muted">Suitability Breakdown:</small>
-            <div class="progress mb-1" style="height: 8px;">
-              <div class="progress-bar bg-danger" style="width: 40%" title="Temperature: <%= crop.suitability.breakdown.temperature %>%"></div>
-              <div class="progress-bar bg-primary" style="width: 30%" title="Rainfall: <%= crop.suitability.breakdown.rainfall %>%"></div>
-              <div class="progress-bar bg-success" style="width: 20%" title="Elevation: <%= crop.suitability.breakdown.elevation %>%"></div>
-              <div class="progress-bar bg-warning" style="width: 10%" title="Market: <%= crop.suitability.breakdown.market %>%"></div>
+          <h5 class="card-title mb-0"><%= crop.cropName %></h5>
+          <p class="text-muted small mb-2"><%= crop.cropNameZh || '' %></p>
+
+          <!-- Suitability bar -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>Altitude suitability 海拔適合度</span>
+              <span><%= sc %>%</span>
             </div>
-            <div class="d-flex justify-content-between small">
-              <span>🌡️ <%= crop.suitability.breakdown.temperature %>%</span>
-              <span>💧 <%= crop.suitability.breakdown.rainfall %>%</span>
-              <span>🏔️ <%= crop.suitability.breakdown.elevation %>%</span>
-              <span>💰 <%= crop.suitability.breakdown.market %>%</span>
+            <div class="progress" style="height:10px;">
+              <div class="progress-bar bg-<%= color %>"
+                   style="width:<%= sc %>%"
+                   role="progressbar"></div>
             </div>
           </div>
 
-          <hr>
-          <p class="mb-2"><strong>ROI:</strong> <%= crop.roiPercentage %>%</p>
-          <p class="mb-2"><strong>Price:</strong> NT$<%= crop.pricePerKg %>/kg</p>
-          <p class="mb-0"><strong>Category:</strong> <%= crop.category %></p>
+          <!-- Why this crop -->
+          <p class="small text-muted mb-2">
+            <i class="bi bi-lightbulb text-warning me-1"></i>
+            <%= crop.reason || '' %>
+          </p>
+          <p class="small text-muted mb-2" style="font-family:'Noto Sans TC',sans-serif;">
+            <%= crop.reasonZh || '' %>
+          </p>
+
+          <hr class="my-2">
+
+          <!-- DB fields if available -->
+          <div class="row small">
+            <% if (crop.marketPriceMin && crop.marketPriceMax) { %>
+            <div class="col-6">
+              <strong>💰 Price</strong><br>
+              NT$<%= crop.marketPriceMin %>–<%= crop.marketPriceMax %>/kg
+            </div>
+            <% } %>
+            <% if (crop.difficultyLevel) { %>
+            <div class="col-6">
+              <strong>📊 Difficulty</strong><br>
+              <span class="badge bg-<%= difficultyColor(crop.difficultyLevel) %>">
+                <%= crop.difficultyLevel %>
+              </span>
+            </div>
+            <% } %>
+            <% if (crop.breakEvenMonths) { %>
+            <div class="col-6 mt-2">
+              <strong>📅 Break-even</strong><br>
+              <%= crop.breakEvenMonths %> months
+            </div>
+            <% } %>
+            <% if (crop.marketDemandIndex) { %>
+            <div class="col-6 mt-2">
+              <strong>📈 Demand</strong><br>
+              <%= crop.marketDemandIndex %>/100
+            </div>
+            <% } %>
+          </div>
         </div>
-        <div class="card-footer">
-          <a href="/crops/<%= crop._id %>" class="btn btn-success btn-sm w-100">View Details</a>
+
+        <div class="card-footer d-flex gap-2">
+          <% if (crop._id) { %>
+            <a href="/crops/<%= crop._id %>" class="btn btn-outline-success btn-sm flex-grow-1">
+              Details
+            </a>
+          <% } %>
+
+          <% if (isLoggedIn) { %>
+            <% if (isSaved) { %>
+              <button class="btn btn-danger btn-sm flex-grow-1"
+                      onclick="removeCrop('<%= crop.cropName %>', this)">
+                ✓ Remove
+              </button>
+            <% } else { %>
+              <button class="btn btn-success btn-sm flex-grow-1"
+                      onclick="saveCrop('<%= crop.cropName %>','<%= crop.cropNameZh %>','<%= crop.imageUrl %>','<%= crop.altitudeZone %>', this)"
+                      <%= savedCount >= 8 ? 'disabled' : '' %>>
+                + Save
+              </button>
+            <% } %>
+          <% } %>
         </div>
+
       </div>
     </div>
     <% }); %>
   </div>
   <% } %>
 
-  <!-- Filters & Sort -->
+  <!-- ── FILTERS ─────────────────────────────────────────── -->
   <div class="card mb-4">
     <div class="card-body">
       <form method="GET" action="/crops" class="row g-3">
         <div class="col-md-6">
-          <label class="form-label">Category</label>
+          <label class="form-label fw-semibold">Category 類別</label>
           <select name="category" class="form-select" onchange="this.form.submit()">
             <% categories.forEach(cat => { %>
               <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>>
@@ -128,58 +266,137 @@
           </select>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Sort By</label>
+          <label class="form-label fw-semibold">Sort By 排序</label>
           <select name="sort" class="form-select" onchange="this.form.submit()">
-            <option value="suitability" <%= sortBy === 'suitability' ? 'selected' : '' %>>Suitability</option>
-            <option value="roi" <%= sortBy === 'roi' ? 'selected' : '' %>>ROI</option>
-            <option value="price" <%= sortBy === 'price' ? 'selected' : '' %>>Price</option>
+            <option value="suitability" <%= sortBy === 'suitability' ? 'selected' : '' %>>
+              Suitability 適合度
+            </option>
+            <option value="price"      <%= sortBy === 'price'      ? 'selected' : '' %>>
+              Price 價格
+            </option>
+            <option value="difficulty" <%= sortBy === 'difficulty' ? 'selected' : '' %>>
+              Difficulty 難度
+            </option>
           </select>
         </div>
+        <% if (search) { %>
+          <input type="hidden" name="search" value="<%= search %>">
+        <% } %>
       </form>
     </div>
   </div>
 
-  <!-- All Crops Grid -->
+  <!-- ── ALL CROPS GRID ─────────────────────────────────── -->
   <div class="row">
     <div class="col-12 mb-3">
-      <h4>All Suitable Crops (<%= crops.length %>)</h4>
+      <h4>
+        All Suitable Crops (<%= crops.length %>)
+        <span class="text-muted fs-6 fw-normal">所有適合作物</span>
+      </h4>
     </div>
-    <% crops.forEach(crop => { %>
+
+    <% if (crops.length === 0) { %>
+      <div class="col-12">
+        <div class="alert alert-info text-center py-5">
+          <i class="bi bi-search fs-1 d-block mb-3"></i>
+          No crops found matching your filters.<br>
+          <a href="/crops" class="btn btn-success mt-3">Clear Filters</a>
+        </div>
+      </div>
+    <% } %>
+
+    <% crops.forEach(crop => {
+         const sc     = crop.suitabilityScore || 0;
+         const color  = scoreColor(sc);
+         const imgSrc = crop.imageUrl ||
+           'https://placehold.co/400x300/198754/FFFFFF?text=' + encodeURIComponent(crop.cropName);
+         const isSaved = savedCropNames && savedCropNames.includes(crop.cropName);
+    %>
     <div class="col-md-4 col-lg-3 mb-3">
       <div class="card h-100 shadow-sm">
-        <img src="<%= crop.imageUrl || 'https://placehold.co/400x300/198754/FFFFFF?text=' + crop.name_en %>" 
-         class="card-img-top" 
-         alt="<%= crop.name_en %>"
-         style="height: 180px; object-fit: cover;"
-         loading="lazy">
+        <img src="<%= imgSrc %>"
+             class="card-img-top"
+             alt="<%= crop.cropName %>"
+             style="height:180px; object-fit:cover;"
+             loading="lazy">
+
         <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h6 class="card-title mb-0"><%= crop.name_en %></h6>
-            <span class="badge bg-<%= crop.suitability.color %>"><%= crop.suitability.score %></span>
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <h6 class="card-title mb-0"><%= crop.cropName %></h6>
+            <span class="badge bg-<%= color %>"><%= sc %></span>
           </div>
-          <p class="text-muted small"><%= crop.name_zh %></p>
-          <p class="mb-1"><small><strong>ROI:</strong> <%= crop.roiPercentage %>%</small></p>
-          <p class="mb-2"><small><strong>Price:</strong> NT$<%= crop.pricePerKg %>/kg</small></p>
-          <a href="/crops/<%= crop._id %>" class="btn btn-outline-success btn-sm w-100">Details</a>
+          <p class="text-muted small mb-2"
+             style="font-family:'Noto Sans TC',sans-serif;">
+            <%= crop.cropNameZh || '' %>
+          </p>
+
+          <% if (crop.marketPriceMin) { %>
+            <p class="mb-1 small">
+              <strong>💰</strong> NT$<%= crop.marketPriceMin %>–<%= crop.marketPriceMax %>/kg
+            </p>
+          <% } %>
+
+          <% if (crop.difficultyLevel) { %>
+            <p class="mb-2 small">
+              <span class="badge bg-<%= difficultyColor(crop.difficultyLevel) %>">
+                <%= crop.difficultyLevel %>
+              </span>
+            </p>
+          <% } %>
+        </div>
+
+        <div class="card-footer d-flex gap-1">
+          <% if (crop._id) { %>
+            <a href="/crops/<%= crop._id %>"
+               class="btn btn-outline-success btn-sm flex-grow-1">
+              Details
+            </a>
+          <% } %>
+
+          <% if (isLoggedIn) { %>
+            <% if (isSaved) { %>
+              <button class="btn btn-danger btn-sm"
+                      onclick="removeCrop('<%= crop.cropName %>', this)"
+                      title="Remove from farm">
+                ✓
+              </button>
+            <% } else { %>
+              <button class="btn btn-success btn-sm"
+                      onclick="saveCrop('<%= crop.cropName %>','<%= crop.cropNameZh %>','<%= crop.imageUrl %>','<%= crop.altitudeZone %>', this)"
+                      <%= savedCount >= 8 ? 'disabled title="Maximum 8 crops reached"' : '' %>>
+                +
+              </button>
+            <% } %>
+          <% } %>
         </div>
       </div>
     </div>
     <% }); %>
   </div>
 
-  <!-- Legend -->
+  <!-- ── LEGEND ─────────────────────────────────────────── -->
   <div class="card mt-4 bg-light">
     <div class="card-body">
-      <h6 class="fw-bold">Suitability Score Legend:</h6>
+      <h6 class="fw-bold">Suitability Score Legend 適合度說明:</h6>
       <div class="row small">
-        <div class="col-md-3"><span class="badge bg-success">85-100</span> Highly Suitable</div>
-        <div class="col-md-3"><span class="badge bg-success">70-84</span> Suitable</div>
-        <div class="col-md-3"><span class="badge bg-warning">55-69</span> Moderately Suitable</div>
-        <div class="col-md-3"><span class="badge bg-warning">40-54</span> Challenging</div>
+        <div class="col-md-3">
+          <span class="badge bg-success">90–100</span> Highly Suitable 非常適合
+        </div>
+        <div class="col-md-3">
+          <span class="badge bg-success">80–89</span> Suitable 適合
+        </div>
+        <div class="col-md-3">
+          <span class="badge bg-warning text-dark">70–79</span> Moderate 尚可
+        </div>
+        <div class="col-md-3">
+          <span class="badge bg-secondary">Below 70</span> Challenging 困難
+        </div>
       </div>
       <hr>
       <p class="mb-0 small text-muted">
-        <strong>Score Components:</strong> Temperature (40%) • Rainfall (30%) • Elevation (20%) • Market (10%)
+        Scores are based on your farm's altitude zone
+        (<strong><%= elevation %>m → <%= zoneInfo.en %></strong>).
+        Sign up to save up to 8 crops to your profile.
       </p>
     </div>
   </div>

@@ -34,12 +34,61 @@
           </button>
         </div>
       </div>
-      <div class="card shadow-sm">
+
+      <div class="card shadow-sm mb-3">
         <div class="card-body p-0">
           <div id="map" style="height:500px;width:100%;border-radius:8px 8px 0 0;"></div>
         </div>
         <div class="card-footer text-muted small">
           <i class="bi bi-info-circle me-1"></i><%= __('location.mapHelp') %>
+        </div>
+      </div>
+
+      <div id="ai-crop-preview" class="card shadow-sm mb-3" style="display:none; border: 1px solid rgba(25, 135, 84, 0.25); background: linear-gradient(to bottom right, rgba(25, 135, 84, 0.03), rgba(32, 201, 151, 0.03));">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0 fw-semibold">
+              <i class="bi bi-stars me-2" style="color: #198754;"></i>AI Quick Analysis
+            </h6>
+            <span class="badge" style="background-color: #4a6641; font-size: 0.75rem;">AI</span>
+          </div>
+
+          <div id="ai-loading">
+            <div class="mb-3">
+              <div class="placeholder placeholder-glow w-100">
+                <span class="placeholder col-8"></span>
+              </div>
+              <div class="placeholder placeholder-glow w-100 mt-2">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10 mt-1"></span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="placeholder placeholder-glow w-100">
+                <span class="placeholder col-8"></span>
+              </div>
+              <div class="placeholder placeholder-glow w-100 mt-2">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10 mt-1"></span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="placeholder placeholder-glow w-100">
+                <span class="placeholder col-8"></span>
+              </div>
+              <div class="placeholder placeholder-glow w-100 mt-2">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10 mt-1"></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="ai-results" style="display: none;"></div>
+        </div>
+        <div class="card-footer border-top" style="border-color: rgba(25, 135, 84, 0.15) !important; background-color: transparent; padding: 0.75rem 1.25rem;">
+          <small class="text-muted" style="font-size: 0.8rem;">
+            <i class="bi bi-lightning-fill me-1" style="color: #ffc107;"></i>Powered by Gemini AI
+          </small>
         </div>
       </div>
     </div>
@@ -236,7 +285,11 @@ async function loadSavedLocation() {
 function placeMarker(location) {
   marker.setPosition(location);
   map.setCenter(location);
-  updateLocation(location.lat(), location.lng());
+
+  const lat = typeof location.lat === 'function' ? location.lat() : location.lat;
+  const lng = typeof location.lng === 'function' ? location.lng() : location.lng;
+
+  updateLocation(lat, lng);
 }
 
 // Update location information using server APIs
@@ -291,6 +344,8 @@ async function updateLocation(lat, lng) {
       } else {
         hintDiv.innerHTML = '<small class="text-warning"><i class="bi bi-sun"></i> Suitable for vegetables and tropical fruits</small>';
       }
+
+      fetchAICropPreview(elevationMeters, lat, lng, document.getElementById('selectedAddress').textContent !== '-' ? document.getElementById('selectedAddress').textContent : 'Taiwan Mountain Farm');
     }
   } catch (error) {
     console.error("Error fetching elevation:", error);
@@ -298,6 +353,119 @@ async function updateLocation(lat, lng) {
   
   // Show location card
   document.getElementById("locationCard").style.display = "block";
+}
+
+async function fetchAICropPreview(elevation, lat, lng, locationName = 'Taiwan Mountain Farm') {
+  const cardContainer = document.getElementById('ai-crop-preview');
+  const loadingSkeleton = document.getElementById('ai-loading');
+  const resultsContainer = document.getElementById('ai-results');
+
+  // Show card and loading state
+  cardContainer.style.display = 'block';
+  loadingSkeleton.style.display = 'block';
+  resultsContainer.style.display = 'none';
+  console.log('AI crop preview fetch starting for', { elevation, lat, lng, locationName });
+
+  try {
+    const response = await fetch('/api/ai/crop-preview', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        elevation, 
+        lat, 
+        lng, 
+        locationName: locationName || 'Taiwan Mountain Farm'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('AI crop preview response', data);
+    
+    // Handle both response formats: direct or nested in data object
+    const recommendations = data.recommendations || (data.data && data.data.recommendations);
+    const generalAdvice = data.generalAdvice || (data.data && data.data.generalAdvice);
+    const generalAdviceZh = data.generalAdviceZh || (data.data && data.data.generalAdviceZh);
+    
+    // Expecting structured JSON from the API with recommendations array
+    if (recommendations && Array.isArray(recommendations)) {
+      renderAICropItems(recommendations, generalAdvice, generalAdviceZh);
+      loadingSkeleton.style.display = 'none';
+      resultsContainer.style.display = 'block';
+    } else if (typeof data === 'string') {
+      // Fallback: if API returns plain text, try to parse it
+      console.warn('API returned text instead of JSON');
+      cardContainer.style.display = 'none';
+    } else {
+      throw new Error('Invalid API response format');
+    }
+  } catch (error) {
+    console.error('❌ AI crop preview error:', error.message);
+    // Fail gracefully - hide the card silently
+    cardContainer.style.display = 'none';
+  }
+}
+
+function renderAICropItems(recommendations, generalAdvice, generalAdviceZh) {
+  const resultsContainer = document.getElementById('ai-results');
+  
+  if (!recommendations || recommendations.length === 0) {
+    resultsContainer.innerHTML = '<small class="text-muted">No crop recommendations available.</small>';
+    return;
+  }
+
+  // Add general advice at the top if available
+  let adviceHtml = '';
+  if (generalAdvice || generalAdviceZh) {
+    adviceHtml = `
+      <div class="ai-general-advice mb-4 p-3 rounded" style="background-color: rgba(25, 135, 84, 0.08); border-left: 4px solid #198754;">
+        ${generalAdvice ? `<div class="mb-1" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-primary);">${escapeHtml(generalAdvice)}</div>` : ''}
+        ${generalAdviceZh ? `<div style="font-family: 'Noto Sans TC', serif; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(generalAdviceZh)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  const html = adviceHtml + recommendations.slice(0, 3).map(crop => {
+    const suitability = crop.suitability || 75;
+    let badgeClass = 'high';
+    if (suitability < 70) badgeClass = 'low';
+    else if (suitability < 85) badgeClass = 'medium';
+
+    return `
+      <div class="ai-crop-item">
+        <div class="ai-crop-header">
+          <div class="ai-crop-names">
+            <div class="ai-crop-name-en">${escapeHtml(crop.crop || crop.cropName)}</div>
+            <div class="ai-crop-name-zh">${escapeHtml(crop.cropZh || '')}</div>
+          </div>
+          <span class="ai-crop-badge ${badgeClass}">${suitability}%</span>
+        </div>
+        <div class="ai-suitability-bar">
+          <div class="ai-suitability-fill ${badgeClass === 'medium' ? 'medium' : badgeClass === 'low' ? 'low' : ''}" style="width: ${suitability}%"></div>
+        </div>
+        <div class="ai-crop-reasoning">${escapeHtml(crop.reasoning || '')}</div>
+        <div class="ai-crop-risk">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>${escapeHtml(crop.riskZh || crop.risk || '')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  resultsContainer.innerHTML = html;
+}
+
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 // Confirm location - Save to server and localStorage

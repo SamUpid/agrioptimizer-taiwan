@@ -16,6 +16,8 @@ const expressLayouts = require('express-ejs-layouts');
 const cookieParser = require('cookie-parser');
 const i18n = require('i18n');
 const { connectDB } = require('./config/database');
+const FarmProfile = require('./models/FarmProfile');
+const authRoutes = require("./routes/auth");
 
 // Initialize Express app
 const app = express();
@@ -91,24 +93,23 @@ app.use(flash());
 // i18n middleware
 app.use(i18n.init);
 
-// Language switcher middleware
+// Language middleware — always sets locale
 app.use((req, res, next) => {
-  // Priority: 1) Query string, 2) Cookie, 3) Default
   const lang = req.query.lang || req.cookies.language || 'en';
   
   if (['en', 'zh-TW'].includes(lang)) {
     req.setLocale(lang);
   }
   
-  // Make locale available in all templates
-  res.locals.locale = req.getLocale();
-  res.locals.__ = res.__;
+  res.locals.locale = req.getLocale() || 'en';
+  res.locals.__ = res.__ || function(t) { return t; };
   next();
 });
 
 // Make session data and flash messages available to all views
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
+  res.locals.user = req.session.user || null;
   res.locals.page = ''; // Default empty, will be overridden by each route
   res.locals.success_msg = req.flash('success');
   res.locals.error_msg = req.flash('error');
@@ -121,7 +122,24 @@ app.use((req, res, next) => {
 // ============================================================
 
 // Home route
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  // Allow ?preview=true to bypass dashboard redirect
+  // so developers and logged-in users can still see homepage
+  const preview = req.query.preview === 'true';
+  
+  try {
+    if (req.session.user && !preview) {
+      const farmProfile = await FarmProfile.findOne({ 
+        userId: req.session.user._id 
+      });
+      if (farmProfile) {
+        return res.redirect('/dashboard');
+      }
+    }
+  } catch (error) {
+    console.error('Home route FarmProfile lookup error:', error);
+  }
+
   res.render('home', {
     title: 'AgriOptimizer Taiwan',
     page: 'home'
@@ -144,9 +162,14 @@ app.get('/language/:lang', (req, res) => {
 app.use('/api/crops', require('./routes/crops'));
 app.use('/api/coffee', require('./routes/coffee'));
 app.use('/api/companions', require('./routes/companions'));
+app.use('/api/ai', require('./routes/ai'));
+
+// Authentication routes
+app.use('/auth', authRoutes);
 
 // Frontend routes
 app.use('/location', require('./routes/location'));
+app.use('/dashboard', require('./routes/dashboard'));
 app.use('/climate', require('./routes/climate'));
 app.use('/crops', require('./routes/cropsPages'));
 app.use('/coffee', require('./routes/coffeePages'));

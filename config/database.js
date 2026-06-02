@@ -1,37 +1,23 @@
-/**
- * MongoDB Database Configuration
- * Handles connection to MongoDB Atlas with error handling and reconnection logic
- */
-
 const mongoose = require('mongoose');
 
-/**
- * Connect to MongoDB database
- * @returns {Promise<void>}
- */
 const connectDB = async () => {
   try {
-    // MongoDB connection options
-    const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds
-    };
-
-    // Connect to MongoDB
-    const conn = await mongoose.connect(process.env.MONGODB_URI, options);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000,  // 30 seconds for Paris latency
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 60000,
+      heartbeatFrequencyMS: 10000,
+    });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database Name: ${conn.connection.name}`);
 
-    // Handle connection events
     mongoose.connection.on('error', (err) => {
       console.error('❌ MongoDB connection error:', err);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️  MongoDB disconnected. Attempting to reconnect...');
+      console.warn('⚠️ MongoDB disconnected. Attempting to reconnect...');
     });
 
     mongoose.connection.on('reconnected', () => {
@@ -40,17 +26,10 @@ const connectDB = async () => {
 
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
-    console.error('Stack trace:', error.stack);
-    
-    // Exit process with failure
-    process.exit(1);
+    console.error('💡 Consider creating a cluster in Singapore or Mumbai region');
   }
 };
 
-/**
- * Gracefully close database connection
- * @returns {Promise<void>}
- */
 const disconnectDB = async () => {
   try {
     await mongoose.connection.close();
@@ -60,7 +39,4 @@ const disconnectDB = async () => {
   }
 };
 
-module.exports = {
-  connectDB,
-  disconnectDB
-};
+module.exports = { connectDB, disconnectDB };

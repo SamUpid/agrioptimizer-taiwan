@@ -1,0 +1,39 @@
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100" style="background-color: #0C1A0C;">
+  <div class="card p-4 shadow-lg" style="width: 100%; max-width: 400px; background-color: #111E11;">
+    <h2 class="text-center mb-4 text-white">Sign In 登入</h2>
+
+    <% if (success_msg && success_msg.length > 0) { %>
+      <% success_msg.forEach(message => { %>
+        <div class="alert alert-success" role="alert">
+          <%= message %>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <% if (error_msg && error_msg.length > 0) { %>
+      <% error_msg.forEach(message => { %>
+        <div class="alert alert-danger" role="alert">
+          <%= message %>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <form action="/auth/login" method="POST">
+      <div class="mb-3">
+        <label for="email" class="form-label text-white">Email 電子郵件</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label text-white">Password 密碼</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-success" style="background-color: #74B577; border-color: #74B577;">Sign In 登入</button>
+      </div>
+    </form>
+    <p class="text-center mt-3 text-white">
+      Don't have an account? <a href="/auth/signup" style="color: #74B577;">Create one 建立帳號</a>
+    </p>
+  </div>
+</div>

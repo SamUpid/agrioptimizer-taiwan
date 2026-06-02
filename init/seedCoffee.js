@@ -160,6 +160,27 @@ const coffeeVarieties = [
     treesPerHectare: 1000,
     yearsToFirstHarvest: 4,
     productiveYears: 30
+  },
+  {
+    varietyName: 'Pacamara',
+    varietyName_zh: '帕卡馬拉',
+    imageUrl: 'https://images.unsplash.com/photo-1586095516671-d085ff58cdd4?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    optimalElevationMin: 1200,
+    optimalElevationMax: 1800,
+    tempDifferentialMin: 9,
+    diseaseResistance: 'medium',
+    cupQualityMin: 84,
+    cupQualityMax: 92,
+    harvestMonths: 'December to February',
+    processingMethods: ['washed', 'natural', 'honey'],
+    flavorNotes_en: 'Large beans, complex fruit, floral with wine-like acidity',
+    flavorNotes_zh: '大粒豆，複雜果香，花香帶葡萄酒般酸度',
+    qualityTips_en: 'Large-bean hybrid of Pacas and Maragogipe. Thrives at 1200–1800m in Taiwan. Requires careful processing due to large bean size. Commands premium specialty prices.',
+    qualityTips_zh: '帕卡斯和馬拉戈日佩的大粒混種。在台灣1200–1800公尺茁壯。大豆粒需要仔細處理。可獲得精品咖啡高價。',
+    yieldPerTree: 1.6,
+    treesPerHectare: 1000,
+    yearsToFirstHarvest: 3,
+    productiveYears: 25
   }
 ];
 

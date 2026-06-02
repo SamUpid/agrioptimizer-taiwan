@@ -1,363 +1,287 @@
-<!-- Hero Section - Dark gradient with floating animation -->
-<section class="hero-modern">
-  <div class="hero-background">
-    <div class="gradient-blob blob-1"></div>
-    <div class="gradient-blob blob-2"></div>
-    <div class="gradient-blob blob-3"></div>
-  </div>
-  
-  <div class="container hero-content">
-    <div class="row align-items-center min-vh-100">
-      <div class="col-lg-6" data-aos="fade-up">
-        <div class="hero-badge mb-4">
-          <i class="bi bi-stars me-2"></i>
-          <%= __('home.hero.badge') %>
+<!-- home.ejs — pure HTML + EJS, no inline styles -->
+<!-- All styles live in public/css/home-page.css -->
+<!-- body.home-page class is added by this page's script below -->
+
+<!-- ANNOUNCEMENT BANNER -->
+<div class="home-banner" id="home-announcement-banner">
+  🌱 New: AI crop recommendations now live for Alishan region
+  &nbsp;|&nbsp;
+  <span style="font-family:'Noto Sans TC',sans-serif;">阿里山地區AI作物建議已上線</span>
+  <button class="banner-close"
+          onclick="document.getElementById('home-announcement-banner').style.display='none'"
+          aria-label="Dismiss">×</button>
+</div>
+
+<!-- HERO -->
+<section class="home-hero">
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+
+      <!-- Left: Copy -->
+      <div class="col-lg-6">
+
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          Built for Alishan &middot; Nantou &middot; Taiwan Mountain Farmers
         </div>
-        <h1 class="hero-title mb-4">
-          <%= __('home.hero.title') %><br>
-          <span class="gradient-text"><%= __('home.hero.titleHighlight') %></span>
+
+        <h1 class="hero-headline">
+          Smart Farming<br/>
+          for Taiwan's<br/>
+          <span class="accent">Mountains</span>
         </h1>
-        <p class="hero-subtitle mb-5">
-          <%= __('home.hero.subtitle') %>
+
+        <p class="hero-zh">為台灣山地農民打造的智慧農業平台</p>
+
+        <p class="hero-desc">
+          Pin your farm on the map. Get AI-powered crop and coffee
+          recommendations matched to your exact altitude. Track
+          economics and weather — all in one place, in your language.
         </p>
-        <div class="hero-cta d-flex gap-3">
-          <a href="/location" class="btn-modern btn-primary">
-            <i class="bi bi-geo-alt me-2"></i>
-            <%= __('home.hero.ctaStart') %>
+
+        <div class="hero-ctas">
+          <a href="/auth/signup" class="btn-home-primary">
+            <i class="bi bi-rocket-takeoff"></i>
+            Get Started Free 免費開始
           </a>
-          <a href="/crops" class="btn-modern btn-secondary">
-            <i class="bi bi-flower2 me-2"></i>
-            <%= __('home.hero.ctaBrowse') %>
+          <a href="/location" class="btn-home-secondary">
+            Try Without Login 直接體驗
+            <i class="bi bi-arrow-right"></i>
           </a>
         </div>
+
+        <div class="hero-trust">
+          <div class="hero-trust-item">
+            <span class="check">✓</span> No credit card required
+          </div>
+          <div class="hero-trust-item">
+            <span class="check">✓</span> Works for any Taiwan altitude
+          </div>
+          <div class="hero-trust-item">
+            <span class="check">✓</span> English &amp; 繁體中文
+          </div>
+        </div>
+
       </div>
-      
-      <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
-        <div class="hero-image-wrapper">
-          <div class="glass-card hero-card">
-            <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&h=600&fit=crop" 
-                 alt="Taiwan Mountain Farm" 
-                 class="img-fluid rounded">
-            <div class="card-overlay">
-              <div class="metric-pill">
-                <i class="bi bi-thermometer-half text-warning"></i>
-                <span>17°C Perfect</span>
-              </div>
+
+      <!-- Right: Altitude visual card (desktop only) -->
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="altitude-card">
+          <div class="alt-stat-badge">📍 Your elevation → AI picks crops</div>
+
+          <div class="alt-zone alt-zone-high">
+            <div class="alt-range">
+              <span>🏔️</span> 1,500m – 2,500m
             </div>
+            <div class="alt-crops">☕ High-Mountain Oolong · Arabica Coffee</div>
+            <div class="alt-crops-zh">高山烏龍茶 · 阿拉比卡咖啡</div>
+          </div>
+
+          <div class="alt-zone alt-zone-mid">
+            <div class="alt-range">
+              <span>⛰️</span> 800m – 1,500m
+            </div>
+            <div class="alt-crops">🍵 Oolong Tea · 🎋 Bamboo · 🍄 Mushrooms</div>
+            <div class="alt-crops-zh">烏龍茶 · 孟宗竹筍 · 秀珍菇</div>
+          </div>
+
+          <div class="alt-zone alt-zone-low">
+            <div class="alt-range">
+              <span>🌄</span> 200m – 800m
+            </div>
+            <div class="alt-crops">🥬 Mountain Vegetables · 🍑 Fruit Trees</div>
+            <div class="alt-crops-zh">高山蔬菜 · 果樹</div>
+          </div>
+
+          <div class="alt-card-footer">
+            <i class="bi bi-cpu"></i>
+            AI matches YOUR farm to the right zone
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  
-  <!-- Scroll indicator -->
-  <div class="scroll-indicator">
-    <div class="mouse">
-      <div class="wheel"></div>
+
     </div>
   </div>
 </section>
 
-<!-- Stats Section - Animated counters -->
-<section class="stats-section">
+<!-- SOCIAL PROOF STRIP -->
+<div class="social-strip">
+  <div class="container text-center">
+    <p class="social-strip-label">
+      Trusted by mountain farmers across Taiwan · 台灣山地農民信賴
+    </p>
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <span class="social-stat-num">800m+</span>
+        <span class="social-stat-label">Altitude coverage</span>
+        <span class="social-stat-label-zh">海拔覆蓋範圍</span>
+      </div>
+      <div class="col-6 col-md-3">
+        <span class="social-stat-num">20+</span>
+        <span class="social-stat-label">Crop varieties</span>
+        <span class="social-stat-label-zh">作物品種</span>
+      </div>
+      <div class="col-6 col-md-3">
+        <span class="social-stat-num">5+</span>
+        <span class="social-stat-label">Coffee varieties</span>
+        <span class="social-stat-label-zh">咖啡品種</span>
+      </div>
+      <div class="col-6 col-md-3">
+        <span class="social-stat-num">AI</span>
+        <span class="social-stat-label">Powered advisor</span>
+        <span class="social-stat-label-zh">AI 驅動建議</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="home-section">
   <div class="container">
+    <div class="text-center mb-5">
+      <span class="home-section-label">Simple process · 簡單流程</span>
+      <h2 class="home-section-title">How It Works | 工作原理</h2>
+      <p class="home-section-title-zh">三個步驟，輕鬆優化您的農場</p>
+    </div>
     <div class="row g-4">
-      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="0">
-        <div class="stat-card glass-card">
-          <div class="stat-number">
-            <span class="counter" data-target="30">0</span>+
-          </div>
-          <div class="stat-label"><%= __('home.stats.crops') %></div>
-          <div class="stat-icon">🌾</div>
+
+      <div class="col-md-4">
+        <div class="step-card-home">
+          <div class="step-num">Step 01</div>
+          <div class="step-icon-home">📍</div>
+          <h3 class="step-title-home">Pin Your Farm Location</h3>
+          <span class="step-title-home-zh">標記您的農場位置</span>
+          <p class="step-desc-home">
+            Drop a pin on Google Maps or enter your coordinates.
+            We automatically fetch your elevation — the key to
+            accurate, personalised recommendations.
+          </p>
         </div>
       </div>
-      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="100">
-        <div class="stat-card glass-card">
-          <div class="stat-number">
-            <span class="counter" data-target="7">0</span>
-          </div>
-          <div class="stat-label"><%= __('home.stats.coffee') %></div>
-          <div class="stat-icon">☕</div>
+
+      <div class="col-md-4">
+        <div class="step-card-home">
+          <div class="step-num">Step 02</div>
+          <div class="step-icon-home">🌱</div>
+          <h3 class="step-title-home">Get Crop Recommendations</h3>
+          <span class="step-title-home-zh">獲取作物建議</span>
+          <p class="step-desc-home">
+            AI matches your altitude zone to the best crops and
+            coffee varieties for Taiwan's mountains. Pick up to
+            8 crops and 5 coffee varieties for your farm.
+          </p>
         </div>
       </div>
-      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="200">
-        <div class="stat-card glass-card">
-          <div class="stat-number">
-            <span class="counter" data-target="95">0</span>%
-          </div>
-          <div class="stat-label"><%= __('home.stats.accuracy') %></div>
-          <div class="stat-icon">🎯</div>
+
+      <div class="col-md-4">
+        <div class="step-card-home">
+          <div class="step-num">Step 03</div>
+          <div class="step-icon-home">📊</div>
+          <h3 class="step-title-home">Track Economics + AI Advice</h3>
+          <span class="step-title-home-zh">追蹤經濟與AI建議</span>
+          <p class="step-desc-home">
+            See real market prices, profit estimates, and daily
+            AI tips tailored to your farm's elevation and
+            selected crops.
+          </p>
         </div>
       </div>
-      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="300">
-        <div class="stat-card glass-card">
-          <div class="stat-number">
-            <span class="counter" data-target="24">0</span>/7
-          </div>
-          <div class="stat-label"><%= __('home.stats.climate') %></div>
-          <div class="stat-icon">🌡️</div>
-        </div>
-      </div>
+
     </div>
   </div>
 </section>
 
-<!-- Features Section - Bento Grid -->
-<section class="features-section">
+<!-- WHY TRUST US -->
+<section class="home-section-alt">
   <div class="container">
-    <div class="section-header text-center mb-5" data-aos="fade-up">
-      <h2 class="section-title"><%= __('home.features.title') %></h2>
-      <p class="section-subtitle"><%= __('home.features.subtitle') %></p>
+    <div class="text-center mb-5">
+      <span class="home-section-label">Why choose us · 為什麼選擇我們</span>
+      <h2 class="home-section-title">Built for Taiwan's Mountains</h2>
+      <p class="home-section-title-zh">專為台灣山地農業設計</p>
     </div>
-    
-    <div class="bento-grid">
-      <!-- Large feature card -->
-      <div class="bento-item bento-large" data-aos="fade-up">
-        <div class="glass-card feature-card">
-          <div class="feature-icon-wrapper">
-            <div class="feature-icon">
-              <i class="bi bi-cloud-sun"></i>
-            </div>
-          </div>
-          <h3 class="feature-title"><%= __('home.features.climate.title') %></h3>
-          <p class="feature-description">
-            <%= __('home.features.climate.description') %>
+    <div class="row g-4">
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="feature-card-home">
+          <span class="feature-icon-home">🏔️</span>
+          <h4 class="feature-title-home">Altitude-Aware</h4>
+          <span class="feature-title-home-zh">海拔感知</span>
+          <p class="feature-desc-home">
+            Recommendations change based on your exact elevation.
+            What grows at 800m is different from 1,800m.
           </p>
-          <div class="feature-visual mt-4">
-            <div class="chart-preview">
-              <div class="chart-bar" style="height: 60%"></div>
-              <div class="chart-bar" style="height: 80%"></div>
-              <div class="chart-bar" style="height: 45%"></div>
-              <div class="chart-bar" style="height: 90%"></div>
-              <div class="chart-bar" style="height: 70%"></div>
-            </div>
-          </div>
-          <a href="/climate" class="feature-link">
-            <%= __('home.features.climate.link') %> <i class="bi bi-arrow-right ms-2"></i>
-          </a>
         </div>
       </div>
-      
-      <!-- Medium feature cards -->
-      <div class="bento-item bento-medium" data-aos="fade-up" data-aos-delay="100">
-        <div class="glass-card feature-card">
-          <div class="feature-icon-wrapper">
-            <div class="feature-icon bg-success">
-              <i class="bi bi-flower2"></i>
-            </div>
-          </div>
-          <h3 class="feature-title"><%= __('home.features.recommendations.title') %></h3>
-          <p class="feature-description">
-            <%= __('home.features.recommendations.description') %>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="feature-card-home">
+          <span class="feature-icon-home">☕</span>
+          <h4 class="feature-title-home">Coffee + Crops</h4>
+          <span class="feature-title-home-zh">咖啡與作物</span>
+          <p class="feature-desc-home">
+            Specialised for Taiwan's unique highland varieties —
+            from Alishan oolong to Arabica and Geisha coffee.
           </p>
-          <div class="suitability-demo mt-3">
-            <div class="suitability-item">
-              <span class="crop-name">Turmeric</span>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 80%"></div>
-              </div>
-              <span class="score">80%</span>
-            </div>
-            <div class="suitability-item">
-              <span class="crop-name">Tea</span>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 92%"></div>
-              </div>
-              <span class="score">92%</span>
-            </div>
-          </div>
-          <a href="/crops" class="feature-link mt-3">
-            <%= __('home.features.recommendations.link') %> <i class="bi bi-arrow-right ms-2"></i>
-          </a>
         </div>
       </div>
-      
-      <div class="bento-item bento-medium" data-aos="fade-up" data-aos-delay="200">
-        <div class="glass-card feature-card">
-          <div class="feature-icon-wrapper">
-            <div class="feature-icon bg-warning">
-              <i class="bi bi-calculator"></i>
-            </div>
-          </div>
-          <h3 class="feature-title"><%= __('home.features.roi.title') %></h3>
-          <p class="feature-description">
-            <%= __('home.features.roi.description') %>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="feature-card-home">
+          <span class="feature-icon-home">🌤️</span>
+          <h4 class="feature-title-home">Taiwan Weather</h4>
+          <span class="feature-title-home-zh">台灣天氣整合</span>
+          <p class="feature-desc-home">
+            Integrated with Taiwan CWA weather data for accurate
+            local forecasts and frost alerts.
           </p>
-          <div class="roi-demo mt-3">
-            <div class="roi-metric">
-              <div class="roi-label"><%= __('home.features.roi.totalProfit') %></div>
-              <div class="roi-value gradient-text">NT$2.4M</div>
-            </div>
-            <div class="roi-metric">
-              <div class="roi-label">ROI</div>
-              <div class="roi-value text-success">499%</div>
-            </div>
-          </div>
-          <a href="/economics" class="feature-link mt-3">
-            <%= __('home.features.roi.link') %> <i class="bi bi-arrow-right ms-2"></i>
-          </a>
         </div>
       </div>
-      
-      <!-- Small feature cards -->
-      <div class="bento-item bento-small" data-aos="fade-up" data-aos-delay="300">
-        <div class="glass-card feature-card text-center">
-          <div class="feature-icon-wrapper mx-auto">
-            <div class="feature-icon bg-danger">
-              <i class="bi bi-cup-hot"></i>
-            </div>
-          </div>
-          <h4 class="feature-title-sm"><%= __('home.features.coffee.title') %></h4>
-          <p class="feature-description-sm">
-            <%= __('home.features.coffee.description') %>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="feature-card-home">
+          <span class="feature-icon-home">🤖</span>
+          <h4 class="feature-title-home">AI Powered</h4>
+          <span class="feature-title-home-zh">AI 驅動</span>
+          <p class="feature-desc-home">
+            Claude AI explains exactly why each crop suits your
+            farm — not just a list, but real reasoning.
           </p>
-          <a href="/coffee" class="btn-modern btn-sm mt-3"><%= __('home.features.coffee.link') %></a>
         </div>
       </div>
-      
-      <div class="bento-item bento-small" data-aos="fade-up" data-aos-delay="400">
-        <div class="glass-card feature-card text-center">
-          <div class="feature-icon-wrapper mx-auto">
-            <div class="feature-icon bg-info">
-              <i class="bi bi-translate"></i>
-            </div>
-          </div>
-          <h4 class="feature-title-sm"><%= __('home.features.bilingual.title') %></h4>
-          <p class="feature-description-sm">
-            <%= __('home.features.bilingual.description') %>
-          </p>
-          <div class="language-badges mt-3">
-            <span class="badge bg-light text-dark">EN</span>
-            <span class="badge bg-light text-dark">繁中</span>
-          </div>
-        </div>
-      </div>
+
     </div>
   </div>
 </section>
 
-<!-- How It Works Section -->
-<section class="how-it-works-section">
-  <div class="container">
-    <div class="section-header text-center mb-5" data-aos="fade-up">
-      <h2 class="section-title"><%= __('home.howItWorks.title') %></h2>
-      <p class="section-subtitle"><%= __('home.howItWorks.subtitle') %></p>
-    </div>
-    
-    <div class="row g-5">
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
-        <div class="step-card glass-card">
-          <div class="step-number">01</div>
-          <div class="step-icon">
-            <i class="bi bi-geo-alt"></i>
-          </div>
-          <h3 class="step-title"><%= __('home.howItWorks.step1.title') %></h3>
-          <p class="step-description">
-            <%= __('home.howItWorks.step1.description') %>
-          </p>
-        </div>
-        <div class="step-connector"></div>
-      </div>
-      
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="step-card glass-card">
-          <div class="step-number">02</div>
-          <div class="step-icon">
-            <i class="bi bi-cloud-sun"></i>
-          </div>
-          <h3 class="step-title"><%= __('home.howItWorks.step2.title') %></h3>
-          <p class="step-description">
-            <%= __('home.howItWorks.step2.description') %>
-          </p>
-        </div>
-        <div class="step-connector"></div>
-      </div>
-      
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="step-card glass-card">
-          <div class="step-number">03</div>
-          <div class="step-icon">
-            <i class="bi bi-flower2"></i>
-          </div>
-          <h3 class="step-title"><%= __('home.howItWorks.step3.title') %></h3>
-          <p class="step-description">
-            <%= __('home.howItWorks.step3.description') %>
-          </p>
-        </div>
-      </div>
+<!-- CTA BAND -->
+<section class="home-cta-band">
+  <div class="container text-center position-relative" style="z-index:1;">
+    <h2 class="cta-band-title">Ready to optimise your farm?</h2>
+    <p class="cta-band-zh">準備好優化您的農場了嗎？</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="/auth/signup" class="btn-cta-white">
+        <i class="bi bi-rocket-takeoff"></i>
+        Start Free Today 今天免費開始
+      </a>
+      <a href="/location" class="btn-cta-outline-white">
+        Try Without Account 免登入體驗
+        <i class="bi bi-arrow-right"></i>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- CTA Section -->
-<section class="cta-section">
-  <div class="container">
-    <div class="glass-card cta-card" data-aos="zoom-in">
-      <div class="row align-items-center">
-        <div class="col-lg-8">
-          <h2 class="cta-title"><%= __('home.cta.title') %></h2>
-          <p class="cta-description">
-            <%= __('home.cta.description') %>
-          </p>
-        </div>
-        <div class="col-lg-4 text-lg-end">
-          <a href="/location" class="btn-modern btn-primary btn-lg">
-            <%= __('home.cta.button') %> <i class="bi bi-arrow-right ms-2"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- GUEST SAVE BANNER (only shown when not logged in) -->
+<% if (!currentUser) { %>
+<div class="guest-save-banner" id="guest-save-banner">
+  <span>🌿 Save your farm profile —</span>
+  <a href="/auth/signup">Sign up free 免費註冊</a>
+  <span style="color:rgba(255,255,255,0.4);">&middot;</span>
+  <a href="/auth/login">Log in 登入</a>
+  <button class="guest-banner-close"
+          onclick="document.getElementById('guest-save-banner').style.display='none'"
+          aria-label="Dismiss">×</button>
+</div>
+<% } %>
 
-<!-- Add AOS library for scroll animations -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-<script>
-// Initialize AOS
-AOS.init({
-  duration: 800,
-  easing: 'ease-out-cubic',
-  once: true,
-  offset: 100
-});
-
-// Counter animation
-const counters = document.querySelectorAll('.counter');
-const speed = 200;
-
-const animateCounter = (counter) => {
-  const target = +counter.getAttribute('data-target');
-  const increment = target / speed;
-  
-  const updateCount = () => {
-    const count = +counter.innerText;
-    if (count < target) {
-      counter.innerText = Math.ceil(count + increment);
-      setTimeout(updateCount, 1);
-    } else {
-      counter.innerText = target;
-    }
-  };
-  
-  updateCount();
-};
-
-// Trigger counters when in view
-const observerOptions = {
-  threshold: 0.5
-};
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const counter = entry.target;
-      animateCounter(counter);
-      observer.unobserve(counter);
-    }
-  });
-}, observerOptions);
-
-counters.forEach(counter => observer.observe(counter));
-</script>

@@ -1,199 +1,330 @@
 /**
  * Coffee Controller
- * Handles specialty coffee variety recommendations
+ * Updated to use altitudeLookup.js as primary engine
+ * Works for guests — elevation only, no climate data needed
+ * Logged-in users can save up to 5 coffee varieties
  */
 
-const CoffeeVariety = require('../models/CoffeeVariety');
-const Location = require('../models/Location');
+const mongoose       = require('mongoose');
+const CoffeeVariety  = require('../models/CoffeeVariety');
+const FarmProfile    = require('../models/FarmProfile');
+const { getRecommendations } = require('../data/altitudeLookup');
 
-// Show coffee varieties page
+// ── HELPER ────────────────────────────────────────────────────
+function getElevationFromSession(req) {
+  const loc = req.session.location;
+  if (!loc) return null;
+  if (typeof loc.elevation === 'number') return loc.elevation;
+  if (loc.elevation && typeof loc.elevation.value === 'number') return loc.elevation.value;
+  return null;
+}
+
+// ============================================================
+// GET /coffee — Show coffee recommendations page
+// ============================================================
 exports.showCoffeePage = async (req, res) => {
   try {
-    // Check if location exists in session
-    const location = req.session.location;
-    
+    const location  = req.session.location;
+    const elevation = getElevationFromSession(req);
+
     if (!location || !location.lat || !location.lng) {
-      req.session.error = 'Please select your farm location first';
+      req.flash('error', 'Please select your farm location first | 請先選擇農場位置');
       return res.redirect('/location');
     }
 
-    // Get cached climate data
-    const dbLocation = await Location.findByCoordinates(location.lat, location.lng, 0.01);
-    
-    if (!dbLocation || !dbLocation.climateData) {
-      req.session.error = 'Please view climate data first';
-      return res.redirect('/climate');
+    if (elevation === null) {
+      req.flash('error', 'Elevation data missing. Please re-confirm your location | 缺少海拔資料');
+      return res.redirect('/location');
     }
 
-    // Get all coffee varieties
-    const allCoffee = await CoffeeVariety.find({});
+    // ── Lookup table recommendations ─────────────────────────
+    const lookup = getRecommendations(elevation, 8, 5);
 
-    // Calculate suitability for each variety
-    const coffeeSuitability = allCoffee.map(coffee => {
-      const elevation = location.elevation || 0;
-      const avgTemp = dbLocation.climateData.annualTemp;
-      const annualRainfall = dbLocation.climateData.annualRainfall;
+    // ── Enrich with DB data (flavorNotes, yieldPerTree etc) ──
+    const allDbCoffee = await CoffeeVariety.find({}).lean();
 
-      // Elevation match (most critical for coffee)
-      let elevationScore = 0;
-      if (elevation >= coffee.optimalElevationMin && elevation <= coffee.optimalElevationMax) {
-        const range = coffee.optimalElevationMax - coffee.optimalElevationMin;
-        const optimal = (coffee.optimalElevationMin + coffee.optimalElevationMax) / 2;
-        const deviation = Math.abs(elevation - optimal);
-        elevationScore = Math.max(70, 100 - (deviation / range) * 30);
-      } else if (elevation < coffee.optimalElevationMin) {
-        const deficit = coffee.optimalElevationMin - elevation;
-        elevationScore = Math.max(0, 100 - deficit / 10);
-      } else {
-        const excess = elevation - coffee.optimalElevationMax;
-        elevationScore = Math.max(0, 100 - excess / 10);
-      }
+    const enrichedCoffees = lookup.coffees.map(lc => {
+      const lcName    = lc.coffeeName.toLowerCase();
+      const lcVariety = (lc.variety || '').toLowerCase();
 
-      // Temperature suitability
-      const tempMin = coffee.tempMin || 15;
-      const tempMax = coffee.tempMax || 28;
-      let tempScore = 0;
-      if (avgTemp >= tempMin && avgTemp <= tempMax) {
-        const optimal = (tempMin + tempMax) / 2;
-        const deviation = Math.abs(avgTemp - optimal);
-        tempScore = Math.max(70, 100 - deviation * 5);
-      } else {
-        tempScore = Math.max(0, 50 - Math.abs(avgTemp - tempMin) * 3);
-      }
-
-      // Rainfall suitability
-      const rainfallMin = coffee.rainfallMin || 1200;
-      const rainfallMax = coffee.rainfallMax || 2500;
-      let rainfallScore = 0;
-      if (annualRainfall >= rainfallMin && annualRainfall <= rainfallMax) {
-        rainfallScore = 90;
-      } else if (annualRainfall < rainfallMin) {
-        const deficit = rainfallMin - annualRainfall;
-        rainfallScore = Math.max(0, 90 - deficit / 10);
-      } else {
-        const excess = annualRainfall - rainfallMax;
-        rainfallScore = Math.max(0, 90 - excess / 15);
-      }
-
-      // Quality potential (elevation-based)
-      let qualityPotential = 'Good';
-      if (elevation >= 1200) qualityPotential = 'Excellent (Specialty Grade)';
-      else if (elevation >= 800) qualityPotential = 'Very Good (Premium)';
-      else if (elevation >= 500) qualityPotential = 'Good (Commercial)';
-      else qualityPotential = 'Fair (Standard)';
-
-      // Overall score (elevation weighted 50%, temp 30%, rainfall 20%)
-      const overallScore = Math.round(
-        elevationScore * 0.5 +
-        tempScore * 0.3 +
-        rainfallScore * 0.2
-      );
-
-      let recommendation = 'Not Recommended';
-      let color = 'danger';
-      if (overallScore >= 80) { recommendation = 'Highly Suitable'; color = 'success'; }
-      else if (overallScore >= 65) { recommendation = 'Suitable'; color = 'success'; }
-      else if (overallScore >= 50) { recommendation = 'Challenging'; color = 'warning'; }
+      const dbMatch = allDbCoffee.find(db => {
+        const dbName = (db.varietyName || '').toLowerCase();
+        return (
+          dbName === lcVariety ||
+          dbName === lcName ||
+          lcName.includes(dbName) ||
+          dbName.includes(lcVariety) ||
+          lcVariety.includes(dbName)
+        );
+      });
 
       return {
-        ...coffee.toObject(),
-        suitability: {
-          score: overallScore,
-          recommendation,
-          color,
-          breakdown: {
-            elevation: Math.round(elevationScore),
-            temperature: Math.round(tempScore),
-            rainfall: Math.round(rainfallScore)
-          },
-          qualityPotential
-        }
+        // Lookup data (always present)
+        coffeeName:       lc.coffeeName,
+        coffeeNameZh:     lc.coffeeNameZh,
+        // Prefer DB imageUrl (set manually in seedCoffee.js) over lookup fallback
+        imageUrl:         dbMatch?.imageUrl || lc.imageUrl,
+        variety:          lc.variety,
+        suitabilityScore: lc.suitabilityScore,
+        reason:           lc.reason,
+        reasonZh:         lc.reasonZh,
+        altitudeZone:     lookup.zone,
+
+        // DB enrichment
+        _id:                   dbMatch?._id || null,
+        optimalElevationMin:   dbMatch?.optimalElevationMin || null,
+        optimalElevationMax:   dbMatch?.optimalElevationMax || null,
+        flavorNotes_en:        dbMatch?.flavorNotes_en || null,
+        flavorNotes_zh:        dbMatch?.flavorNotes_zh || null,
+        qualityTips_en:        dbMatch?.qualityTips_en || null,
+        yieldPerTree:          dbMatch?.yieldPerTree || null,
+        treesPerHectare:       dbMatch?.treesPerHectare || null,
+        yearsToFirstHarvest:   dbMatch?.yearsToFirstHarvest || null,
+        diseaseResistance:     dbMatch?.diseaseResistance || null,
+        cupQualityMin:         dbMatch?.cupQualityMin || null,
+        cupQualityMax:         dbMatch?.cupQualityMax || null,
+        processingMethods:     dbMatch?.processingMethods || [],
+        harvestMonths:         dbMatch?.harvestMonths || null
       };
     });
 
-    // Sort by score
-    coffeeSuitability.sort((a, b) => b.suitability.score - a.suitability.score);
+    // ── Quality potential label from elevation ────────────────
+    function qualityLabel(elev) {
+      if (elev >= 1800) return 'Ultra Premium ☕☕☕';
+      if (elev >= 1200) return 'Specialty Grade ☕☕';
+      if (elev >= 800)  return 'Premium Commercial ☕';
+      return 'Standard Commercial';
+    }
+
+    // ── User saved coffees ────────────────────────────────────
+    let savedCoffeeNames = [];
+    let savedCount       = 0;
+
+    if (req.session.user) {
+      try {
+        const farmProfile = await FarmProfile.findOne({
+          userId: req.session.user._id
+        }).lean();
+        if (farmProfile?.coffees?.length) {
+          savedCoffeeNames = farmProfile.coffees.map(c => c.coffeeName);
+          savedCount       = farmProfile.coffees.length;
+        }
+      } catch (err) {
+        console.error('FarmProfile lookup error (non-fatal):', err);
+      }
+    }
 
     res.render('coffee', {
-      title: 'Coffee Varieties',
-      page: 'coffee',
+      title:       'Coffee Varieties | 咖啡品種',
+      page:        'coffee',
       location,
-      climate: {
-        avgTemp: dbLocation.climateData.annualTemp,
-        annualRainfall: dbLocation.climateData.annualRainfall
-      },
-      coffeeVarieties: coffeeSuitability,
-      topVariety: coffeeSuitability[0]
+      elevation,
+      zone:        lookup.zone,
+      zoneData:    lookup.zoneData,
+      coffees:     enrichedCoffees,
+      topCoffee:   enrichedCoffees[0] || null,
+      qualityLabel: qualityLabel(elevation),
+
+      // User state
+      isLoggedIn:      !!req.session.user,
+      savedCoffeeNames,
+      savedCount,
+      canAddMore:      savedCount < 5,
+      remainingSlots:  Math.max(0, 5 - savedCount)
     });
 
   } catch (error) {
     console.error('Error rendering coffee page:', error);
+    req.flash('error', 'Failed to load coffee varieties | 無法載入咖啡品種');
     res.status(500).render('error', {
-      title: 'Error',
-      page: 'error',
+      title:   'Error',
+      page:    'error',
       message: 'Failed to load coffee varieties',
-      error: { status: 500, stack: error.stack }
+      error:   { status: 500, stack: error.stack }
     });
   }
 };
 
-// Show single coffee variety detail
-exports.showCoffeeDetail = async (req, res) => {
+// ============================================================
+// POST /coffee/save — Save a coffee to farm profile (max 5)
+// ============================================================
+exports.saveCoffee = async (req, res) => {
   try {
-    const coffee = await CoffeeVariety.findById(req.params.id);
-    
-    if (!coffee) {
-      return res.status(404).render('error', {
-        title: 'Not Found',
-        page: 'error',
-        message: 'Coffee variety not found',
-        error: { status: 404 }
+    if (!req.session.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please log in to save coffees | 請登入以儲存咖啡品種'
       });
     }
 
-    const location = req.session.location;
-    let suitability = null;
+    const { coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone } = req.body;
 
-    // Calculate suitability if location available
-    if (location) {
-      const dbLocation = await Location.findByCoordinates(location.lat, location.lng, 0.01);
-      if (dbLocation && dbLocation.climateData) {
-        const elevation = location.elevation || 0;
-        const avgTemp = dbLocation.climateData.annualTemp;
-        
-        // Simple elevation-based suitability
-        let elevationScore = 0;
-        if (elevation >= coffee.optimalElevationMin && elevation <= coffee.optimalElevationMax) {
-          elevationScore = 90;
-        } else if (elevation < coffee.optimalElevationMin) {
-          elevationScore = Math.max(0, 100 - (coffee.optimalElevationMin - elevation) / 10);
-        }
-        
-        let qualityPotential = 'Good';
-        if (elevation >= 1200) qualityPotential = 'Excellent (Specialty Grade)';
-        else if (elevation >= 800) qualityPotential = 'Very Good (Premium)';
-        
-        suitability = {
-          score: elevationScore,
-          qualityPotential,
-          elevation: Math.round(elevationScore)
-        };
+    if (!coffeeName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coffee name is required | 需要咖啡名稱'
+      });
+    }
+
+    const userId = req.session.user._id;
+    let farmProfile = await FarmProfile.findOne({ userId: userId });
+    if (!farmProfile && mongoose.isValidObjectId(userId)) {
+      farmProfile = await FarmProfile.findOne({
+        userId: new mongoose.Types.ObjectId(userId)
+      });
+    }
+
+    if (!farmProfile) {
+      const loc = req.session.location;
+      farmProfile = new FarmProfile({
+        userId:   req.session.user._id,
+        farmName: `${req.session.user.name}'s Farm`,
+        location: loc ? {
+          address:     loc.address || '',
+          coordinates: { lat: loc.lat, lng: loc.lng },
+          elevation:   getElevationFromSession(req)
+        } : {}
+      });
+    }
+
+    if (farmProfile.coffees.length >= 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum 5 coffee varieties reached. Delete one to add another | 已達5種上限'
+      });
+    }
+
+    const alreadySaved = farmProfile.coffees.some(c => c.coffeeName === coffeeName);
+    if (alreadySaved) {
+      return res.status(400).json({
+        success: false,
+        message: 'This variety is already saved | 此品種已儲存'
+      });
+    }
+
+    const validZones = ['lowland', 'mid', 'high', 'alpine'];
+    farmProfile.coffees.push({
+      coffeeName,
+      coffeeNameZh: coffeeNameZh || '',
+      imageUrl:     imageUrl     || '',
+      variety:      variety      || '',
+      altitudeZone: validZones.includes(altitudeZone) ? altitudeZone : undefined
+    });
+
+    await farmProfile.save();
+
+    res.json({
+      success:        true,
+      message:        `${coffeeName} saved | 已儲存`,
+      savedCount:     farmProfile.coffees.length,
+      remainingSlots: Math.max(0, 5 - farmProfile.coffees.length),
+      atCap:          farmProfile.coffees.length >= 5
+    });
+
+  } catch (error) {
+    console.error('Error saving coffee:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save coffee | 儲存失敗',
+      error:   error.message
+    });
+  }
+};
+
+// ============================================================
+// DELETE /coffee/remove — Remove a coffee from farm profile
+// ============================================================
+exports.removeCoffee = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.status(401).json({ success: false, message: 'Please log in | 請登入' });
+    }
+
+    const { coffeeName } = req.body;
+
+    const userId = req.session.user._id;
+    let farmProfile = await FarmProfile.findOne({ userId: userId });
+    if (!farmProfile && mongoose.isValidObjectId(userId)) {
+      farmProfile = await FarmProfile.findOne({
+        userId: new mongoose.Types.ObjectId(userId)
+      });
+    }
+    if (!farmProfile) {
+      return res.status(404).json({ success: false, message: 'Farm profile not found' });
+    }
+
+    const before = farmProfile.coffees.length;
+    farmProfile.coffees = farmProfile.coffees.filter(c => c.coffeeName !== coffeeName);
+
+    if (farmProfile.coffees.length === before) {
+      return res.status(404).json({ success: false, message: 'Coffee not found in profile' });
+    }
+
+    await farmProfile.save();
+
+    res.json({
+      success:        true,
+      message:        `${coffeeName} removed | 已移除`,
+      savedCount:     farmProfile.coffees.length,
+      remainingSlots: Math.max(0, 5 - farmProfile.coffees.length),
+      atCap:          false
+    });
+
+  } catch (error) {
+    console.error('Error removing coffee:', error);
+    res.status(500).json({ success: false, message: 'Failed to remove | 移除失敗', error: error.message });
+  }
+};
+
+// ============================================================
+// GET /coffee/:id — Single coffee detail (unchanged logic)
+// ============================================================
+exports.showCoffeeDetail = async (req, res) => {
+  try {
+    const coffee    = await CoffeeVariety.findById(req.params.id);
+    const location  = req.session.location;
+    const elevation = getElevationFromSession(req);
+
+    if (!coffee) {
+      return res.status(404).render('error', {
+        title: 'Not Found', page: 'error',
+        message: 'Coffee variety not found', error: { status: 404 }
+      });
+    }
+
+    let suitability = null;
+    if (elevation !== null) {
+      let score = 0;
+      if (elevation >= coffee.optimalElevationMin && elevation <= coffee.optimalElevationMax) {
+        score = 90;
+      } else if (elevation < coffee.optimalElevationMin) {
+        score = Math.max(0, 100 - (coffee.optimalElevationMin - elevation) / 10);
+      } else {
+        score = Math.max(0, 100 - (elevation - coffee.optimalElevationMax) / 10);
       }
+
+      let qualityPotential = 'Standard Commercial';
+      if (elevation >= 1800) qualityPotential = 'Ultra Premium ☕☕☕';
+      else if (elevation >= 1200) qualityPotential = 'Specialty Grade ☕☕';
+      else if (elevation >= 800)  qualityPotential = 'Premium Commercial ☕';
+
+      suitability = { score: Math.round(score), qualityPotential };
     }
 
     res.render('coffeeDetail', {
-      title: coffee.varietyName,
-      page: 'coffee',
+      title:      coffee.varietyName,
+      page:       'coffee',
       coffee,
       suitability,
-      location
+      location,
+      elevation,
+      isLoggedIn: !!req.session.user
     });
 
   } catch (error) {
     console.error('Error rendering coffee detail:', error);
     res.status(500).render('error', {
-      title: 'Error',
-      page: 'error',
+      title: 'Error', page: 'error',
       message: 'Failed to load coffee details',
       error: { status: 500, stack: error.stack }
     });

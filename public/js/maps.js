@@ -211,6 +211,8 @@ function displayLocationCard() {
   // Show farming suitability hint
   document.getElementById('elevationHint').innerHTML = getElevationHint(elev);
 
+  fetchAICropPreview(elev, currentLocation.lat, currentLocation.lng, currentLocation.address || 'Taiwan Mountain Farm');
+
   if (window.innerWidth < 992) {
     document.getElementById('locationCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -218,6 +220,120 @@ function displayLocationCard() {
 
 function hideLocationCard() {
   document.getElementById('locationCard').style.display = 'none';
+  const aiCard = document.getElementById('ai-crop-preview');
+  if (aiCard) aiCard.style.display = 'none';
+}
+
+async function fetchAICropPreview(elevation, lat, lng, locationName = 'Taiwan Mountain Farm') {
+  const cardContainer = document.getElementById('ai-crop-preview');
+  const loadingSkeleton = document.getElementById('ai-loading');
+  const resultsContainer = document.getElementById('ai-results');
+
+  if (!cardContainer || !loadingSkeleton || !resultsContainer) {
+    console.warn('AI preview DOM elements not found');
+    return;
+  }
+
+  cardContainer.style.display = 'block';
+  loadingSkeleton.style.display = 'block';
+  resultsContainer.style.display = 'none';
+
+  console.log('AI crop preview fetch starting for', { elevation, lat, lng, locationName });
+
+  try {
+    const response = await fetch('/api/ai/crop-preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ elevation, lat, lng, locationName })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('AI crop preview response', data);
+
+    const recommendations = data.recommendations || (data.data && data.data.recommendations);
+    const generalAdvice = data.generalAdvice || (data.data && data.data.generalAdvice);
+    const generalAdviceZh = data.generalAdviceZh || (data.data && data.data.generalAdviceZh);
+
+    if (recommendations && Array.isArray(recommendations) && recommendations.length > 0) {
+      renderAICropItems(recommendations, generalAdvice, generalAdviceZh);
+      loadingSkeleton.style.display = 'none';
+      resultsContainer.style.display = 'block';
+    } else {
+      throw new Error('Invalid AI response format or empty recommendations');
+    }
+  } catch (error) {
+    console.error('❌ AI crop preview error:', error.message || error);
+    cardContainer.style.display = 'none';
+  }
+}
+
+function renderAICropItems(recommendations, generalAdvice, generalAdviceZh) {
+  const resultsContainer = document.getElementById('ai-results');
+  if (!resultsContainer) return;
+
+  if (!recommendations || recommendations.length === 0) {
+    resultsContainer.innerHTML = '<small class="text-muted">No crop recommendations available.</small>';
+    return;
+  }
+
+  const adviceHtml = (generalAdvice || generalAdviceZh) ? `
+    <div class="ai-general-advice mb-4 p-3 rounded">
+      ${generalAdvice ? `<div class="general-advice-en">${escapeHtml(generalAdvice)}</div>` : ''}
+      ${generalAdviceZh ? `<div class="general-advice-zh">${escapeHtml(generalAdviceZh)}</div>` : ''}
+    </div>
+  ` : '';
+
+  const itemsHtml = recommendations.slice(0, 3).map(crop => {
+    const suitability = crop.suitability || 75;
+    let badgeClass = 'high';
+    if (suitability < 70) badgeClass = 'low';
+    else if (suitability < 85) badgeClass = 'medium';
+
+    return `
+      <div class="ai-crop-item">
+        <div class="ai-crop-header">
+          <div class="ai-crop-names">
+            <div class="ai-crop-name-en">${escapeHtml(crop.crop || crop.cropName || 'Unknown')}</div>
+            <div class="ai-crop-name-zh">${escapeHtml(crop.cropZh || '')}</div>
+          </div>
+          <span class="ai-crop-badge ${badgeClass}">${suitability}%</span>
+        </div>
+        <div class="ai-suitability-bar">
+          <div class="ai-suitability-fill ${badgeClass === 'medium' ? 'medium' : badgeClass === 'low' ? 'low' : ''}" style="width: ${suitability}%"></div>
+        </div>
+        <div class="ai-crop-reasoning">${escapeHtml(limitSentences(crop.reasoning || crop.reasoningZh || '', 3))}</div>
+        <div class="ai-crop-risk">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>${escapeHtml(limitSentences(crop.riskZh || crop.risk || 'No major risks noted.', 2))}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  resultsContainer.innerHTML = adviceHtml + itemsHtml;
+}
+
+function escapeHtml(value) {
+  if (!value) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function limitSentences(text, maxSentences = 3) {
+  if (!text) return '';
+  const sentences = text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(/(?<=[.!?。！？])\s+/)
+    .filter(Boolean);
+  return sentences.slice(0, maxSentences).join(' ');
 }
 
 // ============================================================
