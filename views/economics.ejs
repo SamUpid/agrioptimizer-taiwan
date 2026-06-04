@@ -1,42 +1,158 @@
+<!-- economics.ejs — personalised farm economics page -->
+
 <nav aria-label="breadcrumb" class="container mt-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Home</a></li>
-    <li class="breadcrumb-item active">Economics Calculator</li>
+    <% if (isLoggedIn) { %>
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <% } %>
+    <li class="breadcrumb-item active">Economics 農場經濟</li>
   </ol>
 </nav>
 
-<div class="container my-4">
-  
-  <div class="row mb-4">
-    <div class="col-12 text-center">
-      <h1 class="display-5 fw-bold text-success">
-        <i class="bi bi-calculator me-2"></i>Profitability Calculator
-      </h1>
-      <p class="lead text-muted">5-Year Financial Projection for Your Farm</p>
-    </div>
+<div class="econ-shell">
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="econ-header">
+    <h1 class="econ-title">
+      <i class="bi bi-calculator me-2" style="color:#2D6A4F;"></i>Farm Economics
+    </h1>
+    <p class="econ-title-zh">農場經濟試算</p>
+    <p class="econ-subtitle">
+      5-year profit projection · Break-even analysis · Market price estimates
+    </p>
   </div>
 
-  <div class="card shadow-lg mb-4">
-    <div class="card-header bg-success text-white">
-      <h5 class="mb-0">Select Crop & Land Size</h5>
-    </div>
-    <div class="card-body">
+  <% if (isLoggedIn) { %>
+
+    <%# ── LOGGED-IN: show saved crops as selectable cards ── %>
+
+    <% if (savedCrops.length === 0 && savedCoffees.length === 0) { %>
+      <!-- No saved crops yet -->
+      <div class="econ-empty">
+        <div class="econ-empty-icon">🌱</div>
+        <h4>No crops or coffees saved yet</h4>
+        <p>
+          Add crops and coffee varieties to your farm profile first —
+          then come back here for personalised profit projections.<br>
+          <span style="font-family:'Noto Sans TC',sans-serif;">
+            先前往作物和咖啡頁面儲存品種，再回來查看個人化利潤預測。
+          </span>
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <a href="/crops"  class="btn-econ-primary">🌱 Browse Crops 瀏覽作物</a>
+          <a href="/coffee" class="btn-econ-primary">☕ Browse Coffee 瀏覽咖啡</a>
+        </div>
+      </div>
+
+    <% } else { %>
+
+      <!-- Crop + Coffee selector -->
+      <div class="econ-card mb-4">
+        <div class="econ-section-header">
+          <h3 class="econ-section-title">
+            Select a crop or coffee to calculate
+          </h3>
+          <span class="econ-section-zh">選擇作物或咖啡進行試算</span>
+        </div>
+
+        <div class="crop-selector-grid">
+          <% savedCrops.forEach(crop => { %>
+            <a href="/economics?crop=<%= crop._id %>&landSize=<%= landSize %>"
+               class="crop-selector-card <%= isCalculated && projectionType === 'crop' && selectedCrop && (selectedCrop.name_en === crop.cropName || selectedCrop.cropName === crop.cropName) ? 'active' : '' %>">
+              <% if (crop.imageUrl) { %>
+                <img src="<%= crop.imageUrl %>"
+                     alt="<%= crop.cropName %>"
+                     class="crop-selector-img"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="crop-selector-img-fallback" style="display:none;">🌱</div>
+              <% } else { %>
+                <div class="crop-selector-img-fallback">🌱</div>
+              <% } %>
+              <div class="crop-selector-name"><%= crop.cropName %></div>
+              <% if (crop.cropNameZh) { %>
+                <div class="crop-selector-name-zh"><%= crop.cropNameZh %></div>
+              <% } %>
+              <span class="crop-type-badge crop">Crop</span>
+            </a>
+          <% }); %>
+
+          <% savedCoffees.forEach(coffee => { %>
+            <a href="/economics?coffee=<%= coffee._id %>&landSize=<%= landSize %>"
+               class="crop-selector-card <%= isCalculated && projectionType === 'coffee' && selectedCrop && (selectedCrop.varietyName === coffee.coffeeName || selectedCrop.coffeeName === coffee.coffeeName) ? 'active' : '' %>">
+              <% if (coffee.imageUrl) { %>
+                <img src="<%= coffee.imageUrl %>"
+                     alt="<%= coffee.coffeeName %>"
+                     class="crop-selector-img"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="crop-selector-img-fallback" style="display:none;">☕</div>
+              <% } else { %>
+                <div class="crop-selector-img-fallback">☕</div>
+              <% } %>
+              <div class="crop-selector-name"><%= coffee.coffeeName %></div>
+              <% if (coffee.coffeeNameZh) { %>
+                <div class="crop-selector-name-zh"><%= coffee.coffeeNameZh %></div>
+              <% } %>
+              <span class="crop-type-badge coffee">Coffee</span>
+            </a>
+          <% }); %>
+        </div>
+
+        <!-- Land size bar -->
+        <form method="GET" action="/economics" class="land-size-bar">
+          <% if (queryCropId) { %>
+            <input type="hidden" name="crop" value="<%= queryCropId %>">
+          <% } else if (queryCoffeeId) { %>
+            <input type="hidden" name="coffee" value="<%= queryCoffeeId %>">
+          <% } %>
+          <label for="landSizeInput">
+            🌾 Farm size 農場面積:
+          </label>
+          <input type="number"
+                 id="landSizeInput"
+                 name="landSize"
+                 class="land-size-input"
+                 min="0.1" max="100" step="0.1"
+                 value="<%= landSize %>">
+          <span style="font-size:13px;color:#6B8F6B;">hectares 公頃</span>
+          <button type="submit" class="btn-calc">
+            📊 Recalculate 重新試算
+          </button>
+        </form>
+      </div>
+
+    <% } %>
+
+  <% } else { %>
+
+    <%# ── GUEST: classic dropdown calculator ── %>
+    <div class="guest-calc-card">
+      <div class="econ-section-header mb-3">
+        <h3 class="econ-section-title">Select Crop & Land Size</h3>
+        <span class="econ-section-zh">選擇作物與農場面積</span>
+        <a href="/auth/signup"
+           style="margin-left:auto;font-size:12px;color:#2D6A4F;font-weight:600;text-decoration:none;">
+          💾 Sign up to use your saved crops →
+        </a>
+      </div>
+
       <form method="GET" action="/economics">
         <div class="row g-3">
           <div class="col-md-5">
-            <label class="form-label fw-bold">Select Crop</label>
-            <select name="crop" id="cropSelect" class="form-select form-select-lg">
-              <option value="">-- Choose a Crop --</option>
-              <optgroup label="Regular Crops">
+            <label class="form-label fw-semibold small">Crop or Coffee 作物或咖啡</label>
+            <select name="crop" id="cropSelect" class="form-select">
+              <option value="">— Choose a crop —</option>
+              <optgroup label="Crops 作物">
                 <% allCrops.forEach(crop => { %>
-                  <option value="<%= crop._id %>" <%= selectedCrop && selectedCrop._id.toString() == crop._id.toString() ? 'selected' : '' %>>
+                  <option value="<%= crop._id %>"
+                    <%= selectedCrop && selectedCrop._id && selectedCrop._id.toString() === crop._id.toString() ? 'selected' : '' %>>
                     <%= crop.name_en %> (<%= crop.name_zh %>)
                   </option>
                 <% }); %>
               </optgroup>
-              <optgroup label="Coffee Varieties">
+              <optgroup label="Coffee Varieties 咖啡品種">
                 <% allCoffee.forEach(coffee => { %>
-                  <option value="coffee-<%= coffee._id %>" data-coffee="<%= coffee._id %>">
+                  <option value="" data-coffee-id="<%= coffee._id %>">
                     <%= coffee.varietyName %> (<%= coffee.varietyName_zh %>)
                   </option>
                 <% }); %>
@@ -44,141 +160,182 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label fw-bold">Land Size (hectares)</label>
-            <input type="number" name="landSize" class="form-control form-control-lg" 
-                   min="0.1" max="100" step="0.1" value="<%= landSize %>" 
-                   placeholder="1.0">
+            <label class="form-label fw-semibold small">Land Size 農場面積 (ha)</label>
+            <input type="number" name="landSize" class="form-control"
+                   min="0.1" max="100" step="0.1"
+                   value="<%= landSize %>" placeholder="1.0">
           </div>
           <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-success btn-lg w-100">
-              <i class="bi bi-calculator-fill me-2"></i>Calculate
+            <button type="submit" class="btn-calc w-100">
+              📊 Calculate 試算
             </button>
           </div>
         </div>
       </form>
     </div>
-  </div>
 
+  <% } %>
+
+  <%# ── PROJECTION RESULTS (shown for both logged-in and guest) ── %>
   <% if (isCalculated && projection) { %>
 
-  <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm border-primary">
-        <div class="card-body">
-          <h6 class="text-muted mb-2">5-Year Revenue</h6>
-          <h3 class="text-primary">NT$<%= projection.summary.totalRevenue.toLocaleString() %></h3>
+    <!-- Selected crop hero -->
+    <div class="selected-crop-hero">
+      <% if (projection.cropInfo.imageUrl) { %>
+        <img src="<%= projection.cropInfo.imageUrl %>"
+             alt="<%= projection.cropInfo.name %>"
+             class="selected-crop-img"
+             onerror="this.style.display='none'">
+      <% } %>
+      <div class="selected-crop-info">
+        <div class="selected-crop-name"><%= projection.cropInfo.name %></div>
+        <div class="selected-crop-name-zh"><%= projection.cropInfo.nameZh || '' %></div>
+        <div class="selected-crop-meta">
+          <span class="selected-crop-meta-item">
+            🌾 <%= landSize %> ha
+          </span>
+          <span class="selected-crop-meta-item">
+            💰 <%= projection.cropInfo.priceRange %>
+          </span>
+          <span class="selected-crop-meta-item">
+            📊 <%= projection.cropInfo.difficulty || 'moderate' %>
+          </span>
+          <% if (projection.cropInfo.cupQuality) { %>
+            <span class="selected-crop-meta-item">
+              ☕ <%= projection.cropInfo.cupQuality %>
+            </span>
+          <% } %>
+          <% if (elevation) { %>
+            <span class="selected-crop-meta-item">
+              🏔️ <%= elevation %>m
+            </span>
+          <% } %>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:2rem;font-weight:800;line-height:1;">
+          <%= projection.summary.roi %>%
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;">
+          5-year ROI
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm border-danger">
-        <div class="card-body">
-          <h6 class="text-muted mb-2">Total Costs</h6>
-          <h3 class="text-danger">NT$<%= projection.summary.totalCosts.toLocaleString() %></h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm <%= projection.summary.totalProfit >= 0 ? 'border-success' : 'border-warning' %>">
-        <div class="card-body">
-          <h6 class="text-muted mb-2">Net Profit</h6>
-          <h3 class="<%= projection.summary.totalProfit >= 0 ? 'text-success' : 'text-warning' %>">
-            NT$<%= projection.summary.totalProfit.toLocaleString() %>
-          </h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm border-info">
-        <div class="card-body">
-          <h6 class="text-muted mb-2">ROI</h6>
-          <h3 class="text-info"><%= projection.summary.roi %>%</h3>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="alert alert-info">
-    <h6 class="fw-bold mb-2"><%= projection.cropInfo.name %> (<%= projection.cropInfo.nameZh %>)</h6>
-    <div class="row small">
-      <div class="col-md-3"><strong>Land Size:</strong> <%= landSize %> hectares</div>
-      <div class="col-md-3"><strong>Category:</strong> <%= projection.cropInfo.category %></div>
-      <div class="col-md-3"><strong>Yield:</strong> <%= projection.cropInfo.yieldPerHa %> kg/ha</div>
-      <div class="col-md-3"><strong>Price Range:</strong> <%= projection.cropInfo.priceRange %></div>
-    </div>
-  </div>
-
-  <div class="row mb-4">
-    <div class="col-lg-6 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h6 class="mb-0">📈 Cumulative Profit Over 5 Years</h6>
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card-econ">
+        <span class="stat-label-econ">5-Year Revenue</span>
+        <span class="stat-label-zh">五年總收入</span>
+        <div class="stat-value-econ blue">
+          NT$<%= Math.round(projection.summary.totalRevenue / 1000) %>k
         </div>
-        <div class="card-body">
-          <canvas id="profitChart" height="250" 
-                  data-labels="<%= JSON.stringify(projection.years.map(y => 'Year ' + y.year)) %>" 
-                  data-data="<%= JSON.stringify(projection.years.map(y => y.cumulativeProfit)) %>"></canvas>
+      </div>
+      <div class="stat-card-econ">
+        <span class="stat-label-econ">Total Costs</span>
+        <span class="stat-label-zh">總成本</span>
+        <div class="stat-value-econ amber">
+          NT$<%= Math.round(projection.summary.totalCosts / 1000) %>k
+        </div>
+      </div>
+      <div class="stat-card-econ">
+        <span class="stat-label-econ">Net Profit</span>
+        <span class="stat-label-zh">淨利潤</span>
+        <div class="stat-value-econ <%= projection.summary.totalProfit >= 0 ? 'green' : 'red' %>">
+          <%= projection.summary.totalProfit >= 0 ? '+' : '' %>NT$<%= Math.round(projection.summary.totalProfit / 1000) %>k
+        </div>
+      </div>
+      <div class="stat-card-econ">
+        <span class="stat-label-econ">Break-Even</span>
+        <span class="stat-label-zh">損益兩平</span>
+        <div class="stat-value-econ <%= projection.summary.breakEvenYear !== 'Beyond 5 years' ? 'green' : 'red' %>"
+             style="font-size:1.1rem;">
+          Year <%= projection.summary.breakEvenYear %>
         </div>
       </div>
     </div>
-    <div class="col-lg-6 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h6 class="mb-0">📊 Annual Revenue vs Costs</h6>
+
+    <!-- Charts -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-6">
+        <div class="econ-card">
+          <div class="econ-section-header">
+            <h4 class="econ-section-title">📈 Cumulative Profit</h4>
+            <span class="econ-section-zh">累計利潤</span>
+          </div>
+          <div style="position:relative;height:220px;">
+            <canvas id="profitChart"
+              data-labels="<%= JSON.stringify(projection.years.map(y => 'Year ' + y.year)) %>"
+              data-data="<%= JSON.stringify(projection.years.map(y => y.cumulativeProfit)) %>">
+            </canvas>
+          </div>
         </div>
-        <div class="card-body">
-          <canvas id="revenueChart" height="250" 
-                  data-labels="<%= JSON.stringify(projection.years.map(y => 'Year ' + y.year)) %>" 
-                  data-revenue="<%= JSON.stringify(projection.years.map(y => y.revenue)) %>" 
-                  data-costs="<%= JSON.stringify(projection.years.map(y => y.totalCosts)) %>"></canvas>
+      </div>
+      <div class="col-lg-6">
+        <div class="econ-card">
+          <div class="econ-section-header">
+            <h4 class="econ-section-title">📊 Revenue vs Costs</h4>
+            <span class="econ-section-zh">收入與成本</span>
+          </div>
+          <div style="position:relative;height:220px;">
+            <canvas id="revenueChart"
+              data-labels="<%= JSON.stringify(projection.years.map(y => 'Year ' + y.year)) %>"
+              data-revenue="<%= JSON.stringify(projection.years.map(y => y.revenue)) %>"
+              data-costs="<%= JSON.stringify(projection.years.map(y => y.totalCosts)) %>">
+            </canvas>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-success text-white">
-      <h5 class="mb-0">Year-by-Year Breakdown</h5>
-    </div>
-    <div class="card-body p-0">
+    <!-- Year-by-year table -->
+    <div class="econ-card">
+      <div class="econ-section-header">
+        <h4 class="econ-section-title">📋 Year-by-Year Breakdown</h4>
+        <span class="econ-section-zh">逐年明細</span>
+      </div>
       <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-          <thead class="table-dark">
+        <table class="econ-table">
+          <thead>
             <tr>
-              <th>Year</th>
-              <th class="text-end">Revenue</th>
-              <th class="text-end">Operating Cost</th>
-              <th class="text-end">Investment</th>
-              <th class="text-end">Total Cost</th>
-              <th class="text-end">Annual Profit</th>
-              <th class="text-end">Cumulative Profit</th>
+              <th style="text-align:left;">Year</th>
+              <th>Revenue 收入</th>
+              <th>Operating 營運成本</th>
+              <th>Investment 初始投資</th>
+              <th>Total Cost 總成本</th>
+              <th>Annual Profit 年度利潤</th>
+              <th>Cumulative 累計</th>
             </tr>
           </thead>
           <tbody>
             <% projection.years.forEach(year => { %>
             <tr>
-              <td><strong>Year <%= year.year %></strong></td>
-              <td class="text-end text-primary">NT$<%= year.revenue.toLocaleString() %></td>
-              <td class="text-end text-danger">NT$<%= year.operatingCost.toLocaleString() %></td>
-              <td class="text-end text-warning"><%= year.investmentCost > 0 ? 'NT$' + year.investmentCost.toLocaleString() : '-' %></td>
-              <td class="text-end text-danger fw-bold">NT$<%= year.totalCosts.toLocaleString() %></td>
-              <td class="text-end <%= year.annualProfit >= 0 ? 'text-success' : 'text-danger' %> fw-bold">
+              <td>Year <%= year.year %></td>
+              <td class="text-revenue">NT$<%= year.revenue.toLocaleString() %></td>
+              <td class="text-cost">NT$<%= year.operatingCost.toLocaleString() %></td>
+              <td class="text-cost">
+                <%= year.investmentCost > 0 ? 'NT$' + year.investmentCost.toLocaleString() : '—' %>
+              </td>
+              <td class="text-cost" style="font-weight:600;">
+                NT$<%= year.totalCosts.toLocaleString() %>
+              </td>
+              <td class="<%= year.annualProfit >= 0 ? 'text-profit' : 'text-loss' %>" style="font-weight:600;">
                 <%= year.annualProfit >= 0 ? '+' : '' %>NT$<%= year.annualProfit.toLocaleString() %>
               </td>
-              <td class="text-end <%= year.cumulativeProfit >= 0 ? 'text-success' : 'text-danger' %> fw-bold">
+              <td class="<%= year.cumulativeProfit >= 0 ? 'text-profit' : 'text-loss' %>" style="font-weight:700;">
                 <%= year.cumulativeProfit >= 0 ? '+' : '' %>NT$<%= year.cumulativeProfit.toLocaleString() %>
               </td>
             </tr>
             <% }); %>
           </tbody>
-          <tfoot class="table-secondary">
-            <tr class="fw-bold">
+          <tfoot>
+            <tr>
               <td>TOTAL (5 Years)</td>
-              <td class="text-end text-primary">NT$<%= projection.summary.totalRevenue.toLocaleString() %></td>
+              <td class="text-revenue">NT$<%= projection.summary.totalRevenue.toLocaleString() %></td>
               <td colspan="2"></td>
-              <td class="text-end text-danger">NT$<%= projection.summary.totalCosts.toLocaleString() %></td>
-              <td colspan="1"></td>
-              <td class="text-end <%= projection.summary.totalProfit >= 0 ? 'text-success' : 'text-danger' %>">
+              <td class="text-cost">NT$<%= projection.summary.totalCosts.toLocaleString() %></td>
+              <td></td>
+              <td class="<%= projection.summary.totalProfit >= 0 ? 'text-profit' : 'text-loss' %>">
                 <%= projection.summary.totalProfit >= 0 ? '+' : '' %>NT$<%= projection.summary.totalProfit.toLocaleString() %>
               </td>
             </tr>
@@ -186,62 +343,185 @@
         </table>
       </div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="col-md-6 mb-3">
-      <div class="card shadow-sm border-info">
-        <div class="card-header bg-info bg-opacity-10">
-          <h6 class="mb-0">💡 Key Insights</h6>
+    <!-- Insights -->
+    <div class="insights-grid">
+      <div class="insight-card highlight">
+        <div class="insight-title">💡 Key Insights 關鍵洞察</div>
+        <div class="insight-item">
+          Break-even: <strong>Year <%= projection.summary.breakEvenYear %></strong>
         </div>
-        <div class="card-body">
-          <ul class="mb-0">
-            <li><strong>Break-Even:</strong> Year <%= projection.summary.breakEvenYear %></li>
-            <li><strong>Average Annual Profit:</strong> NT$<%= projection.summary.avgAnnualProfit.toLocaleString() %></li>
-            <li><strong>Return on Investment:</strong> <%= projection.summary.roi %>% over 5 years</li>
-            <li><strong>Total Land:</strong> <%= landSize %> hectare(s)</li>
-          </ul>
+        <div class="insight-item">
+          Avg annual profit: <strong>NT$<%= projection.summary.avgAnnualProfit.toLocaleString() %></strong>
         </div>
+        <div class="insight-item">
+          5-year ROI: <strong><%= projection.summary.roi %>%</strong>
+        </div>
+        <div class="insight-item">
+          Market price: <strong><%= projection.cropInfo.priceRange %></strong>
+        </div>
+        <% if (projection.cropInfo.marketDemandIndex) { %>
+          <div class="insight-item">
+            Market demand: <strong><%= projection.cropInfo.marketDemandIndex %>/100</strong>
+          </div>
+        <% } %>
+      </div>
+      <div class="insight-card">
+        <div class="insight-title">⚠️ Assumptions 注意事項</div>
+        <div class="insight-item">Projections use average market prices</div>
+        <div class="insight-item">Weather and climate variations not included</div>
+        <div class="insight-item">Actual yields may vary by farming practices</div>
+        <div class="insight-item">Market prices fluctuate seasonally</div>
+        <% if (projectionType === 'coffee') { %>
+          <div class="insight-item">Coffee takes <%= projection.cropInfo.yearsToHarvest || 3 %> years to first harvest</div>
+        <% } %>
       </div>
     </div>
-    <div class="col-md-6 mb-3">
-      <div class="card shadow-sm border-warning">
-        <div class="card-header bg-warning bg-opacity-10">
-          <h6 class="mb-0">⚠️ Considerations</h6>
-        </div>
-        <div class="card-body">
-          <ul class="mb-0 small">
-            <li>Projections assume average market prices</li>
-            <li>Weather and climate variations not accounted for</li>
-            <li>Actual yields may vary based on farming practices</li>
-            <li>Market prices fluctuate seasonally</li>
-          </ul>
-        </div>
-      </div>
+
+  <% } else if (isLoggedIn && (savedCrops.length > 0 || savedCoffees.length > 0)) { %>
+
+    <!-- Logged in, has crops, nothing selected yet -->
+    <div class="econ-empty">
+      <div class="econ-empty-icon">📊</div>
+      <h4>Select a crop above to see your projection</h4>
+      <p>Click any of your saved crops or coffee varieties to get a 5-year profit analysis.<br>
+         <span style="font-family:'Noto Sans TC',sans-serif;">點擊上方任一已儲存的作物或咖啡品種，查看5年利潤預測。</span>
+      </p>
     </div>
-  </div>
 
-  </div>
+  <% } else if (!isLoggedIn) { %>
 
-  <% } else { %>
-  
-  <div class="text-center py-5">
-    <i class="bi bi-calculator text-muted" style="font-size: 5rem;"></i>
-    <h4 class="text-muted mt-3">Select a crop and land size to calculate profitability</h4>
-    <p class="text-muted">Get a detailed 5-year financial projection with charts and insights</p>
-  </div>
+    <!-- Guest, nothing calculated yet -->
+    <div class="econ-empty">
+      <div class="econ-empty-icon">📊</div>
+      <h4>Select a crop and land size to calculate profitability</h4>
+      <p>Get a detailed 5-year financial projection with charts and insights.<br>
+         <span style="font-family:'Noto Sans TC',sans-serif;">選擇作物和農場面積，獲得詳細的5年財務預測。</span>
+      </p>
+    </div>
 
   <% } %>
 
 </div>
 
+<!-- Chart.js rendering -->
 <script>
-document.getElementById('cropSelect')?.addEventListener('change', function(e) {
-  const selected = e.target.options[e.target.selectedIndex];
-  if (selected.dataset.coffee) {
-    const form = e.target.closest('form');
-    form.action = '/economics?coffee=' + selected.dataset.coffee;
-    e.target.removeAttribute('name');
+document.addEventListener('DOMContentLoaded', () => {
+  // Profit chart
+  const profitCanvas = document.getElementById('profitChart');
+  if (profitCanvas) {
+    const labels = JSON.parse(profitCanvas.dataset.labels || '[]');
+    const data   = JSON.parse(profitCanvas.dataset.data   || '[]');
+    new Chart(profitCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Cumulative Profit (NT$)',
+          data,
+          borderColor: '#2D6A4F',
+          backgroundColor: 'rgba(45,106,79,0.08)',
+          borderWidth: 2.5,
+          pointBackgroundColor: data.map(v => v >= 0 ? '#2D6A4F' : '#D05050'),
+          pointRadius: 5,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => 'NT$' + ctx.parsed.y.toLocaleString()
+            }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: {
+              callback: v => 'NT$' + (v/1000).toFixed(0) + 'k',
+              font: { size: 11 }
+            }
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // Revenue vs Costs chart
+  const revenueCanvas = document.getElementById('revenueChart');
+  if (revenueCanvas) {
+    const labels  = JSON.parse(revenueCanvas.dataset.labels  || '[]');
+    const revenue = JSON.parse(revenueCanvas.dataset.revenue || '[]');
+    const costs   = JSON.parse(revenueCanvas.dataset.costs   || '[]');
+    new Chart(revenueCanvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Revenue 收入',
+            data: revenue,
+            backgroundColor: 'rgba(37,99,235,0.75)',
+            borderRadius: 6
+          },
+          {
+            label: 'Costs 成本',
+            data: costs,
+            backgroundColor: 'rgba(217,119,6,0.75)',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { size: 11 }, padding: 12 }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset.label + ': NT$' + ctx.parsed.y.toLocaleString()
+            }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: {
+              callback: v => 'NT$' + (v/1000).toFixed(0) + 'k',
+              font: { size: 11 }
+            }
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // Guest dropdown coffee handler
+  const cropSelect = document.getElementById('cropSelect');
+  if (cropSelect) {
+    cropSelect.addEventListener('change', function() {
+      const selected = this.options[this.selectedIndex];
+      const coffeeId = selected.dataset.coffeeId;
+      if (coffeeId) {
+        const form = this.closest('form');
+        const input = document.createElement('input');
+        input.type  = 'hidden';
+        input.name  = 'coffee';
+        input.value = coffeeId;
+        form.appendChild(input);
+        this.removeAttribute('name');
+      }
+    });
   }
 });
 </script>
