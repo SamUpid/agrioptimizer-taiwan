@@ -1,0 +1,146 @@
+/* ============================================================
+   LOCATION PAGE STYLES — scoped to body.location-page
+   ============================================================ */
+
+body.location-page {
+  background: #F4F7F4 !important;
+  color: #1A2E1A !important;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* ── NAVBAR ── */
+body.location-page .navbar {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #E2EDE2 !important;
+  box-shadow: 0 1px 12px rgba(45,106,79,0.07) !important;
+}
+body.location-page .navbar .navbar-brand,
+body.location-page .navbar .nav-link,
+body.location-page .navbar .dropdown-toggle { color: #2D6A4F !important; font-weight: 500; }
+body.location-page .navbar .nav-link:hover,
+body.location-page .navbar .nav-link.active  { color: #1B4332 !important; }
+body.location-page .navbar .dropdown-menu    { background: #FFFFFF; border: 1px solid #E2EDE2; }
+body.location-page .navbar .dropdown-item   { color: #4A6A4A; }
+body.location-page .navbar .dropdown-item:hover { background: #F0F7F0; color: #2D6A4F; }
+body.location-page .navbar .navbar-toggler  { border-color: #2D6A4F; }
+body.location-page .navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232D6A4F' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ── GENERAL ── */
+body.location-page h1,
+body.location-page h2,
+body.location-page h3,
+body.location-page h4,
+body.location-page h5,
+body.location-page p,
+body.location-page label { color: #1A2E1A; }
+body.location-page .text-muted { color: #6B8F6B !important; }
+body.location-page .card {
+  background: #FFFFFF !important;
+  border-color: #E2EDE2 !important;
+  color: #1A2E1A;
+}
+body.location-page .card-header {
+  background: #F0F7F0 !important;
+  border-color: #E2EDE2 !important;
+  color: #2D6A4F !important;
+}
+body.location-page .bg-dark { background: #1B4332 !important; }
+body.location-page .bg-light { background: #F8FBF8 !important; }
+
+/* ── FORM ELEMENTS ── */
+body.location-page .form-control,
+body.location-page .form-select,
+body.location-page .input-group-text {
+  background: #FFFFFF !important;
+  border-color: #E2EDE2 !important;
+  color: #1A2E1A !important;
+}
+body.location-page .form-control:focus,
+body.location-page .form-select:focus {
+  border-color: #2D6A4F !important;
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.12) !important;
+}
+body.location-page .form-control::placeholder { color: #A0B8A0 !important; }
+body.location-page .form-label { color: #2D6A4F !important; font-weight: 600; }
+
+/* ── BUTTONS ── */
+body.location-page .btn-success {
+  background-color: #2D6A4F !important;
+  border-color: #2D6A4F !important;
+  color: #FFFFFF !important;
+}
+body.location-page .btn-success:hover {
+  background-color: #1B4332 !important;
+  border-color: #1B4332 !important;
+}
+body.location-page .btn-outline-success {
+  color: #2D6A4F !important;
+  border-color: #2D6A4F !important;
+}
+body.location-page .btn-outline-success:hover {
+  background-color: #2D6A4F !important;
+  color: #FFFFFF !important;
+}
+body.location-page .btn-outline-secondary {
+  color: #6B8F6B !important;
+  border-color: #B7DEB7 !important;
+}
+body.location-page .btn-outline-danger {
+  color: #D05050 !important;
+  border-color: #D05050 !important;
+}
+
+/* ── INFO BOXES ── */
+body.location-page .alert-info {
+  background: #EEF7FF !important;
+  border-color: #B7D8F7 !important;
+  color: #1A3A5C !important;
+}
+body.location-page .alert-success {
+  background: #F0FDF4 !important;
+  border-color: #BBF7D0 !important;
+  color: #166534 !important;
+}
+body.location-page .alert-warning {
+  background: #FFFBEB !important;
+  border-color: #FDE68A !important;
+  color: #78350F !important;
+}
+
+/* ── LOCATION RESULT CARD ── */
+body.location-page .location-result {
+  background: #FFFFFF;
+  border: 1px solid #B7DEB7;
+  border-radius: 14px;
+  padding: 20px;
+}
+body.location-page .elevation-badge {
+  background: #F0F7F0;
+  border: 1px solid #B7DEB7;
+  border-radius: 8px;
+  color: #2D6A4F;
+  font-weight: 600;
+  padding: 4px 12px;
+}
+
+/* ── MAP CONTAINER ── */
+body.location-page #map {
+  border-radius: 12px;
+  border: 1px solid #E2EDE2;
+  box-shadow: 0 4px 16px rgba(45,106,79,0.08);
+}
+
+/* ── LIST GROUPS ── */
+body.location-page .list-group-item {
+  background: #FFFFFF !important;
+  border-color: #E2EDE2 !important;
+  color: #1A2E1A !important;
+}
+body.location-page .list-group-item:hover {
+  background: #F0F7F0 !important;
+}
+
+/* ── FOOTER ── */
+body.location-page footer { background-color: #1B4332 !important; }

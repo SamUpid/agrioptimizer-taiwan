@@ -15,20 +15,26 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/home-page.css">
+  <link rel="stylesheet" href="/css/site-navbar.css">
   <link rel="stylesheet" href="/css/dashboard-page.css">
   <link rel="stylesheet" href="/css/economics-page.css">
+  <link rel="stylesheet" href="/css/crops-page.css">
+  <link rel="stylesheet" href="/css/coffee-page.css">
+  <link rel="stylesheet" href="/css/auth-page.css">
+  <link rel="stylesheet" href="/css/location-page.css">
+  <link rel="stylesheet" href="/css/climate-page.css">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="<%= page === 'home' ? 'home-page' : page === 'dashboard' ? 'dashboard-page' : page === 'economics' ? 'economics-page' : '' %>">
+<body class="<%= page === 'home' ? 'home-page' : page === 'dashboard' ? 'dashboard-page' : page === 'economics' ? 'economics-page' : page === 'crops' ? 'crops-page' : page === 'coffee' ? 'coffee-page' : page === 'login' || page === 'signup' ? 'auth-page' : page === 'location' ? 'location-page' : page === 'climate' ? 'climate-page' : '' %>">
 
   <!-- Navigation Bar -->
   <!-- On home page: navbar-light with white bg -->
   <!-- On all other pages: navbar-dark (existing dark theme) -->
-  <nav class="navbar navbar-expand-lg sticky-top <%= page === 'home' ? 'navbar-light home-navbar' : 'navbar-dark' %>">
+  <nav class="navbar navbar-expand-lg sticky-top <%= page === 'home' ? 'navbar-light home-navbar' : 'site-navbar' %>">
     <div class="container">
       <!-- Logo -->
       <a class="navbar-brand d-flex align-items-center" href="/">

@@ -1,47 +1,74 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-<div class="container d-flex justify-content-center align-items-center min-vh-100" style="background-color: #0C1A0C;">
-  <div class="card p-4 shadow-lg" style="width: 100%; max-width: 400px; background-color: #111E11;">
-    <h2 class="text-center mb-4 text-white">Create Account 建立帳號</h2>
+    <div class="auth-logo">
+      <span class="auth-logo-icon">🌿</span>
+      <span class="auth-logo-name">AgroOptimizer Taiwan</span>
+      <span class="auth-logo-zh">農業優化系統</span>
+    </div>
 
-    <% if (success_msg && success_msg.length > 0) { %>
-      <% success_msg.forEach(message => { %>
-        <div class="alert alert-success" role="alert">
-          <%= message %>
-        </div>
-      <% }) %>
-    <% } %>
+    <h1 class="auth-title">Create your farm profile</h1>
+    <p class="auth-subtitle">建立您的農場帳戶 · Free forever · 永久免費</p>
 
     <% if (error_msg && error_msg.length > 0) { %>
-      <% error_msg.forEach(message => { %>
-        <div class="alert alert-danger" role="alert">
-          <%= message %>
+      <% error_msg.forEach(msg => { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i><%= msg %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-      <% }) %>
+      <% }); %>
     <% } %>
 
     <form action="/auth/signup" method="POST">
       <div class="mb-3">
-        <label for="name" class="form-label text-white">Name 姓名</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+        <label for="name" class="form-label">Your Name 您的姓名</label>
+        <input type="text" id="name" name="name"
+               class="form-control"
+               placeholder="e.g. 陳大明 / Chen Da-Ming"
+               required autocomplete="name">
       </div>
+
       <div class="mb-3">
-        <label for="nameZh" class="form-label text-white">Chinese Name 中文姓名</label>
-        <input type="text" class="form-control" id="nameZh" name="nameZh">
+        <label for="email" class="form-label">Email Address 電子郵件</label>
+        <input type="email" id="email" name="email"
+               class="form-control"
+               placeholder="your@email.com"
+               required autocomplete="email">
       </div>
+
       <div class="mb-3">
-        <label for="email" class="form-label text-white">Email 電子郵件</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+        <label for="password" class="form-label">Password 密碼</label>
+        <input type="password" id="password" name="password"
+               class="form-control"
+               placeholder="At least 6 characters · 至少6個字元"
+               required minlength="6"
+               autocomplete="new-password">
       </div>
+
       <div class="mb-3">
-        <label for="password" class="form-label text-white">Password 密碼</label>
-        <input type="password" class="form-control" id="password" name="password" required minlength="6">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+          <label class="form-check-label" for="agreeTerms" style="font-size:12px;color:#6B8F6B;">
+            I agree to the <a href="#" style="color:#2D6A4F;">Terms of Service</a>
+          </label>
+        </div>
       </div>
-      <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-success" style="background-color: #74B577; border-color: #74B577;">Create Account 建立帳號</button>
-      </div>
+
+      <button type="submit" class="btn-auth">
+        <i class="bi bi-rocket-takeoff me-2"></i>Create Account 建立帳戶
+      </button>
     </form>
-    <p class="text-center mt-3 text-white">
-      Already have an account? <a href="/auth/login" style="color: #74B577;">Sign in 登入</a>
-    </p>
+
+    <div class="auth-divider">or 或者</div>
+
+    <div class="auth-switch">
+      Already have an account?
+      <a href="/auth/login">Sign in 登入</a>
+    </div>
+
+    <div class="auth-switch mt-2">
+      <a href="/location">Try without login 免登入體驗 →</a>
+    </div>
+
   </div>
 </div>

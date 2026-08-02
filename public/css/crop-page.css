@@ -1,0 +1,127 @@
+/* ============================================================
+   CROPS PAGE STYLES — scoped to body.crops-page
+   Covers: /crops and /crops/:id
+   ============================================================ */
+
+body.crops-page {
+  background: #F4F7F4;
+  color: #1A2E1A;
+}
+
+/* ── NAVBAR ── */
+body.crops-page .navbar {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #E2EDE2 !important;
+  box-shadow: 0 1px 12px rgba(45,106,79,0.07) !important;
+}
+body.crops-page .navbar .navbar-brand,
+body.crops-page .navbar .nav-link,
+body.crops-page .navbar .dropdown-toggle { color: #2D6A4F !important; font-weight: 500; }
+body.crops-page .navbar .nav-link:hover,
+body.crops-page .navbar .nav-link.active  { color: #1B4332 !important; }
+body.crops-page .navbar .dropdown-menu    { background: #FFFFFF; border: 1px solid #E2EDE2; }
+body.crops-page .navbar .dropdown-item   { color: #4A6A4A; }
+body.crops-page .navbar .dropdown-item:hover { background: #F0F7F0; color: #2D6A4F; }
+body.crops-page .navbar .navbar-toggler  { border-color: #2D6A4F; }
+body.crops-page .navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232D6A4F' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ── GENERAL OVERRIDES ── */
+body.crops-page .card {
+  border-color: #E2EDE2;
+  background: #FFFFFF;
+}
+body.crops-page .card-header.bg-success { background-color: #2D6A4F !important; }
+body.crops-page .card-header.bg-primary { background-color: #2563EB !important; }
+body.crops-page .card-header.bg-warning { background-color: #D97706 !important; }
+body.crops-page .bg-light { background-color: #F8FBF8 !important; }
+body.crops-page .text-muted { color: #6B8F6B !important; }
+body.crops-page .breadcrumb  { background: transparent; padding: 0; }
+body.crops-page .breadcrumb-item a { color: #2D6A4F; }
+body.crops-page .alert-info {
+  background: #EEF7FF;
+  border-color: #B7D8F7;
+  color: #1A3A5C;
+}
+body.crops-page .alert-warning {
+  background: #FFFBEB;
+  border-color: #FDE68A;
+  color: #78350F;
+}
+
+/* ── SEARCH BAR ── */
+body.crops-page .input-group-text { background: #FFFFFF; border-color: #E2EDE2; color: #2D6A4F; }
+body.crops-page .form-control,
+body.crops-page .form-select {
+  border-color: #E2EDE2;
+  color: #1A2E1A;
+  background: #FFFFFF;
+}
+body.crops-page .form-control:focus,
+body.crops-page .form-select:focus {
+  border-color: #2D6A4F;
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.12);
+}
+
+/* ── BUTTONS ── */
+body.crops-page .btn-success {
+  background-color: #2D6A4F;
+  border-color: #2D6A4F;
+  color: #FFFFFF;
+}
+body.crops-page .btn-success:hover {
+  background-color: #1B4332;
+  border-color: #1B4332;
+}
+body.crops-page .btn-outline-success {
+  color: #2D6A4F;
+  border-color: #2D6A4F;
+}
+body.crops-page .btn-outline-success:hover {
+  background-color: #2D6A4F;
+  color: #FFFFFF;
+}
+body.crops-page .btn-outline-secondary {
+  color: #6B8F6B;
+  border-color: #B7DEB7;
+}
+body.crops-page .btn-outline-secondary:hover {
+  background-color: #F0F7F0;
+  color: #2D6A4F;
+}
+body.crops-page .btn-danger { background-color: #D05050; border-color: #D05050; }
+
+/* ── BADGES ── */
+body.crops-page .badge.bg-light { background-color: #F0F7F0 !important; color: #2D6A4F !important; border: 1px solid #D1E8D1; }
+body.crops-page .badge.bg-secondary { background-color: #6B8F6B !important; }
+
+/* ── PROGRESS BARS ── */
+body.crops-page .progress { background-color: #E8F5E8; }
+
+/* ── FOOTER ── */
+body.crops-page footer { background-color: #1B4332 !important; }
+
+/* ── CROP DETAIL: hero image ── */
+body.crops-page .crop-detail-hero {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(45,106,79,0.12);
+  margin-bottom: 28px;
+}
+body.crops-page .crop-detail-hero img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+}
+
+/* ── TABLE (crop detail economics) ── */
+body.crops-page .table { color: #1A2E1A; }
+body.crops-page .table-dark th { background: #1B4332 !important; }
+body.crops-page .table-striped > tbody > tr:nth-of-type(odd) > td { background: #F8FBF8; }
+
+/* ── COMPANION PLANTING CARDS ── */
+body.crops-page .border-success { border-color: #B7DEB7 !important; }
+body.crops-page .border-warning { border-color: #FDE68A !important; }
+body.crops-page .bg-success.bg-opacity-10 { background-color: rgba(45,106,79,0.08) !important; }
+body.crops-page .bg-warning.bg-opacity-10 { background-color: rgba(217,119,6,0.08) !important; }

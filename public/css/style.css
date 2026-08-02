@@ -48,9 +48,15 @@
    GLOBAL STYLES
    ============================================ */
 
-body {
+body:not(.home-page):not(.crops-page):not(.coffee-page):not(.economics-page):not(.dashboard-page):not(.auth-page):not(.location-page):not(.climate-page) {
   background-color: var(--bg-base);
   color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.7;
   overflow-x: hidden;
