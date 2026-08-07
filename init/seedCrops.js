@@ -35,7 +35,12 @@ const crops = [
     initialInvestment: 200000,
     operatingCost: 80000,
     breakEvenMonths: 36,
-    marketDemandIndex: 95
+    marketDemandIndex: 95,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['November-February'],
+    yieldPeriod: 'Perennial (20-25 years)',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Tea (High Mountain Oolong)',
@@ -57,7 +62,12 @@ const crops = [
     initialInvestment: 150000,
     operatingCost: 70000,
     breakEvenMonths: 30,
-    marketDemandIndex: 98
+    marketDemandIndex: 98,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 730,
+    harvestSeasons: ['April-June','September-November'],
+    yieldPeriod: 'Perennial (20-30 years)',
+    soilPH: { min: 4.5, max: 5.5 }
   },
   {
     name_en: 'Ginger',
@@ -79,7 +89,12 @@ const crops = [
     initialInvestment: 80000,
     operatingCost: 50000,
     breakEvenMonths: 10,
-    marketDemandIndex: 85
+    marketDemandIndex: 85,
+    plantingSeasons: ['Spring (February-April)'],
+    daysToMaturity: 240,
+    harvestSeasons: ['October-December'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Turmeric',
@@ -101,7 +116,12 @@ const crops = [
     initialInvestment: 70000,
     operatingCost: 45000,
     breakEvenMonths: 11,
-    marketDemandIndex: 80
+    marketDemandIndex: 80,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 270,
+    harvestSeasons: ['November-January'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 7 }
   },
 
   // ==================== FRUITS ====================
@@ -125,7 +145,12 @@ const crops = [
     initialInvestment: 90000,
     operatingCost: 40000,
     breakEvenMonths: 15,
-    marketDemandIndex: 88
+    marketDemandIndex: 88,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 365,
+    harvestSeasons: ['July-September','December-February'],
+    yieldPeriod: 'Perennial (5-7 years)',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Dragon Fruit',
@@ -147,7 +172,12 @@ const crops = [
     initialInvestment: 100000,
     operatingCost: 45000,
     breakEvenMonths: 20,
-    marketDemandIndex: 85
+    marketDemandIndex: 85,
+    plantingSeasons: ['Spring (April-May)'],
+    daysToMaturity: 540,
+    harvestSeasons: ['June-November'],
+    yieldPeriod: 'Perennial (15-20 years)',
+    soilPH: { min: 6, max: 7 }
   },
   {
     name_en: 'Guava',
@@ -169,7 +199,12 @@ const crops = [
     initialInvestment: 85000,
     operatingCost: 40000,
     breakEvenMonths: 24,
-    marketDemandIndex: 82
+    marketDemandIndex: 82,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 730,
+    harvestSeasons: ['Year-round, peak August-November'],
+    yieldPeriod: 'Perennial (15-20 years)',
+    soilPH: { min: 5.5, max: 7 }
   },
   {
     name_en: 'Papaya',
@@ -191,7 +226,12 @@ const crops = [
     initialInvestment: 75000,
     operatingCost: 35000,
     breakEvenMonths: 12,
-    marketDemandIndex: 80
+    marketDemandIndex: 80,
+    plantingSeasons: ['Spring (February-April)'],
+    daysToMaturity: 270,
+    harvestSeasons: ['Year-round after first harvest'],
+    yieldPeriod: 'Perennial (3-4 years)',
+    soilPH: { min: 6, max: 6.5 }
   },
   {
     name_en: 'Pineapple',
@@ -213,7 +253,12 @@ const crops = [
     initialInvestment: 90000,
     operatingCost: 42000,
     breakEvenMonths: 20,
-    marketDemandIndex: 87
+    marketDemandIndex: 87,
+    plantingSeasons: ['Spring (March-May)'],
+    daysToMaturity: 540,
+    harvestSeasons: ['Summer (June-August)'],
+    yieldPeriod: 'Perennial (2-3 year ratoon cycle)',
+    soilPH: { min: 4.5, max: 5.5 }
   },
   {
     name_en: 'Mango',
@@ -235,7 +280,12 @@ const crops = [
     initialInvestment: 120000,
     operatingCost: 50000,
     breakEvenMonths: 36,
-    marketDemandIndex: 90
+    marketDemandIndex: 90,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['June-August'],
+    yieldPeriod: 'Perennial (20-40 years)',
+    soilPH: { min: 5.5, max: 7.5 }
   },
   {
     name_en: 'Longan',
@@ -257,7 +307,12 @@ const crops = [
     initialInvestment: 130000,
     operatingCost: 55000,
     breakEvenMonths: 48,
-    marketDemandIndex: 85
+    marketDemandIndex: 85,
+    plantingSeasons: ['Spring (February-March)'],
+    daysToMaturity: 1460,
+    harvestSeasons: ['July-September'],
+    yieldPeriod: 'Perennial (30-50 years)',
+    soilPH: { min: 5, max: 6.5 }
   },
   {
     name_en: 'Lychee',
@@ -279,7 +334,12 @@ const crops = [
     initialInvestment: 140000,
     operatingCost: 60000,
     breakEvenMonths: 50,
-    marketDemandIndex: 88
+    marketDemandIndex: 88,
+    plantingSeasons: ['Spring (February-March)'],
+    daysToMaturity: 1460,
+    harvestSeasons: ['May-June'],
+    yieldPeriod: 'Perennial (20-30 years)',
+    soilPH: { min: 5, max: 6.5 }
   },
   {
     name_en: 'Persimmon',
@@ -301,7 +361,12 @@ const crops = [
     initialInvestment: 110000,
     operatingCost: 48000,
     breakEvenMonths: 38,
-    marketDemandIndex: 83
+    marketDemandIndex: 83,
+    plantingSeasons: ['Winter (December-February, dormant)'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['October-December'],
+    yieldPeriod: 'Perennial (30-50 years)',
+    soilPH: { min: 6, max: 7 }
   },
   {
     name_en: 'Plum',
@@ -323,7 +388,12 @@ const crops = [
     initialInvestment: 105000,
     operatingCost: 46000,
     breakEvenMonths: 40,
-    marketDemandIndex: 80
+    marketDemandIndex: 80,
+    plantingSeasons: ['Winter (December-January, dormant)'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['March-May'],
+    yieldPeriod: 'Perennial (15-20 years)',
+    soilPH: { min: 5.5, max: 6.5 }
   },
 
   // ==================== VEGETABLES ====================
@@ -347,7 +417,12 @@ const crops = [
     initialInvestment: 50000,
     operatingCost: 30000,
     breakEvenMonths: 4,
-    marketDemandIndex: 85
+    marketDemandIndex: 85,
+    plantingSeasons: ['Autumn (September-October)'],
+    daysToMaturity: 90,
+    harvestSeasons: ['December-February'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 6.8 }
   },
   {
     name_en: 'Chinese Cabbage',
@@ -369,7 +444,12 @@ const crops = [
     initialInvestment: 45000,
     operatingCost: 28000,
     breakEvenMonths: 4,
-    marketDemandIndex: 82
+    marketDemandIndex: 82,
+    plantingSeasons: ['Autumn (September-October)'],
+    daysToMaturity: 75,
+    harvestSeasons: ['November-January'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 7 }
   },
   {
     name_en: 'Tomato',
@@ -391,7 +471,12 @@ const crops = [
     initialInvestment: 70000,
     operatingCost: 35000,
     breakEvenMonths: 5,
-    marketDemandIndex: 88
+    marketDemandIndex: 88,
+    plantingSeasons: ['Spring (February-March)','Autumn (August-September)'],
+    daysToMaturity: 90,
+    harvestSeasons: ['May-July','November-January'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 6.8 }
   },
   {
     name_en: 'Bell Pepper',
@@ -413,7 +498,12 @@ const crops = [
     initialInvestment: 75000,
     operatingCost: 38000,
     breakEvenMonths: 5,
-    marketDemandIndex: 85
+    marketDemandIndex: 85,
+    plantingSeasons: ['Spring (February-March)','Autumn (August-September)'],
+    daysToMaturity: 90,
+    harvestSeasons: ['May-July','November-December'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 6.8 }
   },
   {
     name_en: 'Cucumber',
@@ -435,7 +525,12 @@ const crops = [
     initialInvestment: 55000,
     operatingCost: 30000,
     breakEvenMonths: 4,
-    marketDemandIndex: 83
+    marketDemandIndex: 83,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 60,
+    harvestSeasons: ['May-July'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 6.8 }
   },
   {
     name_en: 'Eggplant',
@@ -457,7 +552,12 @@ const crops = [
     initialInvestment: 58000,
     operatingCost: 32000,
     breakEvenMonths: 4,
-    marketDemandIndex: 80
+    marketDemandIndex: 80,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 75,
+    harvestSeasons: ['June-October'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 6.8 }
   },
   {
     name_en: 'Sweet Potato',
@@ -479,7 +579,12 @@ const crops = [
     initialInvestment: 48000,
     operatingCost: 26000,
     breakEvenMonths: 5,
-    marketDemandIndex: 84
+    marketDemandIndex: 84,
+    plantingSeasons: ['Spring (April-May)'],
+    daysToMaturity: 120,
+    harvestSeasons: ['August-September'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Taro',
@@ -501,7 +606,12 @@ const crops = [
     initialInvestment: 65000,
     operatingCost: 35000,
     breakEvenMonths: 8,
-    marketDemandIndex: 82
+    marketDemandIndex: 82,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 210,
+    harvestSeasons: ['September-November'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Bamboo Shoots',
@@ -523,7 +633,12 @@ const crops = [
     initialInvestment: 95000,
     operatingCost: 42000,
     breakEvenMonths: 36,
-    marketDemandIndex: 86
+    marketDemandIndex: 86,
+    plantingSeasons: ['Spring (March-April), establishing grove'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['March-May','September-November'],
+    yieldPeriod: 'Perennial (ongoing once established)',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Radish',
@@ -545,7 +660,12 @@ const crops = [
     initialInvestment: 42000,
     operatingCost: 24000,
     breakEvenMonths: 3,
-    marketDemandIndex: 78
+    marketDemandIndex: 78,
+    plantingSeasons: ['Autumn (September-October)'],
+    daysToMaturity: 60,
+    harvestSeasons: ['November-December'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.8, max: 6.8 }
   },
   {
     name_en: 'Lettuce',
@@ -567,7 +687,12 @@ const crops = [
     initialInvestment: 45000,
     operatingCost: 25000,
     breakEvenMonths: 3,
-    marketDemandIndex: 81
+    marketDemandIndex: 81,
+    plantingSeasons: ['Autumn (September-October)','Spring (February-March)'],
+    daysToMaturity: 45,
+    harvestSeasons: ['November-December','April-May'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 6.8 }
   },
 
   // ==================== HERBS ====================
@@ -591,7 +716,12 @@ const crops = [
     initialInvestment: 35000,
     operatingCost: 20000,
     breakEvenMonths: 3,
-    marketDemandIndex: 75
+    marketDemandIndex: 75,
+    plantingSeasons: ['Spring (March-May)'],
+    daysToMaturity: 60,
+    harvestSeasons: ['May-September'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 7.5 }
   },
   {
     name_en: 'Lemongrass',
@@ -613,7 +743,12 @@ const crops = [
     initialInvestment: 38000,
     operatingCost: 22000,
     breakEvenMonths: 5,
-    marketDemandIndex: 72
+    marketDemandIndex: 72,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 120,
+    harvestSeasons: ['Year-round, from 4 months after planting'],
+    yieldPeriod: 'Perennial (3-4 years)',
+    soilPH: { min: 5.5, max: 7.5 }
   },
   {
     name_en: 'Mint',
@@ -635,7 +770,12 @@ const crops = [
     initialInvestment: 33000,
     operatingCost: 19000,
     breakEvenMonths: 3,
-    marketDemandIndex: 73
+    marketDemandIndex: 73,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 60,
+    harvestSeasons: ['Year-round, cut every 6-8 weeks'],
+    yieldPeriod: 'Perennial (2-3 years)',
+    soilPH: { min: 6, max: 7 }
   },
   {
     name_en: 'Green Onion',
@@ -657,7 +797,12 @@ const crops = [
     initialInvestment: 42000,
     operatingCost: 24000,
     breakEvenMonths: 4,
-    marketDemandIndex: 86
+    marketDemandIndex: 86,
+    plantingSeasons: ['Year-round (best Autumn-Spring)'],
+    daysToMaturity: 90,
+    harvestSeasons: ['Year-round, 60-90 days after planting'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 7 }
   },
   {
     name_en: 'Coriander',
@@ -679,7 +824,12 @@ const crops = [
     initialInvestment: 32000,
     operatingCost: 18000,
     breakEvenMonths: 3,
-    marketDemandIndex: 77
+    marketDemandIndex: 77,
+    plantingSeasons: ['Autumn (September-October)'],
+    daysToMaturity: 50,
+    harvestSeasons: ['November-December'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6.2, max: 6.8 }
   },
   {
     name_en: 'Apple (Fuji)',
@@ -701,7 +851,12 @@ const crops = [
     initialInvestment: 160000,
     operatingCost: 65000,
     breakEvenMonths: 42,
-    marketDemandIndex: 92
+    marketDemandIndex: 92,
+    plantingSeasons: ['Winter (December-January, dormant)'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['October-November'],
+    yieldPeriod: 'Perennial (25-30 years)',
+    soilPH: { min: 6, max: 6.5 }
   },
   {
     name_en: 'Peach',
@@ -723,7 +878,12 @@ const crops = [
     initialInvestment: 140000,
     operatingCost: 58000,
     breakEvenMonths: 38,
-    marketDemandIndex: 94
+    marketDemandIndex: 94,
+    plantingSeasons: ['Winter (December-January, dormant)'],
+    daysToMaturity: 1095,
+    harvestSeasons: ['June-July'],
+    yieldPeriod: 'Perennial (15-20 years)',
+    soilPH: { min: 6, max: 6.5 }
   },
   {
     name_en: 'Grape',
@@ -745,7 +905,12 @@ const crops = [
     initialInvestment: 120000,
     operatingCost: 52000,
     breakEvenMonths: 28,
-    marketDemandIndex: 88
+    marketDemandIndex: 88,
+    plantingSeasons: ['Winter (December-January, dormant)'],
+    daysToMaturity: 730,
+    harvestSeasons: ['June-August'],
+    yieldPeriod: 'Perennial (20-25 years)',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Sweet Corn',
@@ -767,7 +932,12 @@ const crops = [
     initialInvestment: 45000,
     operatingCost: 25000,
     breakEvenMonths: 4,
-    marketDemandIndex: 85
+    marketDemandIndex: 85,
+    plantingSeasons: ['Spring (February-March)','Autumn (August-September)'],
+    daysToMaturity: 90,
+    harvestSeasons: ['May-June','November-December'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.8, max: 6.8 }
   },
   {
     name_en: 'Strawberry',
@@ -789,7 +959,12 @@ const crops = [
     initialInvestment: 100000,
     operatingCost: 48000,
     breakEvenMonths: 14,
-    marketDemandIndex: 93
+    marketDemandIndex: 93,
+    plantingSeasons: ['Autumn (September-October)'],
+    daysToMaturity: 180,
+    harvestSeasons: ['December-April'],
+    yieldPeriod: 'Annual (grown as annual)',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Mountain Rice',
@@ -811,7 +986,12 @@ const crops = [
     initialInvestment: 80000,
     operatingCost: 40000,
     breakEvenMonths: 16,
-    marketDemandIndex: 87
+    marketDemandIndex: 87,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 150,
+    harvestSeasons: ['August-September'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 5.5, max: 6.5 }
   },
   {
     name_en: 'Broccoli',
@@ -833,7 +1013,12 @@ const crops = [
     initialInvestment: 52000,
     operatingCost: 28000,
     breakEvenMonths: 4,
-    marketDemandIndex: 89
+    marketDemandIndex: 89,
+    plantingSeasons: ['Autumn (September-October)'],
+    daysToMaturity: 80,
+    harvestSeasons: ['December-January'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 6.8 }
   },
   {
     name_en: 'Jin Xuan Tea',
@@ -855,7 +1040,12 @@ const crops = [
     initialInvestment: 160000,
     operatingCost: 72000,
     breakEvenMonths: 32,
-    marketDemandIndex: 96
+    marketDemandIndex: 96,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 730,
+    harvestSeasons: ['April-June','September-November'],
+    yieldPeriod: 'Perennial (20-30 years)',
+    soilPH: { min: 4.5, max: 5.5 }
   },
   {
     name_en: 'Shiitake Mushroom',
@@ -877,7 +1067,12 @@ const crops = [
     initialInvestment: 90000,
     operatingCost: 40000,
     breakEvenMonths: 14,
-    marketDemandIndex: 88
+    marketDemandIndex: 88,
+    plantingSeasons: ['Autumn (log inoculation, September-October)'],
+    daysToMaturity: 180,
+    harvestSeasons: ['October-April, flushing after rain'],
+    yieldPeriod: 'Perennial (log productive 3-5 years)',
+    soilPH: { min: 4.5, max: 6.5 }
   },
   {
     name_en: 'Chrysanthemum',
@@ -899,7 +1094,12 @@ const crops = [
     initialInvestment: 55000,
     operatingCost: 28000,
     breakEvenMonths: 8,
-    marketDemandIndex: 82
+    marketDemandIndex: 82,
+    plantingSeasons: ['Spring (March-April)'],
+    daysToMaturity: 120,
+    harvestSeasons: ['October-December'],
+    yieldPeriod: 'Annual (grown as annual/biennial)',
+    soilPH: { min: 6, max: 6.5 }
   },
   {
     name_en: 'Alpine Garlic',
@@ -921,7 +1121,12 @@ const crops = [
     initialInvestment: 60000,
     operatingCost: 30000,
     breakEvenMonths: 10,
-    marketDemandIndex: 84
+    marketDemandIndex: 84,
+    plantingSeasons: ['Autumn (October-November)'],
+    daysToMaturity: 210,
+    harvestSeasons: ['April-May'],
+    yieldPeriod: 'Annual',
+    soilPH: { min: 6, max: 7 }
   }
 ];
 
