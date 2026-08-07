@@ -178,10 +178,63 @@ function getTopSuitableCrops(crops, climate, elevation, limit = 10) {
   return cropsWithScores.slice(0, limit);
 }
 
+/**
+ * Calculate elevation suitability for coffee varieties (0-100)
+ * Same shape as calculateElevationMatch but for CoffeeVariety's field names
+ * @param {Number} elevation - Farm elevation in meters
+ * @param {Object} coffee - CoffeeVariety object with optimalElevationMin/Max
+ * @returns {Number} Score 0-100
+ */
+function calculateCoffeeElevationMatch(elevation, coffee) {
+  const min = coffee.optimalElevationMin ?? 0;
+  const max = coffee.optimalElevationMax ?? 3000;
+
+  if (elevation < min) {
+    const below = min - elevation;
+    return Math.max(0, 100 - below / 5);
+  }
+  if (elevation > max) {
+    const above = elevation - max;
+    return Math.max(0, 100 - above / 5);
+  }
+
+  const optimal = (min + max) / 2;
+  const deviation = Math.abs(elevation - optimal);
+  const range = max - min || 1;
+
+  if (deviation <= range * 0.2) return 100;
+  if (deviation <= range * 0.4) return 90;
+  return 80;
+}
+
+/**
+ * Calculate overall coffee suitability score for a given elevation
+ * Weighted: elevation match (75%) + cup quality potential (25%)
+ * @param {Number} elevation - Farm elevation
+ * @param {Object} coffee - CoffeeVariety object
+ * @returns {Object} { score, elevationScore, qualityScore }
+ */
+function calculateCoffeeSuitability(elevation, coffee) {
+  const elevationScore = calculateCoffeeElevationMatch(elevation, coffee);
+  // Scale cupQualityMax (typically 78-96 SCAA) onto a 0-100 band
+  const cupMax = coffee.cupQualityMax || 80;
+  const qualityScore = Math.max(0, Math.min(100, (cupMax - 60) * (100 / 40)));
+
+  const score = Math.round(elevationScore * 0.75 + qualityScore * 0.25);
+
+  return {
+    score,
+    elevationScore: Math.round(elevationScore),
+    qualityScore: Math.round(qualityScore)
+  };
+}
+
 module.exports = {
   calculateTemperatureMatch,
   calculateRainfallMatch,
   calculateElevationMatch,
   calculateSuitability,
-  getTopSuitableCrops
+  getTopSuitableCrops,
+  calculateCoffeeElevationMatch,
+  calculateCoffeeSuitability
 };

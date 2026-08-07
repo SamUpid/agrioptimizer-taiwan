@@ -14,8 +14,8 @@ const Crop           = require('../models/Crop');
 const FarmProfile    = require('../models/FarmProfile');
 const CompanionCrop  = require('../models/CompanionCrop');
 const Location       = require('../models/Location');
-const { getRecommendations } = require('../data/altitudeLookup');
-const { getTopSuitableCrops, calculateSuitability } = require('../utils/suitability');
+const { getZoneFromElevation, ALTITUDE_ZONES } = require('../data/altitudeLookup');
+const { getTopSuitableCrops, calculateSuitability, calculateElevationMatch } = require('../utils/suitability');
 
 // ============================================================
 // HELPER: get elevation from session
@@ -49,42 +49,80 @@ exports.showCropsPage = async (req, res) => {
       return res.redirect('/location');
     }
 
-    // ── Get lookup table recommendations (always works) ──────
-    const lookup = getRecommendations(elevation, 8, 5);
+    // ── Zone metadata (descriptive only — not the source of items) ──
+    const zone     = getZoneFromElevation(elevation);
+    const zoneMeta = ALTITUDE_ZONES[zone];
 
-    // ── Try to enrich with DB data (imageUrl, marketPrice etc) ─
-    // Match lookup crop names to DB records to get full data
-    const allDbCrops = await Crop.find({}).lean();
+    // ── Try to get cached climate data for full temp/rainfall scoring ──
+    let climate = null;
+    try {
+      const dbLocation = await Location.findByCoordinates(location.lat, location.lng, 0.01);
+      if (dbLocation?.climateData) {
+        climate = {
+          avgTemp:        dbLocation.climateData.annualTemp,
+          minTemp:        Math.min(...dbLocation.climateData.monthlyTemps),
+          maxTemp:        Math.max(...dbLocation.climateData.monthlyTemps),
+          annualRainfall: dbLocation.climateData.annualRainfall
+        };
+      }
+    } catch (err) {
+      console.error('Climate lookup error (non-fatal):', err);
+    }
 
-    const enrichedCrops = lookup.crops.map(lookupCrop => {
-      // Try to find matching DB record by English name
-      const dbMatch = allDbCrops.find(db =>
-        db.name_en?.toLowerCase().includes(lookupCrop.cropName.toLowerCase()) ||
-        lookupCrop.cropName.toLowerCase().includes(db.name_en?.toLowerCase())
-      );
+    // ── Score EVERY crop in the database against this elevation ──────
+    // (No static lookup list — every item shown genuinely exists in the DB,
+    //  and scores recompute for whatever elevation is currently saved.)
+    const allDbCrops = await Crop.find({});
+
+    let scoredCrops = allDbCrops.map(cropDoc => {
+      const crop = cropDoc.toObject();
+      let suitabilityScore, reason, reasonZh;
+
+      if (climate) {
+        const result = calculateSuitability(climate, elevation, crop);
+        suitabilityScore = result.score;
+        reason   = `Temperature match ${result.breakdown.temperature}%, rainfall match ${result.breakdown.rainfall}%`;
+        reasonZh = `溫度適配度 ${result.breakdown.temperature}%，降雨適配度 ${result.breakdown.rainfall}%`;
+      } else {
+        // No cached climate data yet — score by elevation fit + market factor
+        const elevationScore = calculateElevationMatch(elevation, crop);
+        const avgPrice  = ((crop.marketPriceMin || 0) + (crop.marketPriceMax || 0)) / 2;
+        const marketScore = Math.min(100, (avgPrice / 50) * 100);
+        suitabilityScore = Math.round(elevationScore * 0.8 + marketScore * 0.2);
+        reason   = `Thrives between ${crop.minElevation}-${crop.maxElevation}m elevation`;
+        reasonZh = `適合種植於海拔 ${crop.minElevation}-${crop.maxElevation} 公尺`;
+      }
 
       return {
-        // Lookup table data (always present)
-        cropName:         lookupCrop.cropName,
-        cropNameZh:       lookupCrop.cropNameZh,
-        imageUrl:         lookupCrop.imageUrl,
-        suitabilityScore: lookupCrop.suitabilityScore,
-        reason:           lookupCrop.reason,
-        reasonZh:         lookupCrop.reasonZh,
-        altitudeZone:     lookup.zone,
+        cropName:          crop.name_en,
+        cropNameZh:         crop.name_zh,
+        imageUrl:           crop.imageUrl,
+        suitabilityScore,
+        reason,
+        reasonZh,
+        altitudeZone:       zone,
 
-        // DB enrichment (if matched)
-        _id:              dbMatch?._id || null,
-        category:         dbMatch?.category || 'specialty',
-        difficultyLevel:  dbMatch?.difficultyLevel || 'moderate',
-        marketPriceMin:   dbMatch?.marketPriceMin || null,
-        marketPriceMax:   dbMatch?.marketPriceMax || null,
-        expectedYield:    dbMatch?.expectedYield || null,
-        growingSeason:    dbMatch?.growingSeason || null,
-        breakEvenMonths:  dbMatch?.breakEvenMonths || null,
-        marketDemandIndex: dbMatch?.marketDemandIndex || null
+        _id:                crop._id,
+        category:           crop.category || 'specialty',
+        difficultyLevel:    crop.difficultyLevel || 'moderate',
+        marketPriceMin:     crop.marketPriceMin ?? null,
+        marketPriceMax:     crop.marketPriceMax ?? null,
+        expectedYield:      crop.expectedYield ?? null,
+        growingSeason:      crop.growingSeason ?? null,
+        breakEvenMonths:    crop.breakEvenMonths ?? null,
+        marketDemandIndex:  crop.marketDemandIndex ?? null
       };
     });
+
+    // ── Keep only crops that are a genuine match for this elevation ──
+    // Fall back to "closest matches" if too few clear it (e.g. extreme elevations)
+    scoredCrops.sort((a, b) => b.suitabilityScore - a.suitabilityScore);
+    let enrichedCrops = scoredCrops.filter(c => c.suitabilityScore >= 40);
+    if (enrichedCrops.length < 5) {
+      enrichedCrops = scoredCrops.slice(0, 8);
+    } else {
+      enrichedCrops = enrichedCrops.slice(0, 15);
+    }
 
     // ── Get user's saved crops if logged in ──────────────────
     let savedCropNames = [];
@@ -144,8 +182,14 @@ exports.showCropsPage = async (req, res) => {
       page:        'crops',
       location,
       elevation,
-      zone:        lookup.zone,
-      zoneData:    lookup.zoneData,
+      zone,
+      zoneData: {
+        label:         zoneMeta.label,
+        labelZh:       zoneMeta.labelZh,
+        description:   zoneMeta.description,
+        descriptionZh: zoneMeta.descriptionZh,
+        range:         zoneMeta.range
+      },
       crops:       displayCrops,
       topCrops:    displayCrops.slice(0, 3),
       category,

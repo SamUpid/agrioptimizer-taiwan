@@ -8,7 +8,8 @@
 const mongoose       = require('mongoose');
 const CoffeeVariety  = require('../models/CoffeeVariety');
 const FarmProfile    = require('../models/FarmProfile');
-const { getRecommendations } = require('../data/altitudeLookup');
+const { getZoneFromElevation, ALTITUDE_ZONES } = require('../data/altitudeLookup');
+const { calculateCoffeeSuitability } = require('../utils/suitability');
 
 // ── HELPER ────────────────────────────────────────────────────
 function getElevationFromSession(req) {
@@ -37,56 +38,55 @@ exports.showCoffeePage = async (req, res) => {
       return res.redirect('/location');
     }
 
-    // ── Lookup table recommendations ─────────────────────────
-    const lookup = getRecommendations(elevation, 8, 5);
+    // ── Zone metadata (descriptive only) ──────────────────────
+    const zone = getZoneFromElevation(elevation);
 
-    // ── Enrich with DB data (flavorNotes, yieldPerTree etc) ──
-    const allDbCoffee = await CoffeeVariety.find({}).lean();
+    // ── Score EVERY coffee variety in the database against this elevation ──
+    const allDbCoffee = await CoffeeVariety.find({});
 
-    const enrichedCoffees = lookup.coffees.map(lc => {
-      const lcName    = lc.coffeeName.toLowerCase();
-      const lcVariety = (lc.variety || '').toLowerCase();
+    let scoredCoffees = allDbCoffee.map(coffeeDoc => {
+      const coffee = coffeeDoc.toObject();
+      const result  = calculateCoffeeSuitability(elevation, coffee);
 
-      const dbMatch = allDbCoffee.find(db => {
-        const dbName = (db.varietyName || '').toLowerCase();
-        return (
-          dbName === lcVariety ||
-          dbName === lcName ||
-          lcName.includes(dbName) ||
-          dbName.includes(lcVariety) ||
-          lcVariety.includes(dbName)
-        );
-      });
+      const displayName = /coffee|arabica/i.test(coffee.varietyName)
+        ? coffee.varietyName
+        : `${coffee.varietyName} Coffee`;
 
       return {
-        // Lookup data (always present)
-        coffeeName:       lc.coffeeName,
-        coffeeNameZh:     lc.coffeeNameZh,
-        // Prefer DB imageUrl (set manually in seedCoffee.js) over lookup fallback
-        imageUrl:         dbMatch?.imageUrl || lc.imageUrl,
-        variety:          lc.variety,
-        suitabilityScore: lc.suitabilityScore,
-        reason:           lc.reason,
-        reasonZh:         lc.reasonZh,
-        altitudeZone:     lookup.zone,
+        coffeeName:       displayName,
+        coffeeNameZh:     coffee.varietyName_zh,
+        imageUrl:         coffee.imageUrl,
+        variety:          coffee.varietyName,
+        suitabilityScore: result.score,
+        reason:           `Elevation match ${result.elevationScore}%, cup quality potential ${result.qualityScore}%`,
+        reasonZh:         `海拔適配度 ${result.elevationScore}%，杯測品質潛力 ${result.qualityScore}%`,
+        altitudeZone:     zone,
 
-        // DB enrichment
-        _id:                   dbMatch?._id || null,
-        optimalElevationMin:   dbMatch?.optimalElevationMin || null,
-        optimalElevationMax:   dbMatch?.optimalElevationMax || null,
-        flavorNotes_en:        dbMatch?.flavorNotes_en || null,
-        flavorNotes_zh:        dbMatch?.flavorNotes_zh || null,
-        qualityTips_en:        dbMatch?.qualityTips_en || null,
-        yieldPerTree:          dbMatch?.yieldPerTree || null,
-        treesPerHectare:       dbMatch?.treesPerHectare || null,
-        yearsToFirstHarvest:   dbMatch?.yearsToFirstHarvest || null,
-        diseaseResistance:     dbMatch?.diseaseResistance || null,
-        cupQualityMin:         dbMatch?.cupQualityMin || null,
-        cupQualityMax:         dbMatch?.cupQualityMax || null,
-        processingMethods:     dbMatch?.processingMethods || [],
-        harvestMonths:         dbMatch?.harvestMonths || null
+        _id:                   coffee._id,
+        optimalElevationMin:   coffee.optimalElevationMin ?? null,
+        optimalElevationMax:   coffee.optimalElevationMax ?? null,
+        flavorNotes_en:        coffee.flavorNotes_en || null,
+        flavorNotes_zh:        coffee.flavorNotes_zh || null,
+        qualityTips_en:        coffee.qualityTips_en || null,
+        yieldPerTree:          coffee.yieldPerTree ?? null,
+        treesPerHectare:       coffee.treesPerHectare ?? null,
+        yearsToFirstHarvest:   coffee.yearsToFirstHarvest ?? null,
+        diseaseResistance:     coffee.diseaseResistance || null,
+        cupQualityMin:         coffee.cupQualityMin ?? null,
+        cupQualityMax:         coffee.cupQualityMax ?? null,
+        processingMethods:     coffee.processingMethods || [],
+        harvestMonths:         coffee.harvestMonths || null
       };
     });
+
+    // ── Keep only genuinely suitable varieties, with a graceful fallback ──
+    scoredCoffees.sort((a, b) => b.suitabilityScore - a.suitabilityScore);
+    let enrichedCoffees = scoredCoffees.filter(c => c.suitabilityScore >= 45);
+    if (enrichedCoffees.length < 3) {
+      enrichedCoffees = scoredCoffees.slice(0, 5);
+    } else {
+      enrichedCoffees = enrichedCoffees.slice(0, 8);
+    }
 
     // ── Quality potential label from elevation ────────────────
     function qualityLabel(elev) {
@@ -119,8 +119,14 @@ exports.showCoffeePage = async (req, res) => {
       page:        'coffee',
       location,
       elevation,
-      zone:        lookup.zone,
-      zoneData:    lookup.zoneData,
+      zone,
+      zoneData: {
+        label:         ALTITUDE_ZONES[zone].label,
+        labelZh:       ALTITUDE_ZONES[zone].labelZh,
+        description:   ALTITUDE_ZONES[zone].description,
+        descriptionZh: ALTITUDE_ZONES[zone].descriptionZh,
+        range:         ALTITUDE_ZONES[zone].range
+      },
       coffees:     enrichedCoffees,
       topCoffee:   enrichedCoffees[0] || null,
       qualityLabel: qualityLabel(elevation),
