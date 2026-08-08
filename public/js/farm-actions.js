@@ -5,14 +5,14 @@
  */
 
 // ── CROPS ─────────────────────────────────────────────────────
-async function saveCrop(cropName, cropNameZh, imageUrl, altitudeZone, btn) {
+async function saveCrop(cropName, cropNameZh, imageUrl, altitudeZone, cropId, btn) {
   btn.disabled = true;
   btn.textContent = '…';
   try {
     const res  = await fetch('/crops/save', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ cropName, cropNameZh, imageUrl, altitudeZone })
+      body:    JSON.stringify({ cropName, cropNameZh, imageUrl, altitudeZone, cropId })
     });
     const data = await res.json();
     if (data.success) {
@@ -85,14 +85,14 @@ async function removeCrop(cropName, btn) {
 }
 
 // ── COFFEES ────────────────────────────────────────────────────
-async function saveCoffee(coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone, btn) {
+async function saveCoffee(coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone, coffeeId, btn) {
   btn.disabled    = true;
   btn.textContent = '…';
   try {
     const res  = await fetch('/coffee/save', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone })
+      body:    JSON.stringify({ coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone, coffeeId })
     });
     const data = await res.json();
     if (data.success) {

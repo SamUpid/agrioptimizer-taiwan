@@ -224,10 +224,15 @@
                 <div class="item-name-zh"><%= crop.cropNameZh %></div>
               <% } %>
             </div>
-            <button class="btn-remove"
-                    onclick="removeCrop('<%= crop.cropName %>', this)">
-              Remove 移除
-            </button>
+            <div class="item-actions">
+              <% if (crop.cropId) { %>
+                <a href="/crops/<%= crop.cropId %>" class="btn-details">Details 詳情</a>
+              <% } %>
+              <button class="btn-remove"
+                      onclick="removeCrop('<%= crop.cropName %>', this)">
+                Remove 移除
+              </button>
+            </div>
           </div>
         <% }); %>
       </div>
@@ -288,10 +293,15 @@
                 <div style="font-size:10px;color:#8FAF8F;"><%= coffee.variety %></div>
               <% } %>
             </div>
-            <button class="btn-remove"
-                    onclick="removeCoffee('<%= coffee.coffeeName %>', this)">
-              Remove 移除
-            </button>
+            <div class="item-actions">
+              <% if (coffee.coffeeId) { %>
+                <a href="/coffee/<%= coffee.coffeeId %>" class="btn-details">Details 詳情</a>
+              <% } %>
+              <button class="btn-remove"
+                      onclick="removeCoffee('<%= coffee.coffeeName %>', this)">
+                Remove 移除
+              </button>
+            </div>
           </div>
         <% }); %>
       </div>

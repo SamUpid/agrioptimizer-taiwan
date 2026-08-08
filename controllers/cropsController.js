@@ -230,7 +230,7 @@ exports.saveCrop = async (req, res) => {
       });
     }
 
-    const { cropName, cropNameZh, imageUrl, altitudeZone } = req.body;
+    const { cropName, cropNameZh, imageUrl, altitudeZone, cropId } = req.body;
 
     if (!cropName) {
       return res.status(400).json({
@@ -286,6 +286,7 @@ exports.saveCrop = async (req, res) => {
     // ── Add crop ─────────────────────────────────────────────
     const validZones = ['lowland', 'mid', 'high', 'alpine'];
     farmProfile.crops.push({
+      cropId: mongoose.isValidObjectId(cropId) ? cropId : undefined,
       cropName,
       cropNameZh: cropNameZh || '',
       imageUrl:   imageUrl   || '',

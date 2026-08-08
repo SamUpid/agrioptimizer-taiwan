@@ -237,7 +237,7 @@
               </button>
             <% } else { %>
               <button class="btn btn-success btn-sm flex-grow-1"
-                      onclick="saveCrop('<%= crop.cropName %>','<%= crop.cropNameZh %>','<%= crop.imageUrl %>','<%= crop.altitudeZone %>', this)"
+                      onclick="saveCrop('<%= crop.cropName %>','<%= crop.cropNameZh %>','<%= crop.imageUrl %>','<%= crop.altitudeZone %>','<%= crop._id %>', this)"
                       <%= savedCount >= 8 ? 'disabled' : '' %>>
                 + Save
               </button>
@@ -362,7 +362,7 @@
               </button>
             <% } else { %>
               <button class="btn btn-success btn-sm"
-                      onclick="saveCrop('<%= crop.cropName %>','<%= crop.cropNameZh %>','<%= crop.imageUrl %>','<%= crop.altitudeZone %>', this)"
+                      onclick="saveCrop('<%= crop.cropName %>','<%= crop.cropNameZh %>','<%= crop.imageUrl %>','<%= crop.altitudeZone %>','<%= crop._id %>', this)"
                       <%= savedCount >= 8 ? 'disabled title="Maximum 8 crops reached"' : '' %>>
                 +
               </button>

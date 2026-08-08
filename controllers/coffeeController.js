@@ -163,7 +163,7 @@ exports.saveCoffee = async (req, res) => {
       });
     }
 
-    const { coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone } = req.body;
+    const { coffeeName, coffeeNameZh, imageUrl, variety, altitudeZone, coffeeId } = req.body;
 
     if (!coffeeName) {
       return res.status(400).json({
@@ -210,6 +210,7 @@ exports.saveCoffee = async (req, res) => {
 
     const validZones = ['lowland', 'mid', 'high', 'alpine'];
     farmProfile.coffees.push({
+      coffeeId: mongoose.isValidObjectId(coffeeId) ? coffeeId : undefined,
       coffeeName,
       coffeeNameZh: coffeeNameZh || '',
       imageUrl:     imageUrl     || '',

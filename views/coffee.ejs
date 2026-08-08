@@ -157,7 +157,7 @@
                 </button>
               <% } else { %>
                 <button class="btn btn-success btn-sm"
-                        onclick="saveCoffee('<%= tc.coffeeName %>','<%= tc.coffeeNameZh %>','<%= tc.imageUrl %>','<%= tc.variety %>','<%= tc.altitudeZone %>', this)"
+                        onclick="saveCoffee('<%= tc.coffeeName %>','<%= tc.coffeeNameZh %>','<%= tc.imageUrl %>','<%= tc.variety %>','<%= tc.altitudeZone %>','<%= tc._id %>', this)"
                         <%= savedCount >= 5 ? 'disabled' : '' %>>
                   + Save to Farm
                 </button>
@@ -288,7 +288,7 @@
               </button>
             <% } else { %>
               <button class="btn btn-success btn-sm flex-grow-1"
-                      onclick="saveCoffee('<%= coffee.coffeeName %>','<%= coffee.coffeeNameZh %>','<%= coffee.imageUrl %>','<%= coffee.variety %>','<%= coffee.altitudeZone %>', this)"
+                      onclick="saveCoffee('<%= coffee.coffeeName %>','<%= coffee.coffeeNameZh %>','<%= coffee.imageUrl %>','<%= coffee.variety %>','<%= coffee.altitudeZone %>','<%= coffee._id %>', this)"
                       <%= savedCount >= 5 ? 'disabled title="Maximum 5 reached"' : '' %>>
                 + Save
               </button>
