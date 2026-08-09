@@ -150,7 +150,17 @@ exports.showCropsPage = async (req, res) => {
     const search   = req.query.search   || '';
     const sortBy   = req.query.sort     || 'suitability';
 
-    let displayCrops = [...enrichedCrops];
+    // Search should be able to find ANY crop in the database, even ones
+    // that aren't a great elevation fit — only the default (no-search)
+    // view restricts to genuinely well-matched crops.
+    let displayCrops = search ? [...scoredCrops] : [...enrichedCrops];
+
+    // Mark crops that are below the normal "good match" threshold so the
+    // template can show an honest "not ideal for your elevation" note.
+    displayCrops = displayCrops.map(c => ({
+      ...c,
+      belowElevationFit: c.suitabilityScore < 40
+    }));
 
     if (category !== 'all') {
       displayCrops = displayCrops.filter(

@@ -343,6 +343,12 @@
               </span>
             </p>
           <% } %>
+
+          <% if (crop.belowElevationFit) { %>
+            <p class="mb-2 small text-warning">
+              ⚠️ Not ideal for your elevation (<%= elevation %>m) 不適合您的海拔
+            </p>
+          <% } %>
         </div>
 
         <div class="card-footer d-flex gap-1">

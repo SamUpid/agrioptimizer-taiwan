@@ -271,36 +271,61 @@
 
     <script>
       (function () {
-        const cropInfo = <%- JSON.stringify(projection.cropInfo) %>;
-        const elevation = <%= JSON.stringify(elevation) %>;
         const el = document.getElementById('ai-econ-explain');
-        if (!el || elevation === null) {
-          if (el) el.innerHTML = '<p>Set your farm location to see a personalised explanation.</p>';
+        if (!el) return;
+
+        let cropInfo, elevation;
+        try {
+          cropInfo  = <%- JSON.stringify(projection.cropInfo || {}) %>;
+          elevation = <%- JSON.stringify(elevation) %>;
+        } catch (parseErr) {
+          el.innerHTML = '<p>Unable to load crop data for explanation.</p>';
           return;
         }
 
+        if (elevation === null || elevation === undefined) {
+          el.innerHTML = '<p>Set your farm location to see a personalised explanation. <a href="/location">Choose location</a></p>';
+          return;
+        }
+        if (!cropInfo || !cropInfo.name) {
+          el.innerHTML = '<p>No crop selected yet.</p>';
+          return;
+        }
+
+        // Safety timeout — never leave the skeleton spinning forever
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 15000);
+
         fetch('/api/ai/economics-explain', {
-          method: 'POST',
+          method:  'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal:  controller.signal,
           body: JSON.stringify({
-            name: cropInfo.name,
-            category: cropInfo.category,
-            priceRange: cropInfo.priceRange,
-            difficulty: cropInfo.difficulty,
-            marketDemandIndex: cropInfo.marketDemandIndex,
-            elevation: elevation
+            name:               cropInfo.name,
+            category:           cropInfo.category,
+            priceRange:         cropInfo.priceRange,
+            difficulty:         cropInfo.difficulty,
+            marketDemandIndex:  cropInfo.marketDemandIndex,
+            elevation:          elevation
           })
         })
-          .then(res => res.json())
+          .then(res => {
+            clearTimeout(timeoutId);
+            if (!res.ok) throw new Error('Server returned ' + res.status);
+            return res.json();
+          })
           .then(data => {
-            if (data.success) {
-              el.innerHTML = `<p style="margin-bottom:8px;">${data.explanation}</p><p style="margin:0;">${data.explanationZh}</p>`;
+            if (data.success && data.explanation) {
+              el.innerHTML = `<p style="margin-bottom:8px;">${data.explanation}</p><p style="margin:0;">${data.explanationZh || ''}</p>`;
             } else {
-              el.innerHTML = '<p>Unable to load explanation right now.</p>';
+              el.innerHTML = `<p>Unable to load explanation${data.error ? ': ' + data.error : ''}.</p>`;
             }
           })
-          .catch(() => {
-            el.innerHTML = '<p>Unable to load explanation right now. 無法載入說明。</p>';
+          .catch(err => {
+            clearTimeout(timeoutId);
+            const reason = err.name === 'AbortError' ? 'Request timed out' : err.message;
+            el.innerHTML = `<p>Unable to load explanation (${reason}). 無法載入說明。</p>`;
+            console.error('AI economics-explain failed:', err);
           });
       })();
     </script>
