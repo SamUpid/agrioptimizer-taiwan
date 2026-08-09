@@ -1,0 +1,53 @@
+<!-- advisor.ejs — AI crop advisor chat page -->
+
+<nav aria-label="breadcrumb" class="container mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item active">Advisor 顧問</li>
+  </ol>
+</nav>
+
+<div class="advisor-shell">
+
+  <div class="advisor-header">
+    <h1 class="advisor-title">
+      <i class="bi bi-robot me-2" style="color:#2D6A4F;"></i>AI Crop Advisor
+    </h1>
+    <p class="advisor-title-zh">AI作物顧問</p>
+    <p class="advisor-context-line">
+      <% if (elevation !== null) { %>
+        📍 Your farm: <%= elevation %>m
+        <% if (zone) { %> · <%= zone %> zone<% } %>
+        <% if (savedCrops.length) { %> · Growing: <%= savedCrops.join(', ') %><% } %>
+      <% } else { %>
+        Set your farm location for more personalised answers — <a href="/location">choose location</a>.
+      <% } %>
+    </p>
+  </div>
+
+  <div class="advisor-chat-card">
+    <div id="advisor-messages" class="advisor-messages">
+      <div class="advisor-msg advisor-msg-bot">
+        <div class="advisor-msg-bubble">
+          Hi! I'm your AI farming advisor for Taiwan mountain agriculture. Ask me anything about crops, elevation fit, timing, or your saved selections.<br>
+          您好！我是您的台灣山地農業AI顧問。歡迎詢問作物、海拔適配、種植時機或您已儲存的選擇等任何問題。
+        </div>
+      </div>
+    </div>
+
+    <div class="advisor-input-row">
+      <input
+        type="text"
+        id="advisor-input"
+        class="advisor-input"
+        placeholder="Ask about crops, elevation, timing... 詢問作物、海拔、種植時機..."
+        autocomplete="off"
+      >
+      <button id="advisor-send" class="advisor-send-btn" type="button">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+  </div>
+
+</div>

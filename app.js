@@ -174,6 +174,7 @@ app.use('/climate', require('./routes/climate'));
 app.use('/crops', require('./routes/cropsPages'));
 app.use('/coffee', require('./routes/coffeePages'));
 app.use('/economics', require('./routes/economicsPages'));
+app.use('/advisor', require('./routes/advisorPages'));
 
 // ============================================================
 // ERROR HANDLING

@@ -23,13 +23,14 @@
   <link rel="stylesheet" href="/css/auth-page.css">
   <link rel="stylesheet" href="/css/location-page.css">
   <link rel="stylesheet" href="/css/climate-page.css">
+  <link rel="stylesheet" href="/css/advisor-page.css">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="<%= page === 'home' ? 'home-page' : page === 'dashboard' ? 'dashboard-page' : page === 'economics' ? 'economics-page' : page === 'crops' ? 'crops-page' : page === 'coffee' ? 'coffee-page' : page === 'login' || page === 'signup' ? 'auth-page' : page === 'location' ? 'location-page' : page === 'climate' ? 'climate-page' : '' %>">
+<body class="<%= page === 'home' ? 'home-page' : page === 'dashboard' ? 'dashboard-page' : page === 'economics' ? 'economics-page' : page === 'crops' ? 'crops-page' : page === 'coffee' ? 'coffee-page' : page === 'login' || page === 'signup' ? 'auth-page' : page === 'location' ? 'location-page' : page === 'climate' ? 'climate-page' : page === 'advisor' ? 'advisor-page' : '' %>">
 
   <!-- Navigation Bar -->
   <!-- On home page: navbar-light with white bg -->
@@ -97,6 +98,11 @@
           </li>
 
           <% if (currentUser) { %>
+            <li class="nav-item ms-lg-2">
+              <a href="/advisor" class="nav-link <%= page === 'advisor' ? 'active' : '' %>">
+                <i class="bi bi-robot"></i> Advisor 顧問
+              </a>
+            </li>
             <li class="nav-item ms-lg-2">
               <a href="/dashboard" class="nav-link">
                 <i class="bi bi-grid"></i> Dashboard 儀表板
@@ -210,6 +216,7 @@
   <script src="/js/main.js"></script>
   <script src="/js/farm-actions.js"></script>
   <script src="/js/charts.js"></script>
+  <script src="/js/advisor.js"></script>
   
   <!-- Page-specific scripts -->
   <%- typeof pageScripts !== 'undefined' ? pageScripts : '' %>

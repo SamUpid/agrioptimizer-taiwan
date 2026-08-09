@@ -1,6 +1,7 @@
 // AI Advisor Utility - Google Gemini API Integration
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+// gemini-3-flash-preview is being used
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent';
 
 const cache = new Map();
 
@@ -17,6 +18,39 @@ async function callGemini(prompt) {
         parts: [{ text: prompt }]
       }]
     })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Gemini API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+// Multi-turn variant: takes a full conversation history (array of
+// { role: 'user' | 'model', text }) plus an optional system instruction.
+async function callGeminiChat(history, systemInstruction) {
+  if (!GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY not configured');
+  }
+
+  const body = {
+    contents: history.map(turn => ({
+      role: turn.role,
+      parts: [{ text: turn.text }]
+    }))
+  };
+
+  if (systemInstruction) {
+    body.systemInstruction = { parts: [{ text: systemInstruction }] };
+  }
+
+  const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {
@@ -177,4 +211,71 @@ Return a single bilingual summary with English first, then Traditional Chinese.`
   }
 }
 
-module.exports = { getCropPreview, getDailyBrief };
+// ============================================================
+// Economics page — plain-language explanation of crop/elevation fit
+// ============================================================
+async function explainEconomicsFit(cropInfo, elevation) {
+  const prompt = `You are a Taiwan mountain farming advisor. In plain, friendly language (no jargon), explain in 2-3 short sentences why "${cropInfo.name}" is a good (or risky) economic choice for a farm at ${elevation}m elevation in Taiwan.
+
+Crop info:
+- Category: ${cropInfo.category}
+- Price range: ${cropInfo.priceRange}
+- Difficulty: ${cropInfo.difficulty}
+${cropInfo.marketDemandIndex ? `- Market demand index: ${cropInfo.marketDemandIndex}/100` : ''}
+
+Return ONLY valid JSON, no markdown:
+{
+  "explanation": "English explanation, 2-3 sentences",
+  "explanationZh": "中文解釋，2-3句話"
+}`;
+
+  try {
+    const responseText = await callGemini(prompt);
+    let cleaned = responseText.trim();
+    if (cleaned.startsWith('```')) cleaned = cleaned.replace(/```(?:json)?\n?/, '').replace(/```\n?$/, '');
+    return JSON.parse(cleaned);
+  } catch (error) {
+    console.error('❌ Gemini economics-explain error:', error.message);
+    return {
+      explanation: `${cropInfo.name} is commonly grown around ${elevation}m in Taiwan and fits a ${cropInfo.difficulty} difficulty, ${cropInfo.category} profile — check the projection above for the numbers.`,
+      explanationZh: `${cropInfo.name}常見於台灣海拔${elevation}公尺左右種植，屬於${cropInfo.difficulty}難度的${cropInfo.category}作物，詳細數字請參考上方預測。`
+    };
+  }
+}
+
+// ============================================================
+// Advisor chat — multi-turn conversation with farm context injected
+// ============================================================
+async function chatWithAdvisor(message, history, farmContext) {
+  const cropList = farmContext.crops?.length
+    ? farmContext.crops.join(', ')
+    : 'none saved yet';
+  const coffeeList = farmContext.coffees?.length
+    ? farmContext.coffees.join(', ')
+    : 'none saved yet';
+
+  const systemInstruction = `You are a knowledgeable, friendly Taiwan mountain farming advisor helping a specific farmer. Always answer in both English and Traditional Chinese (English first, then 中文). Keep answers focused and practical — a few sentences unless the farmer clearly asks for depth.
+
+This farmer's profile:
+- Farm elevation: ${farmContext.elevation ?? 'unknown'}m
+- Altitude zone: ${farmContext.zone || 'unknown'}
+- Saved crops: ${cropList}
+- Saved coffee varieties: ${coffeeList}
+
+Use this context naturally when relevant (e.g. if they ask "what should I plant", prioritize their zone and existing crops). Don't repeat the whole profile back to them unless asked.`;
+
+  const contents = [
+    ...history.map(turn => ({ role: turn.role, text: turn.text })),
+    { role: 'user', text: message }
+  ];
+
+  try {
+    const reply = await callGeminiChat(contents, systemInstruction);
+    return reply.trim();
+  } catch (error) {
+    console.error('❌ Gemini advisor chat error:', error.message);
+    return "Sorry, I couldn't reach the AI advisor right now — please try again in a moment.\n抱歉，目前無法連接AI顧問，請稍後再試。";
+  }
+}
+
+module.exports = { getCropPreview, getDailyBrief, explainEconomicsFit, chatWithAdvisor };

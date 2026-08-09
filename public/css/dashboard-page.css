@@ -389,6 +389,12 @@ body.dashboard-page .navbar .navbar-toggler-icon {
   color: #3A5A3A;
   min-height: 60px;
 }
+.ai-brief-line {
+  margin: 0 0 8px 0;
+}
+.ai-brief-line:last-child {
+  margin-bottom: 0;
+}
 .ai-skeleton {
   display: flex;
   flex-direction: column;

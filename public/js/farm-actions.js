@@ -210,3 +210,28 @@ function confirmLocationChange() {
   closeLocationModal();
   window.location.href = '/location';
 }
+
+// ── DASHBOARD: AI Daily Brief ────────────────────────────────
+async function loadAIBrief() {
+  const el = document.getElementById('ai-brief-text');
+  if (!el) return;
+
+  try {
+    const res  = await fetch('/dashboard/api/summary');
+    const data = await res.json();
+
+    if (data.success && data.data?.summary) {
+      // Summary is "English text\nChinese text" — render as two lines
+      const parts = data.data.summary.split('\n').filter(Boolean);
+      el.innerHTML = parts.map(p => `<p class="ai-brief-line">${p}</p>`).join('');
+    } else {
+      el.innerHTML = `<p class="ai-brief-line">${data.message || 'Unable to load your daily brief right now.'}</p>`;
+    }
+  } catch (err) {
+    el.innerHTML = '<p class="ai-brief-line">Unable to load your daily brief right now. 無法載入本日摘要。</p>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAIBrief();
+});
