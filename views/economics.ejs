@@ -261,7 +261,10 @@
         <h4 class="econ-section-title">🤖 Why This Fits Your Elevation</h4>
         <span class="econ-section-zh">為何適合您的海拔</span>
       </div>
-      <div id="ai-econ-explain" style="font-size:14px;line-height:1.75;color:#3A5A3A;min-height:44px;">
+      <div id="ai-econ-explain"
+           style="font-size:14px;line-height:1.75;color:#3A5A3A;min-height:44px;"
+           data-crop-info="<%= JSON.stringify(projection.cropInfo || {}) %>"
+           data-elevation="<%= elevation === null || elevation === undefined ? '' : elevation %>">
         <div class="ai-skeleton">
           <div class="skeleton-line long"></div>
           <div class="skeleton-line medium"></div>
@@ -276,14 +279,19 @@
 
         let cropInfo, elevation;
         try {
-          cropInfo  = <%- JSON.stringify(projection.cropInfo || {}) %>;
-          elevation = <%- JSON.stringify(elevation) %>;
+          // Data lives in HTML attributes (safely escaped by EJS's <%= %>)
+          // rather than embedded as raw JS — a crop name/URL with an
+          // unlucky character combo can otherwise silently break script parsing.
+          cropInfo  = JSON.parse(el.getAttribute('data-crop-info') || '{}');
+          const elevAttr = el.getAttribute('data-elevation');
+          elevation = elevAttr === '' ? null : Number(elevAttr);
         } catch (parseErr) {
+          console.error('AI econ-explain: failed to parse crop data', parseErr);
           el.innerHTML = '<p>Unable to load crop data for explanation.</p>';
           return;
         }
 
-        if (elevation === null || elevation === undefined) {
+        if (elevation === null || Number.isNaN(elevation)) {
           el.innerHTML = '<p>Set your farm location to see a personalised explanation. <a href="/location">Choose location</a></p>';
           return;
         }
